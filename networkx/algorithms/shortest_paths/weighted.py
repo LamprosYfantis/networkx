@@ -837,27 +837,30 @@ def _dijkstra_multisource(G, sources, time_of_request, weight, pred=None, paths=
     if v == target:
       break
     for u, e in G_succ[v].items():
-      cost = weight(v, u, e)
-      if cost is None:
-        continue
-      vu_dist = dist[v] + cost + calc_plat_waiting_time(dist[v], G[v][u]['departure_time'])
-      if cutoff is not None:
-        if vu_dist > cutoff:
+      for key, value in e:
+        if key != 'weight':
           continue
-      if u in dist:
-        if vu_dist < dist[u]:
-          raise ValueError('Contradictory paths found:',
-                           'negative weights?')
-      elif u not in seen or vu_dist < seen[u]:
-        seen[u] = vu_dist
-        push(fringe, (vu_dist, next(c), u))
-        if paths is not None:
-          paths[u] = paths[v] + [u]
-        if pred is not None:
-          pred[u] = [v]
-      elif vu_dist == seen[u]:
-        if pred is not None:
-          pred[u].append(v)
+        cost = weight(v, u, e)
+        if cost is None:
+          continue
+        vu_dist = dist[v] + cost + calc_plat_waiting_time(dist[v], G[v][u]['departure_time'])
+        if cutoff is not None:
+          if vu_dist > cutoff:
+            continue
+        if u in dist:
+          if vu_dist < dist[u]:
+            raise ValueError('Contradictory paths found:',
+                             'negative weights?')
+        elif u not in seen or vu_dist < seen[u]:
+          seen[u] = vu_dist
+          push(fringe, (vu_dist, next(c), u))
+          if paths is not None:
+            paths[u] = paths[v] + [u]
+          if pred is not None:
+            pred[u] = [v]
+        elif vu_dist == seen[u]:
+          if pred is not None:
+            pred[u].append(v)
 
   # The optional predecessor and path dictionaries can be accessed
   # by the caller via the pred and paths objects passed as arguments.
