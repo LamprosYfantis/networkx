@@ -18,7 +18,6 @@ from collections import deque
 from heapq import heappush, heappop
 from itertools import count
 import networkx as nx
-from networkx.utils import generate_unique_node
 
 __all__ = ['dijkstra_path',
            'dijkstra_path_length',
@@ -158,11 +157,12 @@ def dijkstra_path(G, source, target, time_of_request, weight='weight'):  # LY: a
   --------
   bidirectional_dijkstra(), bellman_ford_path()
   """
-  (length, path) = single_source_dijkstra(G, source, target=target, time_of_request, weight=weight)   # LY: added initial time of request as argument
+  (length, path) = single_source_dijkstra(G, source, time_of_request, target=target, weight=weight)   # LY: added initial time of request as argument
   return path
+  print('ok')
 
 
-def dijkstra_path_length(G, source, target, weight='weight'):
+def dijkstra_path_length(G, source, target, time_of_request, weight='weight'):
   """Returns the shortest weighted path length in G from source to target.
 
   Uses Dijkstra's Method to compute the shortest weighted path length
@@ -227,7 +227,7 @@ def dijkstra_path_length(G, source, target, weight='weight'):
   if source == target:
     return 0
   weight = _weight_function(G, weight)
-  length = _dijkstra(G, source, weight, target=target)
+  length = _dijkstra(G, source, time_of_request, weight, target=target)
   try:
     return length[target]
   except KeyError:
@@ -371,7 +371,7 @@ def single_source_dijkstra_path_length(G, source, cutoff=None,
                                            weight=weight)
 
 
-def single_source_dijkstra(G, source, target=None, time_of_request, cutoff=None, weight='weight'):        # LY: added initial time of request as argument
+def single_source_dijkstra(G, source, time_of_request, target=None, cutoff=None, weight='weight'):        # LY: added initial time of request as argument
   """Find shortest weighted paths and lengths from a source node.
 
   Compute the shortest path length between source and all other
@@ -619,7 +619,7 @@ def multi_source_dijkstra_path_length(G, sources, cutoff=None,
   return _dijkstra_multisource(G, sources, weight, cutoff=cutoff)
 
 
-def multi_source_dijkstra(G, sources, target=None, time_of_request, cutoff=None, weight='weight'):        # LY: added initial time of request as argument
+def multi_source_dijkstra(G, sources, time_of_request, target=None, cutoff=None, weight='weight'):        # LY: added initial time of request as argument
   """Find shortest weighted paths and lengths from a given set of
   source nodes.
 
@@ -732,7 +732,7 @@ def multi_source_dijkstra(G, sources, target=None, time_of_request, cutoff=None,
     raise nx.NetworkXNoPath("No path to {}.".format(target))
 
 
-def _dijkstra(G, source, weight, pred=None, paths=None, cutoff=None,
+def _dijkstra(G, source, time_of_request, weight, pred=None, paths=None, cutoff=None,
               target=None):
   """Uses Dijkstra's algorithm to find shortest weighted paths from a
   single source.
@@ -742,7 +742,7 @@ def _dijkstra(G, source, weight, pred=None, paths=None, cutoff=None,
   `sources` set to ``[source]``.
 
   """
-  return _dijkstra_multisource(G, [source], weight, pred=pred, paths=paths,
+  return _dijkstra_multisource(G, [source], time_of_request, weight, pred=pred, paths=paths,
                                cutoff=cutoff, target=target)
 
 
