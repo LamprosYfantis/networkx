@@ -837,8 +837,8 @@ def _dijkstra_multisource(G, sources, time_of_request, weight, pred=None, paths=
     if v == target:
       break
     for u, e in G_succ[v].items():
-      for key, value in e:
-        if key != 'weight':
+      for key, value in e.items():
+        if key == 'weight':
           continue
         cost = weight(v, u, e)
         if cost is None:
