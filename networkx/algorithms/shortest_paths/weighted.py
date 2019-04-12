@@ -18,6 +18,7 @@ from collections import deque
 from heapq import heappush, heappop
 from itertools import count
 import networkx as nx
+from bisect import bisect_left
 
 __all__ = ['dijkstra_path',
            'dijkstra_path_length',
@@ -43,6 +44,24 @@ __all__ = ['dijkstra_path',
            'negative_edge_cycle',
            'goldberg_radzik',
            'johnson']
+
+
+def find_ge(a, x):
+  'Find leftmost item greater than or equal to x'
+  i = bisect_left(a, x)
+  if i != len(a):
+    return a[i]
+  raise ValueError
+
+
+def calc_plat_waiting_time(arr_time=0, edge_departure_time=[]):
+  if edge_departure_time == None:
+    platform_wait_time = 0
+    return platform_wait_time
+  else:
+    earlier_dep_time = find_ge(edge_departure_time, arr_time)
+    platform_wait_time = earlier_dep_time - arr_time
+    return platform_wait_time
 
 
 def _weight_function(G, weight):
@@ -821,7 +840,7 @@ def _dijkstra_multisource(G, sources, time_of_request, weight, pred=None, paths=
       cost = weight(v, u, e)
       if cost is None:
         continue
-      vu_dist = dist[v] + cost
+      vu_dist = dist[v] + cost + calc_plat_waiting_time(dist[v], G[v][u]['departure_time'])
       if cutoff is not None:
         if vu_dist > cutoff:
           continue
