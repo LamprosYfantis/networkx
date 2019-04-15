@@ -104,7 +104,40 @@ def _weight_function(G, weight):
   return lambda u, v, data: data.get(weight, 1)
 
 
-def dijkstra_path(G, source, target, time_of_request, weight='weight'):  # LY: added initial time of request as argument
+def get_timetable(G, departure_time):  # this will work only for directed graphs and the timetable will be a list of departure times
+  """Returns a function that returns the weight of an edge.
+
+  The returned function is specifically suitable for input to
+  functions :func:`_dijkstra` and :func:`_bellman_ford_relaxation`.
+
+  Parameters
+  ----------
+  G : NetworkX graph.
+
+  weight : string or function
+      If it is callable, `weight` itself is returned. If it is a string,
+      it is assumed to be the name of the edge attribute that represents
+      the weight of an edge. In that case, a function is returned that
+      gets the edge weight according to the specified edge attribute.
+
+  Returns
+  -------
+  function
+      This function returns a callable that accepts exactly three inputs:
+      a node, an node adjacent to the first one, and the edge attribute
+      dictionary for the eedge joining those nodes. That function returns
+      a number representing the weight of an edge.
+
+  If `G` is a multigraph, and `weight` is not callable, the
+  minimum edge weight over all parallel edges is returned. If any edge
+  does not have an attribute with key `weight`, it is assumed to
+  have weight one.
+
+  """
+  return lambda u, v, data: data.get(departure_time, None)
+
+
+def dijkstra_path(G, source, target, time_of_request, weight='weight', timetable='departure_time'):  # LY: added initial time of request as argument
   """Returns the shortest weighted path from source to target in G.
 
   Uses Dijkstra's Method to compute the shortest weighted path
@@ -176,12 +209,12 @@ def dijkstra_path(G, source, target, time_of_request, weight='weight'):  # LY: a
   --------
   bidirectional_dijkstra(), bellman_ford_path()
   """
-  (length, path) = single_source_dijkstra(G, source, time_of_request, target=target, weight=weight)   # LY: added initial time of request as argument
+  (length, path) = single_source_dijkstra(G, source, time_of_request, target=target, weight=weight, timetable=timetable)   # LY: added initial time of request as argument
   return path
   print('ok')
 
 
-def dijkstra_path_length(G, source, target, time_of_request, weight='weight'):
+def dijkstra_path_length(G, source, target, time_of_request, weight='weight', timetable='departure_time'):
   """Returns the shortest weighted path length in G from source to target.
 
   Uses Dijkstra's Method to compute the shortest weighted path length
@@ -246,7 +279,8 @@ def dijkstra_path_length(G, source, target, time_of_request, weight='weight'):
   if source == target:
     return 0
   weight = _weight_function(G, weight)
-  length = _dijkstra(G, source, time_of_request, weight, target=target)
+  timetable = get_timetable(G, timetable)
+  length = _dijkstra(G, source, time_of_request, weight, timetable, target=target)
   try:
     return length[target]
   except KeyError:
@@ -390,7 +424,7 @@ def single_source_dijkstra_path_length(G, source, cutoff=None,
                                            weight=weight)
 
 
-def single_source_dijkstra(G, source, time_of_request, target=None, cutoff=None, weight='weight'):        # LY: added initial time of request as argument
+def single_source_dijkstra(G, source, time_of_request, target=None, cutoff=None, weight='weight', timetable='departure_time'):        # LY: added initial time of request as argument
   """Find shortest weighted paths and lengths from a source node.
 
   Compute the shortest path length between source and all other
@@ -484,7 +518,7 @@ def single_source_dijkstra(G, source, time_of_request, target=None, cutoff=None,
   single_source_dijkstra_path_length()
   single_source_bellman_ford()
   """
-  return multi_source_dijkstra(G, {source}, time_of_request, cutoff=cutoff, target=target, weight=weight)     # LY: added initial time of request as argument
+  return multi_source_dijkstra(G, {source}, time_of_request, cutoff=cutoff, target=target, weight=weight, timetable=timetable)     # LY: added initial time of request as argument
 
 
 def multi_source_dijkstra_path(G, sources, cutoff=None, weight='weight'):
@@ -638,7 +672,7 @@ def multi_source_dijkstra_path_length(G, sources, cutoff=None,
   return _dijkstra_multisource(G, sources, weight, cutoff=cutoff)
 
 
-def multi_source_dijkstra(G, sources, time_of_request, target=None, cutoff=None, weight='weight'):        # LY: added initial time of request as argument
+def multi_source_dijkstra(G, sources, time_of_request, target=None, cutoff=None, weight='weight', timetable='departure_time'):        # LY: added initial time of request as argument
   """Find shortest weighted paths and lengths from a given set of
   source nodes.
 
@@ -741,8 +775,9 @@ def multi_source_dijkstra(G, sources, time_of_request, target=None, cutoff=None,
   if target in sources:
     return (0, [target])
   weight = _weight_function(G, weight)
+  timetable = get_timetable(G, timetable)
   paths = {source: [source] for source in sources}  # dictionary of paths
-  dist = _dijkstra_multisource(G, sources, time_of_request, weight, paths=paths, cutoff=cutoff, target=target)      # LY: added initial time of request as argument
+  dist = _dijkstra_multisource(G, sources, time_of_request, weight, timetable, paths=paths, cutoff=cutoff, target=target)      # LY: added initial time of request as argument
   if target is None:
     return (dist, paths)
   try:
@@ -751,7 +786,7 @@ def multi_source_dijkstra(G, sources, time_of_request, target=None, cutoff=None,
     raise nx.NetworkXNoPath("No path to {}.".format(target))
 
 
-def _dijkstra(G, source, time_of_request, weight, pred=None, paths=None, cutoff=None,
+def _dijkstra(G, source, time_of_request, weight, timetable, pred=None, paths=None, cutoff=None,
               target=None):
   """Uses Dijkstra's algorithm to find shortest weighted paths from a
   single source.
@@ -761,11 +796,11 @@ def _dijkstra(G, source, time_of_request, weight, pred=None, paths=None, cutoff=
   `sources` set to ``[source]``.
 
   """
-  return _dijkstra_multisource(G, [source], time_of_request, weight, pred=pred, paths=paths,
+  return _dijkstra_multisource(G, [source], time_of_request, weight, timetable, pred=pred, paths=paths,
                                cutoff=cutoff, target=target)
 
 
-def _dijkstra_multisource(G, sources, time_of_request, weight, pred=None, paths=None, cutoff=None, target=None):        # LY: added initial time of request as argument
+def _dijkstra_multisource(G, sources, time_of_request, weight, timetable, pred=None, paths=None, cutoff=None, target=None):        # LY: added initial time of request as argument
   """Uses Dijkstra's algorithm to find shortest weighted paths
 
   Parameters
@@ -837,29 +872,29 @@ def _dijkstra_multisource(G, sources, time_of_request, weight, pred=None, paths=
     if v == target:
       break
     for u, e in G_succ[v].items():
-      for key, value in e.items():
-        if key == 'weight':
-          cost = weight(v, u, e)
-          if cost is None:
-            continue
-          vu_dist = dist[v] + cost + calc_plat_waiting_time(dist[v], G[v][u]['departure_time'])
-          if cutoff is not None:
-            if vu_dist > cutoff:
-              continue
-          if u in dist:
-            if vu_dist < dist[u]:
-              raise ValueError('Contradictory paths found:',
-                               'negative weights?')
-          elif u not in seen or vu_dist < seen[u]:
-            seen[u] = vu_dist
-            push(fringe, (vu_dist, next(c), u))
-            if paths is not None:
-              paths[u] = paths[v] + [u]
-            if pred is not None:
-              pred[u] = [v]
-          elif vu_dist == seen[u]:
-            if pred is not None:
-              pred[u].append(v)
+      cost = weight(v, u, e)                                              # this representes the PT edge travel time (from train depart to train arrival), cosider adding dwell time
+      if cost is None:
+        continue
+      vu_timetable = timetable(v, u, e)                                                      # added a line for extracting the timetable of this edge
+      plat_wait_time = calc_plat_waiting_time(dist[v], vu_timetable)         # departure_time needs to change to timetable - G[v][u]['departure_time']
+      vu_dist = dist[v] + cost + plat_wait_time
+      if cutoff is not None:
+        if vu_dist > cutoff:
+          continue
+      if u in dist:
+        if vu_dist < dist[u]:
+          raise ValueError('Contradictory paths found:',
+                           'negative weights?')
+      elif u not in seen or vu_dist < seen[u]:
+        seen[u] = vu_dist
+        push(fringe, (vu_dist, next(c), u))
+        if paths is not None:
+          paths[u] = paths[v] + [u]
+        if pred is not None:
+          pred[u] = [v]
+      elif vu_dist == seen[u]:
+        if pred is not None:
+          pred[u].append(v)
 
   # The optional predecessor and path dictionaries can be accessed
   # by the caller via the pred and paths objects passed as arguments.
