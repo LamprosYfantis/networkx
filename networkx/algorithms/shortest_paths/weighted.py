@@ -18,6 +18,7 @@ from collections import deque
 from heapq import heappush, heappop
 from itertools import count
 import networkx as nx
+from networkx.utils import generate_unique_node
 from bisect import bisect_left
 
 __all__ = ['dijkstra_path',
