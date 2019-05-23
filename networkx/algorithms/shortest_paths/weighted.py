@@ -64,6 +64,7 @@ def calc_plat_wait_time_and_train_id(arr_time=0, edge_departure_time={}):
   # else:
   for run_id in edge_departure_time:
     list_of_ptedge_dep_times.append(edge_departure_time[run_id])
+  list_of_ptedge_dep_times.sort()
   earlier_dep_time = find_ge(list_of_ptedge_dep_times, arr_time)
   platform_wait_time = earlier_dep_time - arr_time
   for run_id in edge_departure_time:
