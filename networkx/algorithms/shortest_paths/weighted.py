@@ -18,6 +18,7 @@ from collections import deque
 from heapq import heappush, heappop
 from itertools import count
 import networkx as nx
+import math
 from networkx.utils import generate_unique_node
 from bisect import bisect_left
 
@@ -48,7 +49,7 @@ __all__ = ['dijkstra_path',
            'johnson']
 
 
-def find_ge(a, x):
+def find_ge(a, x):                                  # binary search algorithm
   'Find leftmost item greater than or equal to x'
   i = bisect_left(a, x)
   if i != len(a):
@@ -56,12 +57,31 @@ def find_ge(a, x):
   raise ValueError
 
 
+def calc_time_dep_distance_based_cost(dist_based_cost_data, current_time):
+  for time_zone, cost in dist_based_cost_data.items():
+    if int(current_time) >= int(time_zone[0]) and int(current_time) <= int(time_zone[1]):
+      edge_cost = cost
+      break
+  return edge_cost
+
+
+def calc_time_dep_zone_to_zone_cost(zn_to_zn_cost_data, current_time, pt_trip_start_zone, u_zone):
+  if not pt_trip_start_zone:
+    print('Zone value for the start of pt trip has not assigned')
+    pass
+  else:
+    for time_zone in zn_to_zn_cost_data:
+      if int(current_time) >= int(time_zone[0]) and int(current_time) <= int(time_zone[1]):
+        cost = zn_to_zn_cost_data[time_zone][(pt_trip_start_zone, u_zone)]
+        break
+    if cost is None:
+      print('No cost from zone_to_zone data found')
+    return cost
+
+
 def calc_plat_wait_time_and_train_id(arr_time=0, edge_departure_time={}):
+  # the sorted list generation might need to go outside the algorithm as it increases computational performance
   list_of_ptedge_dep_times = []
-  # if edge_departure_time == None:  # this if statement might need to be removed for Francisco's case, he might not need to add depareture times
-  #   platform_wait_time = 0
-  #   return platform_wait_time
-  # else:
   for run_id in edge_departure_time:
     list_of_ptedge_dep_times.append(edge_departure_time[run_id])
   list_of_ptedge_dep_times.sort()
@@ -74,7 +94,7 @@ def calc_plat_wait_time_and_train_id(arr_time=0, edge_departure_time={}):
   return platform_wait_time, corresponding_runid_to_earl_dep_time
 
 
-def calc_pt_route_edge_cost_for_corresp_run_id(edge_travel_times, run_id_of_first_dep_ptveh):
+def calc_pt_route_edge_in_veh_tt_for_run_id(edge_travel_times, run_id_of_first_dep_ptveh):
   tt = None
   for run_id in edge_travel_times:
     if run_id == run_id_of_first_dep_ptveh:
@@ -90,7 +110,7 @@ def calc_road_link_tt(cur_time, edge_attrs):  # calculate the proper travel time
   tt = None
   for key, value in edge_attrs['weight'].items():
     if cur_time >= int(key[0]) and cur_time <= int(key[1]):  # interval time data needs to be in seconds and hence integers not strings
-      tt = int(value)
+      tt = math.ceil(value)
   if tt == None:
     print('Current travel time could not be matched with 5min interval')
   else:
@@ -103,6 +123,29 @@ def _get_timetable(G, departure_time):  # this will work only for directed graph
 
 def _get_edge_type(G, edge_type):
   return lambda u, v, data: data.get(edge_type, None)
+
+def _get_node_type(G, node_type):
+  return lambda u, v, data: data.get(node_type, None)
+
+
+def _get_in_vehicle_tt_function(G, in_vehicle_tt):
+  return lambda u, v, data: data.get(in_vehicle_tt, None)
+
+
+def _get_distance_function(G, distance):
+  return lambda u, v, data: data.get(distance, None)
+
+
+def _get_distance_based_cost(G, distance_based_cost):
+  return lambda u, v, data: data.get(distance_based_cost, None)
+
+
+def _get_zone_to_zone_cost(G, zone_to_zone_cost):
+  return lambda u, v, data: data.get(zone_to_zone_cost, None)
+
+
+def _get_walk_tt(G, walk_tt):
+  return lambda u, v, data: data.get(walk_tt, None)
 
 
 def _weight_function(G, weight):
@@ -139,7 +182,7 @@ def _weight_function(G, weight):
   return lambda u, v, data: data.get(weight, 1)
 
 
-def dijkstra_path(G, source, target, time_of_request, weight='weight', timetable='departure_time', edge_type='edge_type'):  # LY: added initial time of request as argument
+def dijkstra_path(G, source, target, time_of_request, in_vehicle_tt='in_vehicle_tt', walk_tt='walk_tt', distance='distance', distance_based_cost='distance_based_cost', zone_to_zone_cost='zone_to_zone_cost', timetable='departure_time', edge_type='edge_type', fare_scheme='distance_based'):  # LY: added initial time of request as argument
   """Returns the shortest weighted path from source to target in G.
 
   Uses Dijkstra's Method to compute the shortest weighted path
@@ -211,9 +254,8 @@ def dijkstra_path(G, source, target, time_of_request, weight='weight', timetable
   --------
   bidirectional_dijkstra(), bellman_ford_path()
   """
-  (length, path) = single_source_dijkstra(G, source, time_of_request, target=target, weight=weight, timetable=timetable, edge_type=edge_type)
-  return path
-  print('ok')
+  (weight, path, weight_dict, paths_dict) = single_source_dijkstra(G, source, time_of_request, target=target, in_vehicle_tt=in_vehicle_tt, walk_tt=walk_tt, distance=distance, distance_based_cost=distance_based_cost, zone_to_zone_cost=zone_to_zone_cost, timetable=timetable, edge_type=edge_type, fare_scheme=fare_scheme)
+  return path, weight, weight_dict, paths_dict
 
 
 def dijkstra_path_length(G, source, target, time_of_request, weight='weight', timetable='departure_time', edge_type='edge_type'):
@@ -427,7 +469,7 @@ def single_source_dijkstra_path_length(G, source, cutoff=None,
                                            weight=weight)
 
 
-def single_source_dijkstra(G, source, time_of_request, target=None, cutoff=None, weight='weight', timetable='departure_time', edge_type='edge_type'):        # LY: added initial time of request as argument
+def single_source_dijkstra(G, source, time_of_request, target=None, cutoff=None, in_vehicle_tt='in_vehicle_tt', walk_tt='walk_tt', distance='distance', distance_based_cost='distance_based_cost', zone_to_zone_cost='zone_to_zone_cost', timetable='departure_time', edge_type='edge_type', fare_scheme='distance_based'):        # LY: added initial time of request as argument
   """Find shortest weighted paths and lengths from a source node.
 
   Compute the shortest path length between source and all other
@@ -521,7 +563,7 @@ def single_source_dijkstra(G, source, time_of_request, target=None, cutoff=None,
   single_source_dijkstra_path_length()
   single_source_bellman_ford()
   """
-  return multi_source_dijkstra(G, {source}, time_of_request, cutoff=cutoff, target=target, weight=weight, timetable=timetable, edge_type=edge_type)     # LY: added initial time of request as argument
+  return multi_source_dijkstra(G, {source}, time_of_request, cutoff=cutoff, target=target, in_vehicle_tt=in_vehicle_tt, walk_tt=walk_tt, distance=distance, distance_based_cost=distance_based_cost, zone_to_zone_cost=zone_to_zone_cost, timetable=timetable, edge_type=edge_type, fare_scheme=fare_scheme)     # LY: added initial time of request as argument
 
 
 def multi_source_dijkstra_path(G, sources, cutoff=None, weight='weight'):
@@ -675,7 +717,7 @@ def multi_source_dijkstra_path_length(G, sources, cutoff=None,
   return _dijkstra_multisource(G, sources, weight, cutoff=cutoff)
 
 
-def multi_source_dijkstra(G, sources, time_of_request, target=None, cutoff=None, weight='weight', timetable='departure_time', edge_type='edge_type'):        # LY: added initial time of request as argument
+def multi_source_dijkstra(G, sources, time_of_request, target=None, cutoff=None, in_vehicle_tt='in_vehicle_tt', walk_tt='walk_tt', distance='distance', distance_based_cost='distance_based_cost', zone_to_zone_cost='zone_to_zone_cost', timetable='departure_time', edge_type='edge_type', fare_scheme='distance_based'):        # LY: added initial time of request as argument
   """Find shortest weighted paths and lengths from a given set of
   source nodes.
 
@@ -777,15 +819,19 @@ def multi_source_dijkstra(G, sources, time_of_request, target=None, cutoff=None,
     raise ValueError('sources must not be empty')
   if target in sources:
     return (0, [target])
-  weight = _weight_function(G, weight)
+  in_vehicle_tt = _get_in_vehicle_tt_function(G, in_vehicle_tt)
+  walk_tt = _get_walk_tt(G, walk_tt)
+  distance = _get_distance_function(G, distance)
+  distance_based_cost = _get_distance_based_cost(G, distance_based_cost)
+  zone_to_zone_cost = _get_zone_to_zone_cost(G, zone_to_zone_cost)
   timetable = _get_timetable(G, timetable)
   edge_type = _get_edge_type(G, edge_type)
   paths = {source: [source] for source in sources}  # dictionary of paths
-  dist = _dijkstra_multisource(G, sources, time_of_request, weight, timetable, edge_type, paths=paths, cutoff=cutoff, target=target)      # LY: added initial time of request as argument
+  weight = _dijkstra_multisource(G, sources, time_of_request, in_vehicle_tt, walk_tt, distance, distance_based_cost, zone_to_zone_cost, timetable, edge_type, fare_scheme, paths=paths, cutoff=cutoff, target=target)      # LY: added initial time of request as argument
   if target is None:
-    return (dist, paths)
+    return (weight, paths)
   try:
-    return (dist[target], paths[target])
+    return (weight[target], paths[target], weight, paths)
   except KeyError:
     raise nx.NetworkXNoPath("No path to {}.".format(target))
 
@@ -804,7 +850,7 @@ def _dijkstra(G, source, time_of_request, weight, timetable, edge_type, pred=Non
                                cutoff=cutoff, target=target)
 
 
-def _dijkstra_multisource(G, sources, time_of_request, weight, timetable, edge_type, pred=None, paths=None, cutoff=None, target=None):        # LY: added initial time of request as argument
+def _dijkstra_multisource(G, sources, time_of_request, in_vehicle_tt, walk_tt, distance, distance_based_cost, zone_to_zone_cost, timetable, edge_type, fare_scheme, pred=None, paths=None, cutoff=None, target=None):        # LY: added initial time of request as argument
   """Uses Dijkstra's algorithm to find shortest weighted paths
 
   Parameters
@@ -857,29 +903,73 @@ def _dijkstra_multisource(G, sources, time_of_request, weight, timetable, edge_t
 
   push = heappush
   pop = heappop
-  dist = {}  # dictionary of final distances
+  node_labels = {}  # dictionary of best weight
+  # nodes_labels_dict = {}
   seen = {}
   # fringe is heapq with 3-tuples (distance,c,node) -and I change it to a 4-tuple to store the type of the previous edge
   # use the count c to avoid comparing nodes (may not be able to)
   c = count()
   fringe = []
-  prev_edge_type = ''
-  run_id_till_node_u = ''
+  prev_edge_type = None
+  run_id_till_node_u = None
+  prev_edge_cost = 0
+  edges_cost_till_u = 0
+  zone_at_start_of_pt_trip = None
+
   for source in sources:
     if source not in G:
       raise nx.NodeNotFound("Source {} not in G".format(source))
     seen[source] = 0
-    push(fringe, (time_of_request, next(c), source, prev_edge_type, run_id_till_node_u))                      # LY: added initial time of request as argument and prev_edge_type
+    current_time = time_of_request
+    push(fringe, (current_time, next(c), source, prev_edge_type, run_id_till_node_u, current_time, prev_edge_cost, edges_cost_till_u, zone_at_start_of_pt_trip))                      # LY: added initial time of request as argument and prev_edge_type
   while fringe:
-    (d, _, v, pr_ed_tp, last_run_id) = pop(fringe)
-    if v in dist:
+    (d, _, v, in_vehicle_tt, wait_time, walking_tt, distance, cost, num_line_trfs, num_mode_trsfs, pr_ed_tp, last_run_id, curr_time, pr_e_cost, cost_t_u, pt_trip_start_zone) = pop(fringe)
+    if v in node_labels:
       continue  # already searched this node.
-    dist[v] = d
+    node_labels[v]['weight'] = d
+    node_labels[v]['in_vehicle_tt'] = in_vehicle_tt
+    node_labels[v]['wait_time'] = wait_time
+    node_labels[v]['walk_tt'] = walking_tt
+    node_labels[v]['distance'] = distance
+    node_labels[v]['cost'] = cost
+    node_labels[v]['line_trasnf_num'] = num_line_trfs
+    node_labels[v]['mode_transf_num'] = num_mode_trsfs
+    node_labels[v]['current_time'] = time_till_u
+    node_labels[v]['prev_edge_type'] = pr_ed_tp
+    node_labels[v]['last_pt_veh_run_id'] = last_run_id
+    node_labels[v]['previous_edge_cost'] = previous_edge_cost
+    node_labels[v]['pt_trip_start_zone'] = pt_trip_start_zone
+    # nodes_labels_dict[v]['weight'] = d
+    # nodes_labels_dict[v][]
     if v == target:
       break
     # assign
     for u, e in G_succ[v].items():
+      time_till_u = curr_time
+      previous_edge_cost = pr_e_cost
+      cost_till_u = cost_t_u
       e_type = edge_type(v, u, e)
+      if e_type == 'walk_edge':
+        e_in_veh_tt = in_vehicle_tt(v, u, e)  # funtion that extracts the edge's in-vehicle travel time attribute
+        if e_in_veh_tt is None:
+          print('Missing in_veh_tt value in edge {}'.format((v, u)))
+          continue
+        e_wait_time = 0
+        e_walking_tt = walk_tt(v, u, e)       # funtion that extracts the edge's walking travel time attribute
+        if e_walking_tt is None:
+          print('Missing walking_tt value in edge {}'.format((v, u)))
+          continue
+        e_distance = distance(v, u, e)        # funtion that extracts the edge's distance attribute
+        if e_distance is None:
+          print('Missing distance value in edge {}'.format((v, u)))
+          continue
+        e_cost = 0
+        e_num_mode_trf = 0
+        e_num_lin_trf = 0
+        time_till_u = time_till_u + e_in_veh_tt + e_wait_time + e_walking_tt    # we store the time till upstream node and we use it for extracting the correct time-dependent attributes of each edge
+        # prev_edge_cost = e_cost
+        cost_till_u += e_cost   # we store the cost till updtream node as well
+        vu_dist = node_labels[v] + e_in_veh_tt + e_wait_time + e_distance + e_cost + e_num_lin_trf + e_num_mode_trf + e_walking_tt
       if e_type == 'orig_dummy_edge':
         road_edge_cost = weight(v, u, e)
         if road_edge_cost is None:
@@ -890,46 +980,129 @@ def _dijkstra_multisource(G, sources, time_of_request, weight, timetable, edge_t
         if road_edge_cost is None:
           continue
         vu_dist = dist[v] + road_edge_cost
-      elif e_type == 'pt_transfer_edge':
-        pt_trf_edge_cost = weight(v, u, e)
-        if pt_trf_edge_cost is None:
+      if e_type == 'access_edge':
+        e_in_veh_tt = in_vehicle_tt(v, u, e)  # funtion that extracts the edge's in-vehicle travel time attribute
+        if e_in_veh_tt is None:
+          print('Missing in_veh_tt value in edge {}'.format((v, u)))
           continue
-        vu_dist = dist[v] + pt_trf_edge_cost
-      elif e_type == 'pt_route_edge':
-        if pr_ed_tp != 'pt_route_edge':
-          vu_timetable = timetable(v, u, e)                                                      # added a line for extracting the timetable of this edge
-          plat_wait_time, pt_vehicle_run_id = calc_plat_wait_time_and_train_id(dist[v], vu_timetable)
-          pt_route_edge_cost = calc_pt_route_edge_cost_for_corresp_run_id(weight(v, u, e), pt_vehicle_run_id)
-          if pt_route_edge_cost is None:
+        e_wait_time = 0
+        e_walking_tt = walk_tt(v, u, e)       # funtion that extracts the edge's walking travel time attribute
+        if e_walking_tt is None:
+          print('Missing walking_tt value in edge {}'.format((v, u)))
+          continue
+        e_distance = distance(v, u, e)        # funtion that extracts the edge's distance attribute
+        if e_distance is None:
+          print('Missing distance value in edge {}'.format((v, u)))
+          continue
+        e_cost = 0
+        if pr_ed_tp == 'walk_edge':
+          e_num_mode_trf = 1
+        else:
+          e_num_mode_trf = 0
+        e_num_lin_trf = 0
+        time_till_u = time_till_u + e_in_veh_tt + e_wait_time + e_walking_tt    # we store the time till upstream node and we use it for extracting the correct time-dependent attributes of each edge
+        # prev_edge_cost = e_cost
+        cost_till_u += e_cost   # we store the cost till updtream node as well
+        vu_dist = node_labels[v] + e_in_veh_tt + e_wait_time + e_distance + e_cost + e_num_lin_trf + e_num_mode_trf + e_walking_tt
+      # cost calculation process for a transfer edge in bus or train stops/stations
+      if e_type == 'pt_transfer_edge':
+        # for zone_to_zone pt fare scheme we store the zone of the stop/station in which a pt trip started (origin); this zone will be used for the calculcation of the edge cost based on which pt stop the algorithm checks and hence the final stop of the pt trip
+        if fare_scheme == 'zone_to_zone' and pr_ed_tp != 'pt_transfer_edge' and pr_ed_tp != 'pt_route_edge':
+          zone_at_start_of_pt_trip = G.nodes[v]['zone']
+          previous_edge_cost = 0
+        e_in_veh_tt = in_vehicle_tt(v, u, e)  # funtion that extracts the edge's in-vehicle travel time attribute
+        if e_in_veh_tt is None:
+          print('Missing in_veh_tt value in edge {}'.format((v, u)))
+          continue
+        e_wait_time = 0
+        e_walking_tt = walk_tt(v, u, e)       # funtion that extracts the edge's walking travel time attribute
+        if e_walking_tt is None:
+          print('Missing walking_tt value in edge {}'.format((v, u)))
+          continue
+        e_distance = distance(v, u, e)        # funtion that extracts the edge's distance attribute
+        if e_distance is None:
+          print('Missing distance value in edge {}'.format((v, u)))
+          continue
+        e_num_mode_trf = 0
+        # to cmpute line transfers in pt we check the previous edge type; if the previous edge type is also a tranfer edge then we have a line transfer; this constraint allows us to avoid adding a line transfer when the algorithm traverses a transfer edge at the start of a pt trip
+        if pr_ed_tp == 'pt_transfer_edge':
+          e_num_lin_trf = 1
+        else:
+          e_num_lin_trf = 0
+        e_cost = 0
+        time_till_u = time_till_u + e_in_veh_tt + e_wait_time + e_walking_tt    # we store the time till upstream node and we use it for extracting the correct time-dependent attributes of each edge
+        # prev_edge_cost = e_cost
+        cost_till_u += e_cost   # we store the cost till updtream node as well
+        vu_dist = node_labels[v] + e_in_veh_tt + e_wait_time + e_cost + 10000 * e_num_lin_trf + e_num_mode_trf + e_walking_tt  # + e_distance
+      # cost calculation process for a pt route edge in bus or train stops/stations
+      if e_type == 'pt_route_edge':
+        # for pt route edges the waiting time and travel time is calculated differently; based on the time-dependent model and the FIFO assumption, if the type of previous edge is transfer edge, we assume that the fastest trip will be the one with the first departing bus/train after the current time (less waiting time) and the travel time will be the one of the corresponding pt vehicle run_id; but if the type of the previous edge is a route edge, then for this line/route a pt_vehcile has already been chosen and the edge travel time will be the one for this specific vehicle of the train/bus line (in this case the wait time is 0)
+        if pr_ed_tp == 'pt_transfer_edge':
+          dep_timetable = timetable(v, u, e)  # fuction that extracts the stop's/station's timetable dict
+          if dep_timetable is None:
+            print('Missing timetable value in edge'.format((v, u)))
             continue
-          vu_dist = dist[v] + plat_wait_time + pt_route_edge_cost
+          e_wait_time, pt_vehicle_run_id = calc_plat_wait_time_and_train_id(time_till_u, dep_timetable)  # function that extracts waiting time for next pt vehicle and the vehicle_id; the next departing vehicle is being found using a binary search algorithm that operates on a sorted list of the deparure times for this edge (departure times of the downstream stop/station)
+          if e_wait_time is None:
+            print('Missing wait_time value in edge'.format((v, u)))
+            continue
+          in_vehicle_tt_data = in_vehicle_tt(v, u, e)  # fuction that extracts the travel time dict
+          if in_vehicle_tt_data is None:
+            print('Missing in_veh_tt value in edge'.format((v, u)))
+            continue
+          e_in_veh_tt = calc_pt_route_edge_in_veh_tt_for_run_id(in_vehicle_tt_data, pt_vehicle_run_id)  # fuction that travel time for corresponding pt vehicle run_id
         elif pr_ed_tp == 'pt_route_edge':
-          for run_id in e['departure_time']:
-            if run_id == last_run_id:
-              plat_wait_time = e['departure_time'][run_id] - dist[v]
-              break
-          for run_id in e['weight']:
-            if run_id == last_run_id:
-              pt_route_edge_cost = e['weight'][run_id]
-              break
-          if pt_route_edge_cost is None:
+          e_in_veh_tt = e['departure_time'][last_run_id] - time_till_u + e['in_vehicle_tt'][last_run_id]  # the subtraction fo the first two terms is the dwell time in the downstream station and the 3rd term is the travel time of the pt vehicle run_id that has been selected for the previous route edge
+          if e_in_veh_tt is None:
+            print('Missing in_veh_tt value in edge'.format((v, u)))
             continue
-          vu_dist = dist[v] + plat_wait_time + pt_route_edge_cost
+          e_wait_time = 0
+        e_distance = distance(v, u, e)  # fuction that extracts the travel time dict
+        if e_distance is None:
+          print('Missing distance value in edge'.format((v, u)))
+          continue
+        # edge costs for pt depend on the pt fare scheme; if it is additive (distance_based) or zone_to_zone !! consider adding a price cap !!
+        if fare_scheme == 'distance_based':
+          dist_bas_cost = distance_based_cost(v, u, e)  # fuction that extracts the time-dependent distance-based cost dict
+          if dist_bas_cost is None:
+            print('Missing dist_bas_cost value in edge'.format((v, u)))
+            continue
+          e_cost = calc_time_dep_distance_based_cost(dist_bas_cost, time_till_u)  # fuction that extracts the cost based on time-dependent distance-based cost dict and the current time (finds in which time-zone we currently are)
+        if fare_scheme == 'zone_to_zone':
+          zn_to_zn_cost = zone_to_zone_cost(v, u, e)  # fuction that extracts the time-dependent zone_to_zone cost dict
+          if zn_to_zn_cost is None:
+            print('Missing zn_to_zn_cost value in edge'.format((v, u)))
+            continue
+          pt_cur_cost = calc_time_dep_zone_to_zone_cost(zn_to_zn_cost, time_till_u, zone_at_start_of_pt_trip, G.nodes[u]['zone'])  # function that extracts the cost of the edge based on the zone at the start of the pt trip, the zone of current stop/station and the current time we are in
+          e_cost = pt_cur_cost
+        e_num_lin_trf = 0
+        e_num_mode_trf = 0
+        e_walking_tt = walk_tt(v, u, e)  # fuction that extracts the walking travel time
+        if e_walking_tt is None:
+          print('Missing walking_tt value in edge'.format((v, u)))
+          continue
+        time_till_u = time_till_u + e_in_veh_tt + e_wait_time + e_walking_tt  # we store the time till upstream node and we use it for extracting the correct time-dependent attributes of each edge
+        cost_till_u += e_cost - previous_edge_cost  # we store the cost till updtream node as well
+        vu_dist = node_labels[v] + e_in_veh_tt + e_wait_time + e_cost + e_num_lin_trf + e_num_mode_trf + e_walking_tt - previous_edge_cost  # + e_distance # in the case of pt route edges we always subtract the previous edge cost, this way, in case the algorithms checks a successive pt stop/station that is of different zone we add the new cost and remove the previous one; if we have a distance-based cost then the previous edge cost will always be zero
+        if fare_scheme == 'zone_to_zone':
+          previous_edge_cost = pt_cur_cost  # here only for the case of zone_to_zone pt fare schemes we update the previous edge cost only after the label (edge weight) calculation
       if cutoff is not None:
         if vu_dist > cutoff:
           continue
-      if u in dist:
-        if vu_dist < dist[u]:
+      if u in node_labels:
+        if vu_dist < node_labels[u]:
           raise ValueError('Contradictory paths found:',
                            'negative weights?')
       elif u not in seen or vu_dist < seen[u]:
         seen[u] = vu_dist
         if e_type == 'pt_route_edge' and pr_ed_tp != 'pt_route_edge':
-          push(fringe, (vu_dist, next(c), u, e_type, pt_vehicle_run_id))
+          push(fringe, (vu_dist, next(c), u, e_in_veh_tt, e_wait_time, e_walking_tt, e_distance, e_cost, e_num_lin_trf, e_num_mode_trf, e_type, pt_vehicle_run_id, time_till_u, previous_edge_cost, cost_till_u, zone_at_start_of_pt_trip))
         elif e_type == 'pt_route_edge' and pr_ed_tp == 'pt_route_edge':
-          push(fringe, (vu_dist, next(c), u, e_type, last_run_id))
-        elif e_type != 'pt_route_edge':
-          push(fringe, (vu_dist, next(c), u, e_type, ''))
+          push(fringe, (vu_dist, next(c), u, e_in_veh_tt, e_wait_time, e_walking_tt, e_distance, e_cost, e_num_lin_trf, e_num_mode_trf, e_type, last_run_id, time_till_u, previous_edge_cost, cost_till_u, zone_at_start_of_pt_trip))
+        elif e_type == 'pt_transfer_edge':
+          push(fringe, (vu_dist, next(c), u, e_in_veh_tt, e_wait_time, e_walking_tt, e_distance, e_cost, e_num_lin_trf, e_num_mode_trf, e_type, None, time_till_u, previous_edge_cost, cost_till_u, zone_at_start_of_pt_trip))
+        elif e_type != 'pt_route_edge' and e_type != 'pt_transfer_edge':
+          push(fringe, (vu_dist, next(c), u, e_in_veh_tt, e_wait_time, e_walking_tt, e_distance, e_cost, e_num_lin_trf, e_num_mode_trf, e_type, None, time_till_u, previous_edge_cost, cost_till_u, zone_at_start_of_pt_trip))
         if paths is not None:
           paths[u] = paths[v] + [u]
         if pred is not None:
@@ -940,7 +1113,7 @@ def _dijkstra_multisource(G, sources, time_of_request, weight, timetable, edge_t
 
   # The optional predecessor and path dictionaries can be accessed
   # by the caller via the pred and paths objects passed as arguments.
-  return dist
+  return node_labels
 
 
 def dijkstra_predecessor_and_distance(G, source, cutoff=None, weight='weight'):
@@ -2120,3 +2293,301 @@ def johnson(G, weight='weight'):
     return paths
 
   return {v: dist_path(v) for v in G}
+
+
+def LY_shortest_path_with_attrs(G, source, target, time_of_request, in_vehicle_tt='in_vehicle_tt', walk_tt='walk_tt', distance='distance', distance_based_cost='distance_based_cost', zone_to_zone_cost='zone_to_zone_cost', timetable='departure_time', edge_type='edge_type', node_type='node_type', fare_scheme='distance_based', init_in_vehicle_tt = 0, init_wait_time = 0, init_walking_tt = 0, init_distance = 0, init_cost = 0, init_num_line_trfs = 0, init_num_mode_trfs = 0, last_edge_type=None, last_pt_veh_run_id=None, current_time=0, last_edge_cost=0, pt_trip_orig_zone=None, pred=None, paths=None, cutoff=None):
+
+  if source not in G:
+    raise nx.NodeNotFound("Source {} not in G".format(source))
+  if target not in G:
+    raise nx.NodeNotFound("Target {} not in G".format(target))
+  if source == target:
+    return 0, [target]
+
+  paths = {source: [source]}
+  in_vehicle_tt = _get_in_vehicle_tt_function(G, in_vehicle_tt)
+  walk_tt = _get_walk_tt(G, walk_tt)
+  distance = _get_distance_function(G, distance)
+  distance_based_cost = _get_distance_based_cost(G, distance_based_cost)
+  zone_to_zone_cost = _get_zone_to_zone_cost(G, zone_to_zone_cost)
+  timetable = _get_timetable(G, timetable)
+  edge_type = _get_edge_type(G, edge_type)
+  node_type = _get_node_type(G, node_type)
+
+  return _LY_dijkstra(G, source, target, time_of_request, in_vehicle_tt, walk_tt, distance, distance_based_cost, zone_to_zone_cost, timetable, edge_type, node_type, fare_scheme, init_in_vehicle_tt, init_wait_time, init_walking_tt, init_distance, init_cost, init_num_line_trfs, init_num_mode_trfs, last_edge_type, last_pt_veh_run_id, current_time, last_edge_cost, pt_trip_orig_zone, pred=None, paths=paths, cutoff=None)
+
+
+
+def _LY_dijkstra(G, source, target, time_of_request, in_vehicle_tt_data, walk_tt_data, distance_data, distance_based_cost_data, zone_to_zone_cost_data, timetable_data, edge_type_data, node_type_data, fare_scheme, init_in_vehicle_tt, init_wait_time, init_walking_tt, init_distance, init_cost, init_num_line_trfs, init_num_mode_trfs, last_edge_type, last_pt_veh_run_id, current_time, last_edge_cost, pt_trip_orig_zone, pred=None, paths=None, cutoff=None):
+
+  G_succ = G._succ if G.is_directed() else G._adj
+
+  push = heappush
+  pop = heappop
+
+
+  weight_label = {}  # dictionary of best weight
+  in_veh_tt_label = {}
+  wait_time_label = {}
+  walk_tt_label = {}
+  distance_label = {}
+  mon_cost_label = {}
+  line_trans_num_label = {}
+  mode_trans_num_label = {}
+  prev_edge_type_label = {}
+  last_pt_veh_run_id_label = {}
+  current_time_label = {}
+  prev_edge_cost_label = {}
+  pt_trip_start_zone_label = {}
+  seen = {}
+
+
+  c = count()   # use the count c to avoid comparing nodes (may not be able to)
+  fringe = []  # fringe is heapq with 3-tuples (distance,c,node) -and I change it to a 4-tuple to store the type of the previous edge
+
+
+  prev_edge_type = last_edge_type
+  run_id_till_node_u = last_pt_veh_run_id
+  previous_edge_cost = last_edge_cost
+  zone_at_start_of_pt_trip = pt_trip_orig_zone
+
+  curr_time = time_of_request
+  seen[source] = 0
+  weight_init = 0
+
+  push(fringe, (weight_init, next(c), source, init_in_vehicle_tt, init_wait_time, init_walking_tt, init_distance, init_cost, init_num_line_trfs, init_num_mode_trfs, prev_edge_type, run_id_till_node_u, curr_time, previous_edge_cost, zone_at_start_of_pt_trip))                      # LY: added initial time of request as argument and prev_edge_type
+
+  while fringe:
+    (gen_w, _, v, in_v_tt, w_t, wk_t, d, mon_c, n_l_ts, n_m_ts, pr_ed_tp, lt_run_id, curr_time, pr_e_cost, pt_tr_st_z) = pop(fringe)
+
+    if v in weight_label:
+      continue  # already searched this node.
+
+    weight_label[v] = gen_w
+    in_veh_tt_label[v] = in_v_tt
+    wait_time_label[v] = w_t
+    walk_tt_label[v] = wk_t
+    distance_label[v] = d
+    mon_cost_label[v] = mon_c
+    line_trans_num_label[v] = n_l_ts
+    mode_trans_num_label[v] = n_m_ts
+    prev_edge_type_label[v] = pr_ed_tp
+    last_pt_veh_run_id_label[v] = lt_run_id
+    current_time_label[v] = curr_time
+    prev_edge_cost_label[v] = pr_e_cost
+    pt_trip_start_zone_label[v] = pt_tr_st_z
+
+    if v == target:
+      break
+
+    for u, e in G_succ[v].items():
+      e_type = edge_type_data(v, u, e)
+      n_type = node_type_data(v, u, e)
+      if e_type == 'walk_edge':
+        e_in_veh_tt = in_vehicle_tt_data(v, u, e)  # funtion that extracts the edge's in-vehicle travel time attribute
+        if e_in_veh_tt is None:
+          print('Missing in_veh_tt value in edge {}'.format((v, u)))
+          continue
+        e_wait_time = 0
+        e_walking_tt = walk_tt_data(v, u, e)       # funtion that extracts the edge's walking travel time attribute
+        if e_walking_tt is None:
+          print('Missing walking_tt value in edge {}'.format((v, u)))
+          continue
+        e_distance = distance_data(v, u, e)        # funtion that extracts the edge's distance attribute
+        if e_distance is None:
+          print('Missing distance value in edge {}'.format((v, u)))
+          continue
+        e_cost = 0
+        e_num_mode_trf = 0
+        e_num_lin_trf = 0
+
+        in_veh_tt_till_u = in_veh_tt_label[v] + e_in_veh_tt
+        wait_time_till_u = wait_time_label[v] + e_wait_time
+        walk_tt_till_u = walk_tt_label[v] + e_walking_tt
+        distance_till_u = distance_label[v] + e_distance
+        cost_till_u = mon_cost_label[v] + e_cost
+        line_trasnf_num_till_u = line_trans_num_label[v] + e_num_lin_trf
+        mode_transf_num_till_u = mode_trans_num_label[v] + e_num_mode_trf
+
+        time_till_u = curr_time + e_in_veh_tt + e_wait_time + e_walking_tt
+
+        vu_dist = weight_label[v] + e_in_veh_tt + e_wait_time + e_distance + e_cost + e_num_lin_trf + e_num_mode_trf + e_walking_tt
+      # if e_type == 'orig_dummy_edge':
+      #   road_edge_cost = weight(v, u, e)
+      #   if road_edge_cost is None:
+      #     continue
+      #   vu_dist = dist[v] + road_edge_cost
+      # if e_type == 'dest_dummy_edge' or e_type == 'dual_edge':
+      #   road_edge_cost = calc_road_link_tt(dist[v], e)             # the travel time assigned here is the travel time of the corresponding 5min interval based on historic data
+      #   if road_edge_cost is None:
+      #     continue
+      #   vu_dist = dist[v] + road_edge_cost
+      if e_type == 'access_edge':
+        e_in_veh_tt = in_vehicle_tt_data(v, u, e)  # funtion that extracts the edge's in-vehicle travel time attribute
+        if e_in_veh_tt is None:
+          print('Missing in_veh_tt value in edge {}'.format((v, u)))
+          continue
+        e_wait_time = 0
+        e_walking_tt = walk_tt_data(v, u, e)       # funtion that extracts the edge's walking travel time attribute
+        if e_walking_tt is None:
+          print('Missing walking_tt value in edge {}'.format((v, u)))
+          continue
+        e_distance = distance_data(v, u, e)        # funtion that extracts the edge's distance attribute
+        if e_distance is None:
+          print('Missing distance value in edge {}'.format((v, u)))
+          continue
+        e_cost = 0
+        if n_type == 'walk_graph_node':
+          e_num_mode_trf = 1
+        else:
+          e_num_mode_trf = 0
+        e_num_lin_trf = 0
+
+        time_till_u = curr_time + e_in_veh_tt + e_wait_time + e_walking_tt
+
+        in_veh_tt_till_u = in_veh_tt_label[v] + e_in_veh_tt
+        wait_time_till_u = wait_time_label[v] + e_wait_time
+        walk_tt_till_u = walk_tt_label[v] + e_walking_tt
+        distance_till_u = distance_label[v] + e_distance
+        cost_till_u = mon_cost_label[v] + e_cost
+        line_trasnf_num_till_u = line_trans_num_label[v] + e_num_lin_trf
+        mode_transf_num_till_u = mode_trans_num_label[v] + e_num_mode_trf
+
+        vu_dist = weight_label[v] + e_in_veh_tt + e_wait_time + e_distance + e_cost + e_num_lin_trf + e_num_mode_trf + e_walking_tt
+      # cost calculation process for a transfer edge in bus or train stops/stations
+
+
+      if e_type == 'pt_transfer_edge':
+        # for zone_to_zone pt fare scheme we store the zone of the stop/station in which a pt trip started (origin); this zone will be used for the calculcation of the edge cost based on which pt stop the algorithm checks and hence the final stop of the pt trip
+        if fare_scheme == 'zone_to_zone' and pr_ed_tp != 'pt_transfer_edge' and pr_ed_tp != 'pt_route_edge':
+          zone_at_start_of_pt_trip = G.nodes[v]['zone']
+          previous_edge_cost = 0
+
+        e_in_veh_tt = in_vehicle_tt_data(v, u, e)  # funtion that extracts the edge's in-vehicle travel time attribute
+        if e_in_veh_tt is None:
+          print('Missing in_veh_tt value in edge {}'.format((v, u)))
+          continue
+        e_wait_time = 0
+        e_walking_tt = walk_tt_data(v, u, e)       # funtion that extracts the edge's walking travel time attribute
+        if e_walking_tt is None:
+          print('Missing walking_tt value in edge {}'.format((v, u)))
+          continue
+        e_distance = distance_data(v, u, e)        # funtion that extracts the edge's distance attribute
+        if e_distance is None:
+          print('Missing distance value in edge {}'.format((v, u)))
+          continue
+        e_num_mode_trf = 0
+        # to cmpute line transfers in pt we check the previous edge type; if the previous edge type is also a tranfer edge then we have a line transfer; this constraint allows us to avoid adding a line transfer when the algorithm traverses a transfer edge at the start of a pt trip
+        if pr_ed_tp == 'pt_transfer_edge':
+          e_num_lin_trf = 1
+        else:
+          e_num_lin_trf = 0
+        e_cost = 0
+
+        time_till_u = curr_time + e_in_veh_tt + e_wait_time + e_walking_tt
+
+        in_veh_tt_till_u = in_veh_tt_label[v] + e_in_veh_tt
+        wait_time_till_u = wait_time_label[v] + e_wait_time
+        walk_tt_till_u = walk_tt_label[v] + e_walking_tt
+        distance_till_u = distance_label[v] + e_distance
+        cost_till_u = mon_cost_label[v] + e_cost
+        line_trasnf_num_till_u = line_trans_num_label[v] + e_num_lin_trf
+        mode_transf_num_till_u = mode_trans_num_label[v] + e_num_mode_trf
+
+        vu_dist = weight_label[v] + e_in_veh_tt + e_wait_time + e_distance + e_cost + e_num_lin_trf + e_num_mode_trf + e_walking_tt + e_distance
+      # cost calculation process for a pt route edge in bus or train stops/stations
+      if e_type == 'pt_route_edge':
+        # for pt route edges the waiting time and travel time is calculated differently; based on the time-dependent model and the FIFO assumption, if the type of previous edge is transfer edge, we assume that the fastest trip will be the one with the first departing bus/train after the current time (less waiting time) and the travel time will be the one of the corresponding pt vehicle run_id; but if the type of the previous edge is a route edge, then for this line/route a pt_vehcile has already been chosen and the edge travel time will be the one for this specific vehicle of the train/bus line (in this case the wait time is 0)
+
+        if pr_ed_tp == 'pt_transfer_edge':
+          dep_timetable = timetable_data(v, u, e)  # fuction that extracts the stop's/station's timetable dict
+          if dep_timetable is None:
+            print('Missing timetable value in edge'.format((v, u)))
+            continue
+          e_wait_time, pt_vehicle_run_id = calc_plat_wait_time_and_train_id(curr_time, dep_timetable)  # function that extracts waiting time for next pt vehicle and the vehicle_id; the next departing vehicle is being found using a binary search algorithm that operates on a sorted list of the deparure times for this edge (departure times of the downstream stop/station)
+          if e_wait_time is None:
+            print('Missing wait_time value in edge'.format((v, u)))
+            continue
+          in_vehicle_tt_d = in_vehicle_tt_data(v, u, e)  # fuction that extracts the travel time dict
+          if in_vehicle_tt_d is None:
+            print('Missing in_veh_tt value in edge'.format((v, u)))
+            continue
+          e_in_veh_tt = calc_pt_route_edge_in_veh_tt_for_run_id(in_vehicle_tt_d, pt_vehicle_run_id)  # fuction that travel time for corresponding pt vehicle run_id
+        elif pr_ed_tp == 'pt_route_edge':
+          e_in_veh_tt = e['departure_time'][lt_run_id] - curr_time + e['in_vehicle_tt'][lt_run_id]  # the subtraction fo the first two terms is the dwell time in the downstream station and the 3rd term is the travel time of the pt vehicle run_id that has been selected for the previous route edge
+          if e_in_veh_tt is None:
+            print('Missing in_veh_tt value in edge'.format((v, u)))
+            continue
+          e_wait_time = 0
+        e_distance = distance_data(v, u, e)  # fuction that extracts the travel time dict
+        if e_distance is None:
+          print('Missing distance value in edge'.format((v, u)))
+          continue
+        # edge costs for pt depend on the pt fare scheme; if it is additive (distance_based) or zone_to_zone !! consider adding a price cap !!
+        if fare_scheme == 'distance_based':
+          dist_bas_cost = distance_based_cost_data(v, u, e)  # fuction that extracts the time-dependent distance-based cost dict
+          if dist_bas_cost is None:
+            print('Missing dist_bas_cost value in edge'.format((v, u)))
+            continue
+          e_cost = calc_time_dep_distance_based_cost(dist_bas_cost, curr_time)  # fuction that extracts the cost based on time-dependent distance-based cost dict and the current time (finds in which time-zone we currently are)
+        if fare_scheme == 'zone_to_zone':
+          zn_to_zn_cost = zone_to_zone_cost_data(v, u, e)  # fuction that extracts the time-dependent zone_to_zone cost dict
+          if zn_to_zn_cost is None:
+            print('Missing zn_to_zn_cost value in edge'.format((v, u)))
+            continue
+          pt_cur_cost = calc_time_dep_zone_to_zone_cost(zn_to_zn_cost, curr_time, pt_tr_st_z, G.nodes[u]['zone'])  # function that extracts the cost of the edge based on the zone at the start of the pt trip, the zone of current stop/station and the current time we are in
+          e_cost = pt_cur_cost
+        e_num_lin_trf = 0
+        e_num_mode_trf = 0
+        e_walking_tt = walk_tt_data(v, u, e)  # fuction that extracts the walking travel time
+        if e_walking_tt is None:
+          print('Missing walking_tt value in edge'.format((v, u)))
+          continue
+
+        time_till_u = curr_time + e_in_veh_tt + e_wait_time + e_walking_tt
+
+        in_veh_tt_till_u = in_veh_tt_label[v] + e_in_veh_tt
+        wait_time_till_u = wait_time_label[v] + e_wait_time
+        walk_tt_till_u = walk_tt_label[v] + e_walking_tt
+        distance_till_u = distance_label[v] + e_distance
+        cost_till_u = mon_cost_label[v] + e_cost - pr_e_cost
+        line_trasnf_num_till_u = line_trans_num_label[v] + e_num_lin_trf
+        mode_transf_num_till_u = mode_trans_num_label[v] + e_num_mode_trf
+
+        vu_dist = weight_label[v] + e_in_veh_tt + e_wait_time + e_cost + e_num_lin_trf + e_num_mode_trf + e_walking_tt - pr_e_cost  # + e_distance # in the case of pt route edges we always subtract the previous edge cost, this way, in case the algorithms checks a successive pt stop/station that is of different zone we add the new cost and remove the previous one; if we have a distance-based cost then the previous edge cost will always be zero
+        if fare_scheme == 'zone_to_zone':
+          previous_edge_cost = pt_cur_cost  # here only for the case of zone_to_zone pt fare schemes we update the previous edge cost only after the label (edge weight) calculation
+      if cutoff is not None:
+        if vu_dist > cutoff:
+          continue
+      if u in weight_label:
+        if vu_dist < weight_label[u]:
+          # print(weight_label, weight_label[u], paths[v])
+          print('Negative weight in node {}, in edge {}, {}?'.format(u, v, u))
+          raise ValueError('Contradictory paths found:',
+                           'negative weights?')
+      elif u not in seen or vu_dist < seen[u]:
+        seen[u] = vu_dist
+        if e_type == 'pt_route_edge' and pr_ed_tp != 'pt_route_edge':
+          push(fringe, (vu_dist, next(c), u, in_veh_tt_till_u, wait_time_till_u, walk_tt_till_u, distance_till_u, cost_till_u, line_trasnf_num_till_u, mode_transf_num_till_u, e_type, pt_vehicle_run_id, time_till_u, previous_edge_cost, zone_at_start_of_pt_trip))
+        elif e_type == 'pt_route_edge' and pr_ed_tp == 'pt_route_edge':
+          push(fringe, (vu_dist, next(c), u, in_veh_tt_till_u, wait_time_till_u, walk_tt_till_u, distance_till_u, cost_till_u, line_trasnf_num_till_u, mode_transf_num_till_u, e_type, lt_run_id, time_till_u, previous_edge_cost, zone_at_start_of_pt_trip))
+        elif e_type == 'pt_transfer_edge':
+          push(fringe, (vu_dist, next(c), u, in_veh_tt_till_u, wait_time_till_u, walk_tt_till_u, distance_till_u, cost_till_u, line_trasnf_num_till_u, mode_transf_num_till_u, e_type, None, time_till_u, previous_edge_cost, zone_at_start_of_pt_trip))
+        elif e_type != 'pt_route_edge' and e_type != 'pt_transfer_edge':
+          push(fringe, (vu_dist, next(c), u, in_veh_tt_till_u, wait_time_till_u, walk_tt_till_u, distance_till_u, cost_till_u, line_trasnf_num_till_u, mode_transf_num_till_u, e_type, None, time_till_u, previous_edge_cost, zone_at_start_of_pt_trip))
+        if paths is not None:
+          paths[u] = paths[v] + [u]
+        if pred is not None:
+          pred[u] = [v]
+      elif vu_dist == seen[u]:
+        if pred is not None:
+          pred[u].append(v)
+
+  # The optional predecessor and path dictionaries can be accessed
+  # by the caller via the pred and paths objects passed as arguments.
+
+  try:
+    return (weight_label[target], paths[target], in_veh_tt_label[target], wait_time_label[target], walk_tt_label[target], distance_label[target], mon_cost_label[target], line_trans_num_label[target], mode_trans_num_label[target], in_veh_tt_label, wait_time_label, walk_tt_label, distance_label, mon_cost_label, line_trans_num_label, mode_trans_num_label, weight_label, prev_edge_type_label, last_pt_veh_run_id_label, current_time_label, prev_edge_cost_label, pt_trip_start_zone_label)
+  except KeyError:
+    raise nx.NetworkXNoPath("Node %s not reachable from %s" % (target, source))
