@@ -980,13 +980,17 @@ def _bidirectional_dijkstra(G, source, target, weight='weight',
     raise nx.NetworkXNoPath("No path between %s and %s." % (source, target))
 
 
-def k_shortest_paths_LY(G, source, target, time_of_request, k, travel_time='travel_time', distance='distance', pt_additive_cost='pt_distance_based_cost', pt_non_additive_cost='pt_zone_to_zone_cost', taxi_fares='taxi_fares', taxi_wait_time='taxi_wait_time', timetable='departure_time', edge_type='edge_type', node_type='node_type', node_graph_type='node_graph_type', pt_fare_scheme='distance_based'):
+def k_shortest_paths_LY(G, source, target, time_of_request, k, travel_time='travel_time', distance='distance', pt_additive_cost='pt_distance_based_cost', pt_non_additive_cost='pt_zone_to_zone_cost', taxi_fares='taxi_fares', taxi_wait_time='taxi_wait_time', timetable='departure_time', edge_type='edge_type', node_type='node_type', node_graph_type='node_graph_type', fare_scheme='distance_based', walk_attrs_w=[], bus_attrs_w=[], train_attrs_w=[], taxi_attrs_w=[], sms_attrs_w=[], sms_pool_attrs_w=[], mode_transfer_weight=0):
 
-    return list(islice(shortest_simple_paths_LY(G, source, target, time_of_request, travel_time=travel_time, distance=distance, pt_additive_cost=pt_additive_cost, pt_non_additive_cost=pt_non_additive_cost, taxi_fares=taxi_fares, taxi_wait_time=taxi_wait_time, timetable=timetable, edge_type=edge_type, node_type=node_type, node_graph_type=node_graph_type, fare_scheme=fare_scheme), k))
+    return(shortest_simple_paths_LY(G, source, target, time_of_request, k, travel_time=travel_time, distance=distance, pt_additive_cost=pt_additive_cost, pt_non_additive_cost=pt_non_additive_cost, taxi_fares=taxi_fares, taxi_wait_time=taxi_wait_time, timetable=timetable, edge_type=edge_type, node_type=node_type, node_graph_type=node_graph_type, fare_scheme=fare_scheme, walk_attrs_w=walk_attrs_w, bus_attrs_w=bus_attrs_w, train_attrs_w=train_attrs_w, taxi_attrs_w=taxi_attrs_w, sms_attrs_w=sms_attrs_w, sms_pool_attrs_w=sms_pool_attrs_w, mode_transfer_weight=mode_transfer_weight))
+
+
+    # return islice(shortest_simple_paths_LY(G, source, target, time_of_request, travel_time=travel_time, distance=distance, pt_additive_cost=pt_additive_cost, pt_non_additive_cost=pt_non_additive_cost, taxi_fares=taxi_fares, taxi_wait_time=taxi_wait_time, timetable=timetable, edge_type=edge_type, node_type=node_type, node_graph_type=node_graph_type, fare_scheme=fare_scheme, walk_attrs_w=walk_attrs_w, bus_attrs_w=bus_attrs_w, train_attrs_w=train_attrs_w, taxi_attrs_w=taxi_attrs_w, sms_attrs_w=sms_attrs_w, sms_pool_attrs_w=sms_pool_attrs_w, mode_transfer_weight=mode_transfer_weight), k)
+    # list(islice(shortest_simple_paths_LY(G, source, target, time_of_request, travel_time=travel_time, distance=distance, pt_additive_cost=pt_additive_cost, pt_non_additive_cost=pt_non_additive_cost, taxi_fares=taxi_fares, taxi_wait_time=taxi_wait_time, timetable=timetable, edge_type=edge_type, node_type=node_type, node_graph_type=node_graph_type, fare_scheme=fare_scheme, walk_attrs_w=walk_attrs_w, bus_attrs_w=bus_attrs_w, train_attrs_w=train_attrs_w, taxi_attrs_w=taxi_attrs_w, sms_attrs_w=sms_attrs_w, sms_pool_attrs_w=sms_pool_attrs_w, mode_transfer_weight=mode_transfer_weight), k))
 
 
 @not_implemented_for('multigraph')
-def shortest_simple_paths_LY(G, source, target, time_of_request, travel_time=None, distance=None, pt_additive_cost=None, pt_non_additive_cost=None, taxi_fares=None, taxi_wait_time=None, timetable=None, edge_type=None, node_type=None, node_graph_type=None, fare_scheme=None):
+def shortest_simple_paths_LY(G, source, target, time_of_request, k, travel_time=None, distance=None, pt_additive_cost=None, pt_non_additive_cost=None, taxi_fares=None, taxi_wait_time=None, timetable=None, edge_type=None, node_type=None, node_graph_type=None, fare_scheme=None, walk_attrs_w=[], bus_attrs_w=[], train_attrs_w=[], taxi_attrs_w=[], sms_attrs_w=[], sms_pool_attrs_w=[], mode_transfer_weight=0):
 
     if source not in G:
         raise nx.NodeNotFound('source node %s not in graph' % source)
@@ -994,6 +998,7 @@ def shortest_simple_paths_LY(G, source, target, time_of_request, travel_time=Non
     if target not in G:
         raise nx.NodeNotFound('target node %s not in graph' % target)
 
+    path_num = 0
     push = heappush
     pop = heappop
     c = count()
@@ -1001,11 +1006,11 @@ def shortest_simple_paths_LY(G, source, target, time_of_request, travel_time=Non
 
     listA = list()
     listB = list()
+    kpaths_dict = {}
     prev_path = None
 
-    while True:
+    while path_num<=k-1:
         if not prev_path:      # if previous path is empty; in the beginning of the algorithm we find the best path
-            k=1
             kmin1path_node_travel_time_data = {}
             kmin1path_node_wait_time_data = {}
             kmin1path_node_dist_data = {}
@@ -1021,13 +1026,12 @@ def shortest_simple_paths_LY(G, source, target, time_of_request, travel_time=Non
             kmin1path_node_pt_trip_start_zone_data = {}
             kmin1path_previous_edge_mode_data = {}
 
-            best_weight, best_path, best_tt, best_wtt, best_dist, best_cost, best_num_line_transfers, best_num_mode_transfers, path_tt_data, path_wtt_data, path_dist_data, path_cost_data, path_line_trf_data, path_mode_trf_data, path_weight_labels, previous_edge_type_labels, previous_upstr_node_graph_type_labels, last_pt_vehicle_run_id_labels, current_time_labels, previous_edge_cost_labels, pt_trip_start_zone_labels, previous_edge_mode_labels = shortest_path_func(G, source, target, time_of_request, travel_time=travel_time, distance=distance, pt_additive_cost=pt_additive_cost, pt_non_additive_cost=pt_non_additive_cost, taxi_fares=taxi_cost, taxi_wait_time=taxi_wait_time, timetable=timetable, edge_type=edge_type, node_type=node_type, node_graph_type=node_graph_type, fare_scheme=fare_scheme, ignore_nodes=None, ignore_edges=None, current_time=time_of_request, paths=None)  #shortest_path_nodes_seq_data
+            best_weight, best_path, best_tt, best_wtt, best_dist, best_cost, best_num_line_transfers, best_num_mode_transfers, path_tt_data, path_wtt_data, path_dist_data, path_cost_data, path_line_trf_data, path_mode_trf_data, path_weight_labels, previous_edge_type_labels, previous_upstr_node_graph_type_labels, last_pt_vehicle_run_id_labels, current_time_labels, previous_edge_cost_labels, pt_trip_start_zone_labels, previous_edge_mode_labels = shortest_path_func(G, source, target, time_of_request, travel_time=travel_time, distance=distance, pt_additive_cost=pt_additive_cost, pt_non_additive_cost=pt_non_additive_cost, taxi_fares=taxi_fares, taxi_wait_time=taxi_wait_time, timetable=timetable, edge_type=edge_type, node_type=node_type, node_graph_type=node_graph_type, fare_scheme=fare_scheme, ignore_nodes=None, ignore_edges=None, current_time=time_of_request, walk_attrs_w=walk_attrs_w, bus_attrs_w=bus_attrs_w, train_attrs_w=train_attrs_w, taxi_attrs_w=taxi_attrs_w, sms_attrs_w=sms_attrs_w, sms_pool_attrs_w=sms_pool_attrs_w, mode_transfer_weight=mode_transfer_weight, paths=None)  #shortest_path_nodes_seq_data
 
 
             push(listB, (best_weight, next(c), best_path, best_tt, best_wtt, best_dist, best_cost, best_num_line_transfers, best_num_mode_transfers, path_tt_data, path_wtt_data, path_dist_data, path_cost_data, path_line_trf_data, path_mode_trf_data, path_weight_labels, previous_edge_type_labels, previous_upstr_node_graph_type_labels, last_pt_vehicle_run_id_labels, current_time_labels, previous_edge_cost_labels, pt_trip_start_zone_labels, previous_edge_mode_labels, None))  #shortest_path_nodes_seq_data, None
 
         else:
-            k+=1
             ignore_nodes = set()
             ignore_edges = set()
             for i in range(1, len(prev_path)):
@@ -1036,7 +1040,7 @@ def shortest_simple_paths_LY(G, source, target, time_of_request, travel_time=Non
                     if path[:i] == root:
                         ignore_edges.add((path[i - 1], path[i]))
                 try:
-                    best_weight, best_path, best_tt, best_wtt, best_dist, best_cost, best_num_line_transfers, best_num_mode_transfers, path_tt_data, path_wtt_data, path_dist_data, path_cost_data, path_line_trf_data, path_mode_trf_data, path_weight_labels, previous_edge_type_labels, previous_upstr_node_graph_type_labels, last_pt_vehicle_run_id_labels, current_time_labels, previous_edge_cost_labels, pt_trip_start_zone_labels, previous_edge_mode_labels = shortest_path_func(G, root[-1], target, time_of_request, travel_time=travel_time, distance=distance, pt_additive_cost=pt_additive_cost, pt_non_additive_cost=pt_non_additive_cost, taxi_fares=taxi_fares, taxi_wait_time=taxi_wait_time, timetable=timetable, edge_type=edge_type, node_type=node_type, fare_scheme=fare_scheme, ignore_nodes=ignore_nodes, ignore_edges=ignore_edges, init_travel_time=kmin1path_node_travel_time_data[root[-1]], init_wait_time=kmin1path_node_wait_time_data[root[-1]], init_distance=kmin1path_node_dist_data[root[-1]], init_cost=kmin1path_node_cost_data[root[-1]], init_num_line_trfs=kmin1path_node_line_trfs_data[root[-1]], init_num_mode_trfs=kmin1path_node_mode_trfs_data[root[-1]], last_edge_type=kmin1path_node_prev_edge_type_data[root[-1]], last_dwnstr_node_graph_type=kmin1path_node_prev_graph_type_data[root[-1]], last_pt_veh_run_id=kmin1path_node_last_pt_veh_run_id_data[root[-1]], current_time=kmin1path_node_current_time_data[root[-1]], last_edge_cost=kmin1path_node_last_edge_cost_data[root[-1]], pt_trip_orig_zone=kmin1path_node_pt_trip_start_zone_data[root[-1]], previous_edge_mode=kmin1path_previous_edge_mode_data[root[-1]], pred=None, paths=None)  #shortest_path_nodes_seq_data # need to change the way this function calculates the shortes path and the weight function it considers. we need elements from thr last node of the route path
+                    best_weight, best_path, best_tt, best_wtt, best_dist, best_cost, best_num_line_transfers, best_num_mode_transfers, path_tt_data, path_wtt_data, path_dist_data, path_cost_data, path_line_trf_data, path_mode_trf_data, path_weight_labels, previous_edge_type_labels, previous_upstr_node_graph_type_labels, last_pt_vehicle_run_id_labels, current_time_labels, previous_edge_cost_labels, pt_trip_start_zone_labels, previous_edge_mode_labels = shortest_path_func(G, root[-1], target, time_of_request, travel_time=travel_time, distance=distance, pt_additive_cost=pt_additive_cost, pt_non_additive_cost=pt_non_additive_cost, taxi_fares=taxi_fares, taxi_wait_time=taxi_wait_time, timetable=timetable, edge_type=edge_type, node_type=node_type, fare_scheme=fare_scheme, ignore_nodes=ignore_nodes, ignore_edges=ignore_edges, init_travel_time=kmin1path_node_travel_time_data[root[-1]], init_wait_time=kmin1path_node_wait_time_data[root[-1]], init_distance=kmin1path_node_dist_data[root[-1]], init_cost=kmin1path_node_cost_data[root[-1]], init_num_line_trfs=kmin1path_node_line_trfs_data[root[-1]], init_num_mode_trfs=kmin1path_node_mode_trfs_data[root[-1]], last_edge_type=kmin1path_node_prev_edge_type_data[root[-1]], last_upstr_node_graph_type=kmin1path_node_prev_graph_type_data[root[-1]], last_pt_veh_run_id=kmin1path_node_last_pt_veh_run_id_data[root[-1]], current_time=kmin1path_node_current_time_data[root[-1]], last_edge_cost=kmin1path_node_last_edge_cost_data[root[-1]], pt_trip_orig_zone=kmin1path_node_pt_trip_start_zone_data[root[-1]], previous_edge_mode=kmin1path_previous_edge_mode_data[root[-1]], walk_attrs_w=walk_attrs_w, bus_attrs_w=bus_attrs_w, train_attrs_w=train_attrs_w, taxi_attrs_w=taxi_attrs_w, sms_attrs_w=sms_attrs_w, sms_pool_attrs_w=sms_pool_attrs_w, mode_transfer_weight=mode_transfer_weight, pred=None, paths=None)  #shortest_path_nodes_seq_data # need to change the way this function calculates the shortes path and the weight function it considers. we need elements from thr last node of the route path
 
                     push(listB, (best_weight, next(c), best_path, best_tt, best_wtt, best_dist, best_cost, best_num_line_transfers, best_num_mode_transfers, path_tt_data, path_wtt_data, path_dist_data, path_cost_data, path_line_trf_data, path_mode_trf_data, path_weight_labels, previous_edge_type_labels, previous_upstr_node_graph_type_labels, last_pt_vehicle_run_id_labels, current_time_labels, previous_edge_cost_labels, pt_trip_start_zone_labels, previous_edge_mode_labels, root)) #shortest_path_nodes_seq_data
 
@@ -1045,32 +1049,35 @@ def shortest_simple_paths_LY(G, source, target, time_of_request, travel_time=Non
                 ignore_nodes.add(root[-1])
 
         if listB:
-            (prev_best_w, _, prev_best_p, prev_best_tt, prev_best_wait_t, prev_best_dist, prev_best_cost, prev_best_n_line_trfs, prev_best_n_mode_trfs, prev_path_in_v_tt_d, prev_path_wait_t_d, prev_path_walk_t_d, prev_path_dist_d, prev_path_cost_d, prev_path_n_line_trfs_d, prev_path_n_mode_trfs_d, prev_path_weight_d, prev_previous_e_tp_d, prev_previous_upstr_n_gt_d, prev_l_pt_veh_run_id_d, prev_path_node_curr_t_d, prev_prev_e_cost_d, prev_pt_tr_start_zone_d, prev_edge_md_d, root) = pop(listB) #prev_s_path_node_seq_d
+            (prev_best_w, _, prev_best_p, prev_best_tt, prev_best_wait_t, prev_best_dist, prev_best_cost, prev_best_n_line_trfs, prev_best_n_mode_trfs, prev_path_tt_d, prev_path_wtt_d, prev_path_dist_d, prev_path_cost_d, prev_path_n_line_trfs_d, prev_path_n_mode_trfs_d, prev_path_weight_d, prev_previous_e_tp_d, prev_previous_upstr_n_gt_d, prev_l_pt_veh_run_id_d, prev_path_node_curr_t_d, prev_prev_e_cost_d, prev_pt_tr_start_zone_d, prev_edge_md_d, root) = pop(listB) #prev_s_path_node_seq_d
             # path = listB.pop()
-            if k!=1:
+            if path_num != 0:
                 prev_best_p[:0]=root[:-1]
-            yield prev_best_p
+            # yield prev_best_p
             listA.append(prev_best_p)
             prev_path = prev_best_p
-            kmin1path_node_travel_time_data.update(prev_path_in_v_tt_d)# = prev_path_in_v_tt_d
-            kmin1path_node_wait_time_data.update(prev_path_wait_t_d)# = prev_path_wait_t_d
+            kpaths_dict.update({str(prev_path): [prev_best_w, prev_best_tt, prev_best_wait_t, prev_best_dist, prev_best_cost, prev_best_n_line_trfs, prev_best_n_mode_trfs]})
+            kmin1path_node_travel_time_data.update(prev_path_tt_d)# = prev_path_in_v_tt_d
+            kmin1path_node_wait_time_data.update(prev_path_wtt_d)# = prev_path_wait_t_d
             kmin1path_node_dist_data.update(prev_path_dist_d)# = prev_path_dist_d
             kmin1path_node_cost_data.update(prev_path_cost_d)# = prev_path_cost_d
             kmin1path_node_line_trfs_data.update(prev_path_n_line_trfs_d)# = prev_path_n_line_trfs_d
             kmin1path_node_mode_trfs_data.update(prev_path_n_mode_trfs_d)# = prev_path_n_mode_trfs_d
             kmin1path_node_weight_data.update(prev_path_weight_d)# = prev_path_weight_d
             kmin1path_node_prev_edge_type_data.update(prev_previous_e_tp_d)# = prev_previous_e_tp_d
-            kmin1path_node_prev_graph_type_data.update(prev_previous_dwnstr_n_gt_d)
+            kmin1path_node_prev_graph_type_data.update(prev_previous_upstr_n_gt_d)
             kmin1path_node_last_pt_veh_run_id_data.update(prev_l_pt_veh_run_id_d)# = prev_l_pt_veh_run_id_d
             kmin1path_node_current_time_data.update(prev_path_node_curr_t_d)# = prev_path_node_curr_t_d
             kmin1path_node_last_edge_cost_data.update(prev_prev_e_cost_d)# = prev_prev_e_cost_d
             kmin1path_node_pt_trip_start_zone_data.update(prev_pt_tr_start_zone_d)# = prev_pt_tr_start_zone_d
             kmin1path_previous_edge_mode_data.update(prev_edge_md_d)
+            path_num += 1
         else:
             break
+    return(kpaths_dict)
 
 
-def LY_shortest_path_with_attrs(G, source, target, time_of_request, travel_time='travel_time', distance='distance', pt_additive_cost='pt_distance_based_cost', pt_non_additive_cost='pt_zone_to_zone_cost', taxi_fares='taxi_fares', taxi_wait_time='taxi_wait_time', timetable='departure_time', edge_type='edge_type', node_type='node_type', node_graph_type='node_graph_type', fare_scheme='distance_based', ignore_nodes=None, ignore_edges=None, init_travel_time = 0, init_wait_time = 0, init_distance = 0, init_cost = 0, init_num_line_trfs = 0, init_num_mode_trfs = 0, last_edge_type=None, last_upstr_node_graph_type=None, last_pt_veh_run_id=None, current_time=0, last_edge_cost=0, pt_trip_orig_zone=None, previous_edge_mode=None, w_wtt=0, w_tt=0, w_wkt=0, w_dist=0, w_cost=0, w_nlt=0, w_nmt=0, pred=None, paths=None):
+def LY_shortest_path_with_attrs(G, source, target, time_of_request, travel_time='travel_time', distance='distance', pt_additive_cost='pt_distance_based_cost', pt_non_additive_cost='pt_zone_to_zone_cost', taxi_fares='taxi_fares', taxi_wait_time='taxi_wait_time', timetable='departure_time', edge_type='edge_type', node_type='node_type', node_graph_type='node_graph_type', fare_scheme='distance_based', ignore_nodes=None, ignore_edges=None, init_travel_time = 0, init_wait_time = 0, init_distance = 0, init_cost = 0, init_num_line_trfs = 0, init_num_mode_trfs = 0, last_edge_type=None, last_upstr_node_graph_type=None, last_pt_veh_run_id=None, current_time=0, last_edge_cost=0, pt_trip_orig_zone=None, previous_edge_mode=None, walk_attrs_w=[], bus_attrs_w=[], train_attrs_w=[], taxi_attrs_w=[], sms_attrs_w=[], sms_pool_attrs_w=[], mode_transfer_weight=0, pred=None, paths=None):
 
   if source not in G:
     raise nx.NodeNotFound("Source {} not in G".format(source))
@@ -1095,11 +1102,11 @@ def LY_shortest_path_with_attrs(G, source, target, time_of_request, travel_time=
   taxi_wait_time = _get_taxi_wait_time(G, taxi_wait_time)
 
 
-  return _LY_dijkstra(G, source, target, time_of_request, travel_time, distance, pt_additive_cost, pt_non_additive_cost, taxi_fares, taxi_wait_time, timetable, edge_type, node_type, node_graph_type, fare_scheme, ignore_nodes, ignore_edges, init_travel_time, init_wait_time, init_distance, init_cost, init_num_line_trfs, init_num_mode_trfs, last_edge_type, last_upstr_node_graph_type, last_pt_veh_run_id, current_time, last_edge_cost, pt_trip_orig_zone, previous_edge_mode, w_wtt, w_tt, w_wkt, w_dist, w_cost, w_nlt, w_nmt, pred=None, paths=paths)
+  return _LY_dijkstra(G, source, target, time_of_request, travel_time, distance, pt_additive_cost, pt_non_additive_cost, taxi_fares, taxi_wait_time, timetable, edge_type, node_type, node_graph_type, fare_scheme, ignore_nodes, ignore_edges, init_travel_time, init_wait_time, init_distance, init_cost, init_num_line_trfs, init_num_mode_trfs, last_edge_type, last_upstr_node_graph_type, last_pt_veh_run_id, current_time, last_edge_cost, pt_trip_orig_zone, previous_edge_mode, walk_attrs_w, bus_attrs_w, train_attrs_w, taxi_attrs_w, sms_attrs_w, sms_pool_attrs_w, mode_transfer_weight, pred=None, paths=paths)
 
 
 
-def _LY_dijkstra(G, source, target, time_of_request, travel_time_data, distance_data, pt_additive_cost_data, pt_non_additive_cost_data, taxi_fares, taxi_wait_time, timetable_data, edge_type_data, node_type_data, node_graph_type_data, fare_scheme, ignore_nodes, ignore_edges, init_travel_time, init_wait_time, init_distance, init_cost, init_num_line_trfs, init_num_mode_trfs, last_edge_type, last_upstr_node_graph_type, last_pt_veh_run_id, current_time, last_edge_cost, pt_trip_orig_zone, previous_edge_mode, w_wtt, w_tt, w_wkt, w_dist, w_cost, w_nlt, w_nmt, pred=None, paths=None):
+def _LY_dijkstra(G, source, target, time_of_request, travel_time_data, distance_data, pt_additive_cost_data, pt_non_additive_cost_data, taxi_fares, taxi_wait_time, timetable_data, edge_type_data, node_type_data, node_graph_type_data, fare_scheme, ignore_nodes, ignore_edges, init_travel_time, init_wait_time, init_distance, init_cost, init_num_line_trfs, init_num_mode_trfs, last_edge_type, last_upstr_node_graph_type, last_pt_veh_run_id, current_time, last_edge_cost, pt_trip_orig_zone, previous_edge_mode, walk_attrs_w, bus_attrs_w, train_attrs_w, taxi_attrs_w, sms_attrs_w, sms_pool_attrs_w, mode_transfer_weight, pred=None, paths=None):
 
   # handles only directed
     Gsucc = G.successors
@@ -1194,7 +1201,8 @@ def _LY_dijkstra(G, source, target, time_of_request, travel_time_data, distance_
           # n_type = node_type_data(v, G.nodes[v])
           n_gr_type = node_graph_type_data(v, G.nodes[v])
           prev_mode = pr_md
-          if e_type == 'taxi_edge':
+
+          if e_type == 'taxi_edge' or e_type == 'on_demand_single_taxi_edge' or e_type == 'on_demand_shared_taxi_edge':
             e_wait_time_data = taxi_wait_time(v, u, G[v][u])
             e_wait_time = get_time_dep_taxi_wait_time(curr_time, e_wait_time_data)
             tt_d = travel_time_data(v, u, G[v][u])
@@ -1224,9 +1232,15 @@ def _LY_dijkstra(G, source, target, time_of_request, travel_time_data, distance_
             cost_till_u = mon_cost_label[v] + e_cost
             line_trasnf_num_till_u = line_trans_num_label[v] + e_num_lin_trf
             mode_transf_num_till_u = mode_trans_num_label[v] + e_num_mode_trf
-
             time_till_u = curr_time + e_tt + e_wait_time
-            vu_dist = weight_label[v] + w_tt*e_tt + w_wtt*e_wait_time + w_dist*e_distance + w_cost*e_cost + w_nlt*e_num_lin_trf + w_nmt*e_num_mode_trf
+
+            if e_type == 'taxi_edge':
+              vu_dist = weight_label[v] + taxi_attrs_w[0]*e_tt + taxi_attrs_w[1]*e_wait_time + taxi_attrs_w[2]*e_distance + taxi_attrs_w[3]*e_cost + taxi_attrs_w[4]*e_num_lin_trf
+            elif e_type == 'on_demand_single_taxi_edge':
+              vu_dist = weight_label[v] + sms_attrs_w[0]*e_tt + sms_attrs_w[1]*e_wait_time + sms_attrs_w[2]*e_distance + sms_attrs_w[3]*e_cost + sms_attrs_w[4]*e_num_lin_trf
+            elif e_type == 'on_demand_shared_taxi_edge':
+              vu_dist = weight_label[v] + sms_pool_attrs_w[0]*e_tt + sms_pool_attrs_w[1]*e_wait_time + sms_pool_attrs_w[2]*e_distance + sms_pool_attrs_w[3]*e_cost + sms_pool_attrs_w[4]*e_num_lin_trf
+
           if e_type == 'walk_edge':
             e_tt = travel_time_data(v, u, G[v][u])  # funtion that extracts the edge's in-vehicle travel time attribute
             if e_tt is None:
@@ -1250,7 +1264,7 @@ def _LY_dijkstra(G, source, target, time_of_request, travel_time_data, distance_
 
             time_till_u = curr_time + e_tt + e_wait_time
 
-            vu_dist = weight_label[v] + w_tt*e_tt + w_wtt*e_wait_time + w_dist*e_distance + w_cost*e_cost + w_nlt*e_num_lin_trf + w_nmt*e_num_mode_trf
+            vu_dist = weight_label[v] + walk_attrs_w[0]*e_tt + walk_attrs_w[1]*e_wait_time + walk_attrs_w[2]*e_distance + walk_attrs_w[3]*e_cost + walk_attrs_w[4]*e_num_lin_trf
           # if e_type == 'orig_dummy_edge':
           #   road_edge_cost = weight(v, u, G[v][u])
           #   if road_edge_cost is None:
@@ -1264,43 +1278,37 @@ def _LY_dijkstra(G, source, target, time_of_request, travel_time_data, distance_
           if e_type == 'access_edge':
             penalty = 0
             ### when we are at an access edge that connects graphs we need to penalize unreasonable connections and path loops; e.g., from walk node to another mode-specific node and back to walk node, from a taxi/carsharing trip to a walk trip and back to taxi/carsharing trip
-            if (pr_md == 'Taxi' and G.nodes[u]['node_graph_type'] == 'Taxi') or (pr_md == 'On_Demand_Taxi_Single' and G.nodes[u]['node_graph_type'] == 'On_Demand_Taxi_Single') or (pr_md == 'On_Demand_Taxi_Pool' and G.nodes[u]['node_graph_type'] == 'On_Demand_Taxi_Pool') or (pr_md == 'Carsharing' and G.nodes[u]['node_graph_type'] == 'Carsharing'):
+            if (pr_md == 'taxi_graph' and G.nodes[u]['node_graph_type'] == 'taxi_graph') or (pr_md == 'taxi_graph' and G.nodes[u]['node_graph_type'] == 'on_demand_single_taxi_graph') or (pr_md == 'taxi_graph' and G.nodes[u]['node_graph_type'] == 'on_demand_shared_taxi_graph') or (pr_md == 'on_demand_single_taxi_graph' and G.nodes[u]['node_graph_type'] == 'taxi_graph') or (pr_md == 'on_demand_single_taxi_graph' and G.nodes[u]['node_graph_type'] == 'on_demand_single_taxi_graph') or (pr_md == 'on_demand_single_taxi_graph' and G.nodes[u]['node_graph_type'] == 'on_demand_shared_taxi_graph') or (pr_md == 'on_demand_shared_taxi_graph' and G.nodes[u]['node_graph_type'] == 'taxi_graph') or (pr_md == 'on_demand_shared_taxi_graph' and G.nodes[u]['node_graph_type'] == 'on_demand_single_taxi_graph') or (pr_md == 'on_demand_shared_taxi_graph' and G.nodes[u]['node_graph_type'] == 'on_demand_shared_taxi_graph'):
               penalty = math.inf
             if pr_ed_tp == 'access_edge':
-              if (pre_upstr_n_gr_tp == 'Walk' and G.nodes[u]['node_graph_type'] == 'Walk') or (pre_upstr_n_gr_tp == 'Bus' and G.nodes[u]['node_graph_type'] == 'Bus' and G.nodes[v]['node_graph_type']=='Train') or (pre_upstr_n_gr_tp == 'Train' and G.nodes[u]['node_graph_type'] == 'Tain' and G.nodes[v]['node_graph_type']=='Bus'):
+              if (pre_upstr_n_gr_tp == 'Walk' and G.nodes[u]['node_graph_type'] == 'Walk') or (pre_upstr_n_gr_tp == 'Bus' and G.nodes[u]['node_graph_type'] == 'Bus') or (pre_upstr_n_gr_tp == 'Train' and G.nodes[u]['node_graph_type'] == 'Tain'):
                 penalty = math.inf
-            e_tt = travel_time_data(v, u, G[v][u])  # funtion that extracts the edge's in-vehicle travel time attribute
-            if e_tt is None:
-              print('Missing in_veh_tt value in edge {}'.format((v, u)))
-              continue
+            e_tt = 0
             e_wait_time = 0
-            e_distance = distance_data(v, u, G[v][u])        # funtion that extracts the edge's distance attribute
-            if e_distance is None:
-              print('Missing distance value in edge {}'.format((v, u)))
-              continue
+            e_distance = 0
             e_cost = 0
+            e_num_mode_trf = 0
+            e_num_lin_trf = 0
             # from mode and line transfers we store the previous path mode (not considering walk as a mode) and if a path with a new mode starts then we have a mode transfer, if with the same mode then a line transfer
             if G.nodes[v]['node_graph_type'] == 'Walk':
-              if G.nodes[u]['node_graph_type'] != pr_md and pr_md != None:
+              if pr_md != None and G.nodes[u]['node_graph_type'] != pr_md:
                 e_num_mode_trf = 1
                 e_num_lin_trf = 0
-              elif G.nodes[u]['node_graph_type'] == pr_md and pr_md != None and (pr_md =='Train' or pr_md =='Bus'):
+              elif (pr_md =='Train' or pr_md =='Bus') and G.nodes[u]['node_graph_type'] == pr_md:
                 e_num_mode_trf = 0
                 e_num_lin_trf = 1
             if G.nodes[u]['node_graph_type'] == 'Walk':
               prev_mode = G.nodes[v]['node_graph_type']
-              e_num_mode_trf = 0
-              e_num_lin_trf = 0
-            # following two conditions are just because we lack proper walk graph representation in VC
-            if G.nodes[v]['node_graph_type'] == 'Bus' and G.nodes[u]['node_graph_type'] == 'Train':
-              e_num_mode_trf = 1
-              e_num_lin_trf = 0
-              prev_mode = G.nodes[v]['node_graph_type']
-            if G.nodes[u]['node_graph_type'] == 'Bus' and G.nodes[v]['node_graph_type'] == 'Train':
-              e_num_mode_trf = 1
-              e_num_lin_trf = 0
-              prev_mode = G.nodes[v]['node_graph_type']
 
+            # # following two conditions are just because we lack proper walk graph representation in VC
+            # if G.nodes[v]['node_graph_type'] == 'Bus' and G.nodes[u]['node_graph_type'] == 'Train':
+            #   e_num_mode_trf = 1
+            #   e_num_lin_trf = 0
+            #   prev_mode = G.nodes[v]['node_graph_type']
+            # if G.nodes[u]['node_graph_type'] == 'Bus' and G.nodes[v]['node_graph_type'] == 'Train':
+            #   e_num_mode_trf = 1
+            #   e_num_lin_trf = 0
+            #   prev_mode = G.nodes[v]['node_graph_type']
 
             time_till_u = curr_time + e_tt + e_wait_time
 
@@ -1308,17 +1316,18 @@ def _LY_dijkstra(G, source, target, time_of_request, travel_time_data, distance_
             wait_time_till_u = wait_time_label[v] + e_wait_time
             distance_till_u = distance_label[v] + e_distance
             cost_till_u = mon_cost_label[v] + e_cost
+
             line_trasnf_num_till_u = line_trans_num_label[v] + e_num_lin_trf
             mode_transf_num_till_u = mode_trans_num_label[v] + e_num_mode_trf
 
-            vu_dist = weight_label[v] + w_tt*e_tt + w_wtt*e_wait_time + w_dist*e_distance + w_cost*e_cost + w_nlt*e_num_lin_trf + w_nmt*e_num_mode_trf + penalty
+            vu_dist = weight_label[v] + bus_attrs_w[4]*e_num_lin_trf + mode_transfer_weight*e_num_mode_trf + penalty
           # cost calculation process for a transfer edge in bus or train stops/stations
 
           if e_type == 'pt_transfer_edge':
             # for zone_to_zone pt fare scheme we store the zone of the stop/station in which a pt trip started (origin); this zone will be used for the calculcation of the edge cost based on which pt stop the algorithm checks and hence the final stop of the pt trip
             if fare_scheme == 'zone_to_zone':
-              if pr_ed_tp != 'access_edge':
-                if prev_mode != 'Bus' or prev_mode != 'Train':
+              if pr_ed_tp == 'access_edge':
+                if pr_md != 'Bus' or pr_md != 'Train':
                   zone_at_start_of_pt_trip = G.nodes[v]['zone']
                   previous_edge_cost = 0
             e_tt = travel_time_data(v, u, G[v][u])  # funtion that extracts the edge's in-vehicle travel time attribute
@@ -1348,7 +1357,11 @@ def _LY_dijkstra(G, source, target, time_of_request, travel_time_data, distance_
             line_trasnf_num_till_u = line_trans_num_label[v] + e_num_lin_trf
             mode_transf_num_till_u = mode_trans_num_label[v] + e_num_mode_trf
 
-            vu_dist = weight_label[v] + w_tt*e_tt + w_wtt*e_wait_time + w_dist*e_distance + w_cost*e_cost + w_nlt*e_num_lin_trf + w_nmt*e_num_mode_trf #+ e_distance
+            if G.nodes[u]['node_graph_type'] == 'Bus' and G.nodes[v]['node_graph_type'] == 'Bus':
+              vu_dist = weight_label[v] + bus_attrs_w[0]*e_tt + bus_attrs_w[1]*e_wait_time + bus_attrs_w[2]*e_distance + bus_attrs_w[3]*e_cost + bus_attrs_w[4]*e_num_lin_trf
+            else:
+              vu_dist = weight_label[v] + train_attrs_w[0]*e_tt + train_attrs_w[1]*e_wait_time + train_attrs_w[2]*e_distance + train_attrs_w[3]*e_cost + train_attrs_w[4]*e_num_lin_trf
+
           # cost calculation process for a pt route edge in bus or train stops/stations
           if e_type == 'pt_route_edge':
             # for pt route edges the waiting time and travel time is calculated differently; based on the time-dependent model and the FIFO assumption, if the type of previous edge is transfer edge, we assume that the fastest trip will be the one with the first departing bus/train after the current time (less waiting time) and the travel time will be the one of the corresponding pt vehicle run_id; but if the type of the previous edge is a route edge, then for this line/route a pt_vehcile has already been chosen and the edge travel time will be the one for this specific vehicle of the train/bus line (in this case the wait time is 0)
@@ -1403,7 +1416,11 @@ def _LY_dijkstra(G, source, target, time_of_request, travel_time_data, distance_
             line_trasnf_num_till_u = line_trans_num_label[v] + e_num_lin_trf
             mode_transf_num_till_u = mode_trans_num_label[v] + e_num_mode_trf
 
-            vu_dist = weight_label[v] + w_tt*e_tt + w_wtt*e_wait_time + w_dist*e_distance + w_cost*e_cost + w_nlt*e_num_lin_trf + w_nmt*e_num_mode_trf  # + e_distance # in the case of pt route edges we always subtract the previous edge cost, this way, in case the algorithms checks a successive pt stop/station that is of different zone we add the new cost and remove the previous one; if we have a distance-based cost then the previous edge cost will always be zero
+            if G.nodes[u]['node_graph_type'] == 'Bus' and G.nodes[v]['node_graph_type'] == 'Bus':
+              vu_dist = weight_label[v] + bus_attrs_w[0]*e_tt + bus_attrs_w[1]*e_wait_time + bus_attrs_w[2]*e_distance + bus_attrs_w[3]*e_cost + bus_attrs_w[4]*e_num_lin_trf
+            else:
+              vu_dist = weight_label[v] + train_attrs_w[0]*e_tt + train_attrs_w[1]*e_wait_time + train_attrs_w[2]*e_distance + train_attrs_w[3]*e_cost + train_attrs_w[4]*e_num_lin_trf
+
             if fare_scheme == 'zone_to_zone':
               previous_edge_cost = pt_cur_cost  # here only for the case of zone_to_zone pt fare schemes we update the previous edge cost only after the label (edge weight) calculation
           if u in weight_label:
