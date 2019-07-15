@@ -1404,6 +1404,8 @@ def _LY_dijkstra(G, source, target, time_of_request, travel_time_data, distance_
                 continue
               pt_cur_cost = calc_time_dep_zone_to_zone_cost(zn_to_zn_cost, curr_time, pt_tr_st_z, G.nodes[u]['zone'])  # function that extracts the cost of the edge based on the zone at the start of the pt trip, the zone of current stop/station and the current time we are in
               e_cost = pt_cur_cost - pr_e_cost
+              if pt_cur_cost<pr_e_cost:
+                print('Previous cost is higher than new cost in {}'.format(paths[v]))
             e_num_lin_trf = 0
             e_num_mode_trf = 0
 
