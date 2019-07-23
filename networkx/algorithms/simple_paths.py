@@ -1100,16 +1100,19 @@ def shortest_simple_paths_LY(G, source, target, time_of_request, k, travel_time=
       ignore_nodes = set()
       ignore_edges = set()
       for i in range(1, len(prev_path)):
-        if i == len(prev_path):
-          pass
         root = prev_path[:i]
         for path in listA:
           if path[:i] == root:
             ignore_edges.add((path[i - 1], path[i]))
         try:
           best_weight, best_path, best_tt, best_wtt, best_dist, best_cost, best_num_line_transfers, best_num_mode_transfers, path_tt_data, path_wtt_data, path_dist_data, path_cost_data, path_line_trf_data, path_mode_trf_data, path_weight_labels, previous_edge_type_labels, previous_upstr_node_graph_type_labels, last_pt_vehicle_run_id_labels, current_time_labels, previous_edge_cost_labels, pt_trip_start_zone_labels, previous_edge_mode_labels = shortest_path_func(G, root[-1], target, time_of_request, travel_time=travel_time, distance=distance, pt_additive_cost=pt_additive_cost, pt_non_additive_cost=pt_non_additive_cost, taxi_fares=taxi_fares, taxi_wait_time=taxi_wait_time, timetable=timetable, edge_type=edge_type, node_type=node_type, fare_scheme=fare_scheme, ignore_nodes=ignore_nodes, ignore_edges=ignore_edges, init_weight=kmin1path_node_weight_data[root[-1]], init_travel_time=kmin1path_node_travel_time_data[root[-1]], init_wait_time=kmin1path_node_wait_time_data[root[-1]], init_distance=kmin1path_node_dist_data[root[-1]], init_cost=kmin1path_node_cost_data[root[-1]], init_num_line_trfs=kmin1path_node_line_trfs_data[root[-1]], init_num_mode_trfs=kmin1path_node_mode_trfs_data[root[-1]], last_edge_type=kmin1path_node_prev_edge_type_data[root[-1]], last_upstr_node_graph_type=kmin1path_node_prev_graph_type_data[root[-1]], last_pt_veh_run_id=kmin1path_node_last_pt_veh_run_id_data[root[-1]], current_time=kmin1path_node_current_time_data[root[-1]], last_edge_cost=kmin1path_node_last_edge_cost_data[root[-1]], pt_trip_orig_zone=kmin1path_node_pt_trip_start_zone_data[root[-1]], previous_edge_mode=kmin1path_previous_edge_mode_data[root[-1]], walk_attrs_w=walk_attrs_w, bus_attrs_w=bus_attrs_w, train_attrs_w=train_attrs_w, taxi_attrs_w=taxi_attrs_w, sms_attrs_w=sms_attrs_w, sms_pool_attrs_w=sms_pool_attrs_w, cs_attrs_w=cs_attrs_w, mode_transfer_weight=mode_transfer_weight, pred=None, paths=None)  #shortest_path_nodes_seq_data # need to change the way this function calculates the shortes path and the weight function it considers. we need elements from thr last node of the route path
-
-          push(listB, (best_weight, next(c), best_path, best_tt, best_wtt, best_dist, best_cost, best_num_line_transfers, best_num_mode_transfers, path_tt_data, path_wtt_data, path_dist_data, path_cost_data, path_line_trf_data, path_mode_trf_data, path_weight_labels, previous_edge_type_labels, previous_upstr_node_graph_type_labels, last_pt_vehicle_run_id_labels, current_time_labels, previous_edge_cost_labels, pt_trip_start_zone_labels, previous_edge_mode_labels, root)) #shortest_path_nodes_seq_data
+          test = 0
+          for entry in listB:
+            if best_path in entry:
+              test += 1
+          if test == 0:
+            push(listB, (best_weight, next(c), best_path, best_tt, best_wtt, best_dist, best_cost, best_num_line_transfers, best_num_mode_transfers, path_tt_data, path_wtt_data, path_dist_data, path_cost_data, path_line_trf_data, path_mode_trf_data, path_weight_labels, previous_edge_type_labels, previous_upstr_node_graph_type_labels, last_pt_vehicle_run_id_labels, current_time_labels, previous_edge_cost_labels, pt_trip_start_zone_labels, previous_edge_mode_labels, root)) #shortest_path_nodes_seq_data
+          # print(listB[0][2])
 
         except nx.NetworkXNoPath:
           pass
@@ -1139,6 +1142,8 @@ def shortest_simple_paths_LY(G, source, target, time_of_request, k, travel_time=
       kmin1path_node_pt_trip_start_zone_data.update(prev_pt_tr_start_zone_d)# = prev_pt_tr_start_zone_d
       kmin1path_previous_edge_mode_data.update(prev_edge_md_d)
       path_num += 1
+      if path_num == 9:
+        pass
     else:
         break
   return(kpaths_dict)
