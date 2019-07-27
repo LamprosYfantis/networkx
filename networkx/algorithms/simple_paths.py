@@ -1428,10 +1428,12 @@ def _LY_dijkstra(G, source, target, time_of_request, travel_time_data, distance_
             #restraint pick up and drop off
             if (G.nodes[v]['node_graph_type'] == 'Walk' and G.nodes[u]['node_graph_type'] == 'taxi_graph') or (G.nodes[v]['node_graph_type'] == 'Walk' and G.nodes[u]['node_graph_type'] == 'on_demand_single_taxi_graph') or (G.nodes[v]['node_graph_type'] == 'Walk' and G.nodes[u]['node_graph_type'] == 'on_demand_shared_taxi_graph'):
               if G.nodes[source]['node_graph_type'] == 'Walk':
-                if (G.nodes[u]['node_graph_type'] == 'taxi_graph' or G.nodes[u]['node_graph_type'] == 'on_demand_single_taxi_graph' or G.nodes[u]['node_graph_type'] == 'on_demand_shared_taxi_graph') and not(G.nodes[v]['is_mode_dupl']) and G.nodes[v]['zone'] == G.nodes[source]['zone'] and v != source:
+                # (G.nodes[u]['node_graph_type'] == 'taxi_graph' or G.nodes[u]['node_graph_type'] == 'on_demand_single_taxi_graph' or G.nodes[u]['node_graph_type'] == 'on_demand_shared_taxi_graph') and
+                if not(G.nodes[v]['is_mode_dupl']) and G.nodes[v]['zone'] == G.nodes[source]['zone'] and v != source:
                   penalty = math.inf
             if (G.nodes[u]['node_graph_type'] == 'Walk' and G.nodes[v]['node_graph_type'] == 'taxi_graph') or (G.nodes[u]['node_graph_type'] == 'Walk' and G.nodes[v]['node_graph_type'] == 'on_demand_single_taxi_graph') or (G.nodes[u]['node_graph_type'] == 'Walk' and G.nodes[v]['node_graph_type'] == 'on_demand_shared_taxi_graph'):
-              if (G.nodes[v]['node_graph_type'] == 'taxi_graph' or G.nodes[v]['node_graph_type'] == 'on_demand_single_taxi_graph' or G.nodes[v]['node_graph_type'] == 'on_demand_shared_taxi_graph') and not(G.nodes[u]['is_mode_dupl']) and G.nodes[u]['zone'] == G.nodes[target]['zone'] and u != target:
+              # (G.nodes[v]['node_graph_type'] == 'taxi_graph' or G.nodes[v]['node_graph_type'] == 'on_demand_single_taxi_graph' or G.nodes[v]['node_graph_type'] == 'on_demand_shared_taxi_graph')
+              if not(G.nodes[u]['is_mode_dupl']) and G.nodes[u]['zone'] == G.nodes[target]['zone'] and u != target:
                 penalty = math.inf
 
             e_tt = 0
