@@ -21,7 +21,6 @@ import math
 from networkx.utils import generate_unique_node
 
 
-
 __author__ = """\n""".join(['Sérgio Nery Simões <sergionery@gmail.com>',
                             'Aric Hagberg <aric.hagberg@gmail.com>',
                             'Andrey Paramonov',
@@ -53,17 +52,24 @@ def find_ge(a, x):  # binary search algorithm #'Find leftmost item greater than 
 
 
 def calc_time_dep_distance_based_cost(dist_based_cost_data={}, current_time=0):
-  current_time = current_time%86399
-  td_cost_data = list(dist_based_cost_data.keys())
-  # sorted_data = sorted(data, key=itemgetter(0))
-  lower_bounds = [lower for lower, _ in td_cost_data]
-  index = bisect.bisect(lower_bounds, current_time) - 1
-  if index < 0:
-      return None
-  # _, upper = sorted_data[index]
-  time_interval = td_cost_data[index]
-  return dist_based_cost_data[time_interval]
+  current_time = current_time % 86399
+  # td_cost_data = list(dist_based_cost_data.keys())
+  # # sorted_data = sorted(data, key=itemgetter(0))
+  # lower_bounds = [lower for lower, _ in td_cost_data]
+  # index = bisect.bisect(lower_bounds, current_time) - 1
+  # if index < 0:
+  #     return None
+  # # _, upper = sorted_data[index]
+  # time_interval = td_cost_data[index]
+  # return dist_based_cost_data[time_interval]
   #   # return index if ip <= upper else None
+  for time_intrvl in dist_based_cost_data:
+    if int(current_time) >= int(time_intrvl[0]) and int(current_time) <= int(time_intrvl[1]):
+      cost = dist_based_cost_data[time_intrvl]
+      break
+    if cost is None:
+      print('No cost from zone_to_zone data found')
+    return cost
 
 def calc_time_dep_zone_to_zone_cost(zn_to_zn_cost_data, current_time, pt_trip_start_zone, u_zone):
   current_time = (current_time-86399)%86399
@@ -98,7 +104,7 @@ def calc_plat_wait_time_and_train_id(arr_time=0, edge_departure_time={}):
 
 def get_time_dep_taxi_cost(current_time=0, taxi_cost_data={}):
   current_time = current_time%86399
-  index = int(current_time/299) # hardcoded, will work for 5min interval data
+  index = int(current_time/300) # hardcoded, will work for 5min interval data
   if index == 1:
     time_intrv = list(taxi_cost_data.keys())[0]
   else:
@@ -123,7 +129,7 @@ def get_time_dep_taxi_cost(current_time=0, taxi_cost_data={}):
 
 def get_time_dep_taxi_wait_time(current_time=0, taxi_wait_time_data={}):
   current_time = current_time%86399
-  index = int(current_time/299) # hardcoded, will work for 5min interval data
+  index = int(current_time/300) # hardcoded, will work for 5min interval data
   if index == 1:
     time_intrv = list(taxi_wait_time_data.keys())[0]
   else:
@@ -148,7 +154,7 @@ def get_time_dep_taxi_wait_time(current_time=0, taxi_wait_time_data={}):
 
 def get_time_dep_taxi_travel_time(current_time=0, taxi_travel_time_data={}):
   current_time = current_time%86399
-  index = int(current_time/299) # hardcoded, will work for 5min interval data
+  index = int(current_time/300) # hardcoded, will work for 5min interval data
   if index == 1:
     time_intrv = list(taxi_travel_time_data.keys())[0]
   else:
@@ -991,7 +997,7 @@ def _bidirectional_dijkstra(G, source, target, weight='weight',
     # neighs for extracting correct neighbor information
     neighs = [Gsucc, Gpred]
     # variables to hold shortest discovered path
-    #finaldist = 1e30000
+    # finaldist = 1e30000
     finalpath = []
     dir = 1
     while fringe[0] and fringe[1]:
@@ -1413,7 +1419,7 @@ def _LY_dijkstra(G, source, target, time_of_request, travel_time_data, distance_
           #   vu_dist = dist[v] + road_edge_cost
           if e_type == 'access_edge':
             penalty = 0
-            ### when we are at an access edge that connects graphs we need to penalize unreasonable connections and path loops; e.g., from walk node to another mode-specific node and back to walk node, from a taxi/carsharing trip to a walk trip and back to taxi/carsharing trip
+            # when we are at an access edge that connects graphs we need to penalize unreasonable connections and path loops; e.g., from walk node to another mode-specific node and back to walk node, from a taxi/carsharing trip to a walk trip and back to taxi/carsharing trip
             if (pr_md == 'taxi_graph' and G.nodes[u]['node_graph_type'] == 'taxi_graph') or (pr_md == 'taxi_graph' and G.nodes[u]['node_graph_type'] == 'on_demand_single_taxi_graph') or (pr_md == 'taxi_graph' and G.nodes[u]['node_graph_type'] == 'on_demand_shared_taxi_graph') or (pr_md == 'on_demand_single_taxi_graph' and G.nodes[u]['node_graph_type'] == 'taxi_graph') or (pr_md == 'on_demand_single_taxi_graph' and G.nodes[u]['node_graph_type'] == 'on_demand_single_taxi_graph') or (pr_md == 'on_demand_single_taxi_graph' and G.nodes[u]['node_graph_type'] == 'on_demand_shared_taxi_graph') or (pr_md == 'on_demand_shared_taxi_graph' and G.nodes[u]['node_graph_type'] == 'taxi_graph') or (pr_md == 'on_demand_shared_taxi_graph' and G.nodes[u]['node_graph_type'] == 'on_demand_single_taxi_graph') or (pr_md == 'on_demand_shared_taxi_graph' and G.nodes[u]['node_graph_type'] == 'on_demand_shared_taxi_graph') or (pr_md == 'Carsharing' and G.nodes[u]['node_graph_type'] == 'Carsharing'):
               penalty = math.inf
             if pr_ed_tp == 'access_edge':
@@ -1425,7 +1431,7 @@ def _LY_dijkstra(G, source, target, time_of_request, travel_time_data, distance_
             if G.nodes[v]['node_type'] == 'car_sharing_station_node':
               if G.nodes[v]['stock_level'] == G.nodes[v]['capacity']:
                 penalty = math.inf
-            #restraint pick up and drop off
+            # restraint pick up and drop off
             if (G.nodes[v]['node_graph_type'] == 'Walk' and G.nodes[u]['node_graph_type'] == 'taxi_graph') or (G.nodes[v]['node_graph_type'] == 'Walk' and G.nodes[u]['node_graph_type'] == 'on_demand_single_taxi_graph') or (G.nodes[v]['node_graph_type'] == 'Walk' and G.nodes[u]['node_graph_type'] == 'on_demand_shared_taxi_graph'):
               if G.nodes[source]['node_graph_type'] == 'Walk':
                 # (G.nodes[u]['node_graph_type'] == 'taxi_graph' or G.nodes[u]['node_graph_type'] == 'on_demand_single_taxi_graph' or G.nodes[u]['node_graph_type'] == 'on_demand_shared_taxi_graph') and
