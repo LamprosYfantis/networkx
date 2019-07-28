@@ -1280,7 +1280,8 @@ def _LY_dijkstra(G, source, target, time_of_request, travel_time_data, distance_
           prev_mode = pr_md
 
 
-          if e_type == 'car_sharing_in_station_access_edge' or e_type == 'car_sharing_out_station_access_edge':
+          if e_type == 'car_sharing_station_egress_edge' or e_type == 'car_sharing_station_access_edge':
+            penalty = 0
             e_tt = 0
             e_wait_time = G[v][u]['wait_time']
             e_cost=0
@@ -1295,6 +1296,9 @@ def _LY_dijkstra(G, source, target, time_of_request, travel_time_data, distance_
             line_trasnf_num_till_u = line_trans_num_label[v] + e_num_lin_trf
             mode_transf_num_till_u = mode_trans_num_label[v] + e_num_mode_trf
             time_till_u = curr_time + e_tt + e_wait_time
+
+            if e_type == 'car_sharing_station_egress_edge' and pr_ed_tp != 'access_edge':
+              penalty = math.inf
 
             vu_dist = weight_label[v] + cs_attrs_w[0]*e_tt + cs_attrs_w[1]*e_wait_time + cs_attrs_w[2]*e_distance + cs_attrs_w[3]*e_cost + cs_attrs_w[4]*e_num_lin_trf
 
