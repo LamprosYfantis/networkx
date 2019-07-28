@@ -1300,7 +1300,7 @@ def _LY_dijkstra(G, source, target, time_of_request, travel_time_data, distance_
             if e_type == 'car_sharing_station_egress_edge' and pr_ed_tp != 'access_edge':
               penalty = math.inf
 
-            vu_dist = weight_label[v] + cs_attrs_w[0]*e_tt + cs_attrs_w[1]*e_wait_time + cs_attrs_w[2]*e_distance + cs_attrs_w[3]*e_cost + cs_attrs_w[4]*e_num_lin_trf
+            vu_dist = weight_label[v] + cs_attrs_w[0]*e_tt + cs_attrs_w[1]*e_wait_time + cs_attrs_w[2]*e_distance + cs_attrs_w[3]*e_cost + cs_attrs_w[4]*e_num_lin_trf + penalty
 
 
           if e_type == 'car_sharing_orig_dummy_edge':
