@@ -1080,20 +1080,20 @@ def shortest_simple_paths_LY(G, source, target, time_of_request, k, travel_time=
   kpaths_dict = {}
   prev_path = None
 
-  kmin1path_node_travel_time_data = {}
-  kmin1path_node_wait_time_data = {}
-  kmin1path_node_dist_data = {}
-  kmin1path_node_cost_data = {}
-  kmin1path_node_line_trfs_data = {}
-  kmin1path_node_mode_trfs_data = {}
-  kmin1path_node_weight_data = {}
-  kmin1path_node_prev_edge_type_data = {}
-  kmin1path_node_prev_graph_type_data = {}
-  kmin1path_node_last_pt_veh_run_id_data = {}
-  kmin1path_node_current_time_data = {}
-  kmin1path_node_last_edge_cost_data = {}
-  kmin1path_node_pt_trip_start_zone_data = {}
-  kmin1path_previous_edge_mode_data = {}
+  prev_path_node_travel_time_data = {}
+  prev_path_node_wait_time_data = {}
+  prev_path_node_dist_data = {}
+  prev_path_node_cost_data = {}
+  prev_path_node_line_trfs_data = {}
+  prev_path_node_mode_trfs_data = {}
+  prev_path_node_weight_data = {}
+  prev_path_node_prev_edge_type_data = {}
+  prev_path_node_prev_graph_type_data = {}
+  prev_path_node_last_pt_veh_run_id_data = {}
+  prev_path_node_current_time_data = {}
+  prev_path_node_last_edge_cost_data = {}
+  prev_path_node_pt_trip_start_zone_data = {}
+  prev_path_previous_edge_mode_data = {}
 
   while path_num<=k-1:
     if not prev_path:
@@ -1104,6 +1104,34 @@ def shortest_simple_paths_LY(G, source, target, time_of_request, k, travel_time=
     else:
       ignore_nodes = set()
       ignore_edges = set()
+      kmin1path_node_travel_time_data = {}
+      kmin1path_node_travel_time_data.update(prev_path_node_travel_time_data)
+      kmin1path_node_wait_time_data = {}
+      kmin1path_node_wait_time_data.update(prev_path_node_wait_time_data)
+      kmin1path_node_dist_data = {}
+      kmin1path_node_dist_data.update(prev_path_node_dist_data)
+      kmin1path_node_cost_data = {}
+      kmin1path_node_cost_data.update(prev_path_node_cost_data)
+      kmin1path_node_line_trfs_data = {}
+      kmin1path_node_line_trfs_data.update(prev_path_node_line_trfs_data)
+      kmin1path_node_mode_trfs_data = {}
+      kmin1path_node_mode_trfs_data.update(prev_path_node_mode_trfs_data)
+      kmin1path_node_weight_data = {}
+      kmin1path_node_weight_data.update(prev_path_node_weight_data)
+      kmin1path_node_prev_edge_type_data = {}
+      kmin1path_node_prev_edge_type_data.update(prev_path_node_prev_edge_type_data)
+      kmin1path_node_prev_graph_type_data = {}
+      kmin1path_node_prev_graph_type_data.update(prev_path_node_prev_graph_type_data)
+      kmin1path_node_last_pt_veh_run_id_data = {}
+      kmin1path_node_last_pt_veh_run_id_data.update(prev_path_node_last_pt_veh_run_id_data)
+      kmin1path_node_current_time_data = {}
+      kmin1path_node_current_time_data.update(prev_path_node_current_time_data)
+      kmin1path_node_last_edge_cost_data = {}
+      kmin1path_node_last_edge_cost_data.update(prev_path_node_last_edge_cost_data)
+      kmin1path_node_pt_trip_start_zone_data = {}
+      kmin1path_node_pt_trip_start_zone_data.update(prev_path_node_pt_trip_start_zone_data)
+      kmin1path_previous_edge_mode_data = {}
+      kmin1path_previous_edge_mode_data.update(prev_path_previous_edge_mode_data)
       for i in range(1, len(prev_path)):
         root = prev_path[:i]
         for path in listA:
@@ -1116,7 +1144,7 @@ def shortest_simple_paths_LY(G, source, target, time_of_request, k, travel_time=
             if best_path in entry:
               test += 1
           if test == 0:
-            push(listB, (best_weight, next(c), best_path, best_tt, best_wtt, best_dist, best_cost, best_num_line_transfers, best_num_mode_transfers, path_tt_data, path_wtt_data, path_dist_data, path_cost_data, path_line_trf_data, path_mode_trf_data, path_weight_labels, previous_edge_type_labels, previous_upstr_node_graph_type_labels, last_pt_vehicle_run_id_labels, current_time_labels, previous_edge_cost_labels, pt_trip_start_zone_labels, previous_edge_mode_labels, root)) #shortest_path_nodes_seq_data
+            push(listB, (best_weight, next(c), best_path, best_tt, best_wtt, best_dist, best_cost, best_num_line_transfers, best_num_mode_transfers, path_tt_data, path_wtt_data, path_dist_data, path_cost_data, path_line_trf_data, path_mode_trf_data, path_weight_labels, previous_edge_type_labels, previous_upstr_node_graph_type_labels, last_pt_vehicle_run_id_labels, current_time_labels, previous_edge_cost_labels, pt_trip_start_zone_labels, previous_edge_mode_labels, root, kmin1path_node_travel_time_data, kmin1path_node_wait_time_data, kmin1path_node_dist_data, kmin1path_node_cost_data, kmin1path_node_line_trfs_data, kmin1path_node_mode_trfs_data, kmin1path_node_weight_data, kmin1path_node_prev_edge_type_data, kmin1path_node_prev_graph_type_data, kmin1path_node_last_pt_veh_run_id_data, kmin1path_node_current_time_data, kmin1path_node_last_edge_cost_data, kmin1path_node_pt_trip_start_zone_data, kmin1path_previous_edge_mode_data)) #shortest_path_nodes_seq_data
           # print(listB[0][2])
 
         except nx.NetworkXNoPath:
@@ -1124,34 +1152,157 @@ def shortest_simple_paths_LY(G, source, target, time_of_request, k, travel_time=
         ignore_nodes.add(root[-1])
 
     if listB:
-      (prev_best_w, _, prev_best_p, prev_best_tt, prev_best_wait_t, prev_best_dist, prev_best_cost, prev_best_n_line_trfs, prev_best_n_mode_trfs, prev_path_tt_d, prev_path_wtt_d, prev_path_dist_d, prev_path_cost_d, prev_path_n_line_trfs_d, prev_path_n_mode_trfs_d, prev_path_weight_d, prev_previous_e_tp_d, prev_previous_upstr_n_gt_d, prev_l_pt_veh_run_id_d, prev_path_node_curr_t_d, prev_prev_e_cost_d, prev_pt_tr_start_zone_d, prev_edge_md_d, root) = pop(listB) #prev_s_path_node_seq_d
-        # path = listB.pop()
-      if path_num != 0:
-        prev_best_p[:0]=root[:-1]
-        # yield prev_best_p
+      if path_num == 0:
+        (prev_best_w, _, prev_best_p, prev_best_tt, prev_best_wait_t, prev_best_dist, prev_best_cost, prev_best_n_line_trfs, prev_best_n_mode_trfs, prev_path_tt_d, prev_path_wtt_d, prev_path_dist_d, prev_path_cost_d, prev_path_n_line_trfs_d, prev_path_n_mode_trfs_d, prev_path_weight_d, prev_previous_e_tp_d, prev_previous_upstr_n_gt_d, prev_l_pt_veh_run_id_d, prev_path_node_curr_t_d, prev_prev_e_cost_d, prev_pt_tr_start_zone_d, prev_edge_md_d, prev_root) = pop(listB)
+
+        prev_path_node_travel_time_data.update(prev_path_tt_d)# = prev_path_in_v_tt_d
+        prev_path_node_wait_time_data.update(prev_path_wtt_d)# = prev_path_wait_t_d
+        prev_path_node_dist_data.update(prev_path_dist_d)# = prev_path_dist_d
+        prev_path_node_cost_data.update(prev_path_cost_d)# = prev_path_cost_d
+        prev_path_node_line_trfs_data.update(prev_path_n_line_trfs_d)# = prev_path_n_line_trfs_d
+        prev_path_node_mode_trfs_data.update(prev_path_n_mode_trfs_d)# = prev_path_n_mode_trfs_d
+        prev_path_node_weight_data.update(prev_path_weight_d)# = prev_path_weight_d
+        prev_path_node_prev_edge_type_data.update(prev_previous_e_tp_d)# = prev_previous_e_tp_d
+        prev_path_node_prev_graph_type_data.update(prev_previous_upstr_n_gt_d)
+        prev_path_node_last_pt_veh_run_id_data.update(prev_l_pt_veh_run_id_d)# = prev_l_pt_veh_run_id_d
+        prev_path_node_current_time_data.update(prev_path_node_curr_t_d)# = prev_path_node_curr_t_d
+        prev_path_node_last_edge_cost_data.update(prev_prev_e_cost_d)# = prev_prev_e_cost_d
+        prev_path_node_pt_trip_start_zone_data.update(prev_pt_tr_start_zone_d)# = prev_pt_tr_start_zone_d
+        prev_path_previous_edge_mode_data.update(prev_edge_md_d)
+      else:
+        (prev_best_w, _, prev_best_p, prev_best_tt, prev_best_wait_t, prev_best_dist, prev_best_cost, prev_best_n_line_trfs, prev_best_n_mode_trfs, prev_path_tt_d, prev_path_wtt_d, prev_path_dist_d, prev_path_cost_d, prev_path_n_line_trfs_d, prev_path_n_mode_trfs_d, prev_path_weight_d, prev_previous_e_tp_d, prev_previous_upstr_n_gt_d, prev_l_pt_veh_run_id_d, prev_path_node_curr_t_d, prev_prev_e_cost_d, prev_pt_tr_start_zone_d, prev_edge_md_d, prev_root, new_kmin1path_node_travel_time_data, new_kmin1path_node_wait_time_data, new_kmin1path_node_dist_data, new_kmin1path_node_cost_data, new_kmin1path_node_line_trfs_data, new_kmin1path_node_mode_trfs_data, new_kmin1path_node_weight_data, new_kmin1path_node_prev_edge_type_data, new_kmin1path_node_prev_graph_type_data, new_kmin1path_node_last_pt_veh_run_id_data, new_kmin1path_node_current_time_data, new_kmin1path_node_last_edge_cost_data, new_kmin1path_node_pt_trip_start_zone_data, new_kmin1path_previous_edge_mode_data) = pop(listB)
+
+        prev_path_node_travel_time_data.update(new_kmin1path_node_travel_time_data)
+        prev_path_node_travel_time_data.update(prev_path_tt_d)
+        prev_path_node_wait_time_data.update(new_kmin1path_node_wait_time_data)
+        prev_path_node_wait_time_data.update(prev_path_wtt_d)# = prev_path_wait_t_d
+        prev_path_node_dist_data.update(new_kmin1path_node_dist_data)# = prev_path_dist_d
+        prev_path_node_dist_data.update(prev_path_dist_d)
+        prev_path_node_cost_data.update(new_kmin1path_node_cost_data)# = prev_path_cost_d
+        prev_path_node_cost_data.update(prev_path_cost_d)
+        prev_path_node_line_trfs_data.update(new_kmin1path_node_line_trfs_data)# = prev_path_n_line_trfs_d
+        prev_path_node_line_trfs_data.update(prev_path_n_line_trfs_d)
+        prev_path_node_mode_trfs_data.update(new_kmin1path_node_mode_trfs_data)# = prev_path_n_mode_trfs_d
+        prev_path_node_mode_trfs_data.update(prev_path_n_mode_trfs_d)
+        prev_path_node_weight_data.update(new_kmin1path_node_weight_data)# = prev_path_weight_d
+        prev_path_node_weight_data.update(prev_path_weight_d)
+        prev_path_node_prev_edge_type_data.update(new_kmin1path_node_prev_edge_type_data)# = prev_previous_e_tp_d
+        prev_path_node_prev_edge_type_data.update(prev_previous_e_tp_d)
+        prev_path_node_prev_graph_type_data.update(new_kmin1path_node_prev_graph_type_data)
+        prev_path_node_prev_graph_type_data.update(prev_previous_upstr_n_gt_d)
+        prev_path_node_last_pt_veh_run_id_data.update(new_kmin1path_node_last_pt_veh_run_id_data)# = prev_l_pt_veh_run_id_d
+        prev_path_node_last_pt_veh_run_id_data.update(prev_l_pt_veh_run_id_d)
+        prev_path_node_current_time_data.update(new_kmin1path_node_current_time_data)# = prev_path_node_curr_t_d
+        prev_path_node_current_time_data.update(prev_path_node_curr_t_d)
+        prev_path_node_last_edge_cost_data.update(new_kmin1path_node_last_edge_cost_data)# = prev_prev_e_cost_d
+        prev_path_node_last_edge_cost_data.update(prev_prev_e_cost_d)
+        prev_path_node_pt_trip_start_zone_data.update(new_kmin1path_node_pt_trip_start_zone_data)# = prev_pt_tr_start_zone_d
+        prev_path_node_pt_trip_start_zone_data.update(prev_pt_tr_start_zone_d)
+        prev_path_previous_edge_mode_data.update(new_kmin1path_previous_edge_mode_data)
+        prev_path_previous_edge_mode_data.update(prev_edge_md_d)
+
+        prev_best_p[:0]=prev_root[:-1]
+
       listA.append(prev_best_p)
       prev_path = prev_best_p
       kpaths_dict.update({str(prev_path): [prev_best_w, prev_best_tt, prev_best_wait_t, prev_best_dist, prev_best_cost, prev_best_n_line_trfs, prev_best_n_mode_trfs]})
-      kmin1path_node_travel_time_data.update(prev_path_tt_d)# = prev_path_in_v_tt_d
-      kmin1path_node_wait_time_data.update(prev_path_wtt_d)# = prev_path_wait_t_d
-      kmin1path_node_dist_data.update(prev_path_dist_d)# = prev_path_dist_d
-      kmin1path_node_cost_data.update(prev_path_cost_d)# = prev_path_cost_d
-      kmin1path_node_line_trfs_data.update(prev_path_n_line_trfs_d)# = prev_path_n_line_trfs_d
-      kmin1path_node_mode_trfs_data.update(prev_path_n_mode_trfs_d)# = prev_path_n_mode_trfs_d
-      kmin1path_node_weight_data.update(prev_path_weight_d)# = prev_path_weight_d
-      kmin1path_node_prev_edge_type_data.update(prev_previous_e_tp_d)# = prev_previous_e_tp_d
-      kmin1path_node_prev_graph_type_data.update(prev_previous_upstr_n_gt_d)
-      kmin1path_node_last_pt_veh_run_id_data.update(prev_l_pt_veh_run_id_d)# = prev_l_pt_veh_run_id_d
-      kmin1path_node_current_time_data.update(prev_path_node_curr_t_d)# = prev_path_node_curr_t_d
-      kmin1path_node_last_edge_cost_data.update(prev_prev_e_cost_d)# = prev_prev_e_cost_d
-      kmin1path_node_pt_trip_start_zone_data.update(prev_pt_tr_start_zone_d)# = prev_pt_tr_start_zone_d
-      kmin1path_previous_edge_mode_data.update(prev_edge_md_d)
+
       path_num += 1
-      if path_num == 9:
-        pass
     else:
-        break
+      break
   return(kpaths_dict)
+
+
+# def shortest_simple_paths_LY(G, source, target, time_of_request, k, travel_time=None, distance=None, pt_additive_cost=None, pt_non_additive_cost=None, taxi_fares=None, taxi_wait_time=None, timetable=None, edge_type=None, node_type=None, node_graph_type=None, fare_scheme=None, walk_attrs_w=[], bus_attrs_w=[], train_attrs_w=[], taxi_attrs_w=[], sms_attrs_w=[], sms_pool_attrs_w=[], cs_attrs_w=[], mode_transfer_weight=0):
+#   if source not in G:
+#     raise nx.NodeNotFound('source node %s not in graph' % source)
+
+#   if target not in G:
+#     raise nx.NodeNotFound('target node %s not in graph' % target)
+
+#   path_num = 0
+#   push = heappush
+#   pop = heappop
+#   c = count()
+#   shortest_path_func = LY_shortest_path_with_attrs
+
+#   listA = list()
+#   listB = list()
+#   kpaths_dict = {}
+#   prev_path = None
+
+#   kmin1path_node_travel_time_data = {}
+#   kmin1path_node_wait_time_data = {}
+#   kmin1path_node_dist_data = {}
+#   kmin1path_node_cost_data = {}
+#   kmin1path_node_line_trfs_data = {}
+#   kmin1path_node_mode_trfs_data = {}
+#   kmin1path_node_weight_data = {}
+#   kmin1path_node_prev_edge_type_data = {}
+#   kmin1path_node_prev_graph_type_data = {}
+#   kmin1path_node_last_pt_veh_run_id_data = {}
+#   kmin1path_node_current_time_data = {}
+#   kmin1path_node_last_edge_cost_data = {}
+#   kmin1path_node_pt_trip_start_zone_data = {}
+#   kmin1path_previous_edge_mode_data = {}
+
+#   while path_num<=k-1:
+#     if not prev_path:
+#       best_weight, best_path, best_tt, best_wtt, best_dist, best_cost, best_num_line_transfers, best_num_mode_transfers, path_tt_data, path_wtt_data, path_dist_data, path_cost_data, path_line_trf_data, path_mode_trf_data, path_weight_labels, previous_edge_type_labels, previous_upstr_node_graph_type_labels, last_pt_vehicle_run_id_labels, current_time_labels, previous_edge_cost_labels, pt_trip_start_zone_labels, previous_edge_mode_labels = shortest_path_func(G, source, target, time_of_request, travel_time=travel_time, distance=distance, pt_additive_cost=pt_additive_cost, pt_non_additive_cost=pt_non_additive_cost, taxi_fares=taxi_fares, taxi_wait_time=taxi_wait_time, timetable=timetable, edge_type=edge_type, node_type=node_type, node_graph_type=node_graph_type, fare_scheme=fare_scheme, ignore_nodes=None, ignore_edges=None, current_time=time_of_request, walk_attrs_w=walk_attrs_w, bus_attrs_w=bus_attrs_w, train_attrs_w=train_attrs_w, taxi_attrs_w=taxi_attrs_w, sms_attrs_w=sms_attrs_w, sms_pool_attrs_w=sms_pool_attrs_w, cs_attrs_w=cs_attrs_w, mode_transfer_weight=mode_transfer_weight, paths=None, orig_source=source)  #shortest_path_nodes_seq_data
+
+#       push(listB, (best_weight, next(c), best_path, best_tt, best_wtt, best_dist, best_cost, best_num_line_transfers, best_num_mode_transfers, path_tt_data, path_wtt_data, path_dist_data, path_cost_data, path_line_trf_data, path_mode_trf_data, path_weight_labels, previous_edge_type_labels, previous_upstr_node_graph_type_labels, last_pt_vehicle_run_id_labels, current_time_labels, previous_edge_cost_labels, pt_trip_start_zone_labels, previous_edge_mode_labels, None))  #shortest_path_nodes_seq_data, None
+
+#     else:
+#       ignore_nodes = set()
+#       ignore_edges = set()
+#       for i in range(1, len(prev_path)):
+#         root = prev_path[:i]
+#         for path in listA:
+#           if path[:i] == root:
+#             ignore_edges.add((path[i - 1], path[i]))
+#         try:
+#           best_weight, best_path, best_tt, best_wtt, best_dist, best_cost, best_num_line_transfers, best_num_mode_transfers, path_tt_data, path_wtt_data, path_dist_data, path_cost_data, path_line_trf_data, path_mode_trf_data, path_weight_labels, previous_edge_type_labels, previous_upstr_node_graph_type_labels, last_pt_vehicle_run_id_labels, current_time_labels, previous_edge_cost_labels, pt_trip_start_zone_labels, previous_edge_mode_labels = shortest_path_func(G, root[-1], target, time_of_request, travel_time=travel_time, distance=distance, pt_additive_cost=pt_additive_cost, pt_non_additive_cost=pt_non_additive_cost, taxi_fares=taxi_fares, taxi_wait_time=taxi_wait_time, timetable=timetable, edge_type=edge_type, node_type=node_type, fare_scheme=fare_scheme, ignore_nodes=ignore_nodes, ignore_edges=ignore_edges, init_weight=kmin1path_node_weight_data[root[-1]], init_travel_time=kmin1path_node_travel_time_data[root[-1]], init_wait_time=kmin1path_node_wait_time_data[root[-1]], init_distance=kmin1path_node_dist_data[root[-1]], init_cost=kmin1path_node_cost_data[root[-1]], init_num_line_trfs=kmin1path_node_line_trfs_data[root[-1]], init_num_mode_trfs=kmin1path_node_mode_trfs_data[root[-1]], last_edge_type=kmin1path_node_prev_edge_type_data[root[-1]], last_upstr_node_graph_type=kmin1path_node_prev_graph_type_data[root[-1]], last_pt_veh_run_id=kmin1path_node_last_pt_veh_run_id_data[root[-1]], current_time=kmin1path_node_current_time_data[root[-1]], last_edge_cost=kmin1path_node_last_edge_cost_data[root[-1]], pt_trip_orig_zone=kmin1path_node_pt_trip_start_zone_data[root[-1]], previous_edge_mode=kmin1path_previous_edge_mode_data[root[-1]], walk_attrs_w=walk_attrs_w, bus_attrs_w=bus_attrs_w, train_attrs_w=train_attrs_w, taxi_attrs_w=taxi_attrs_w, sms_attrs_w=sms_attrs_w, sms_pool_attrs_w=sms_pool_attrs_w, cs_attrs_w=cs_attrs_w, mode_transfer_weight=mode_transfer_weight, pred=None, paths=None, orig_source=source)  #shortest_path_nodes_seq_data # need to change the way this function calculates the shortes path and the weight function it considers. we need elements from thr last node of the route path
+#           test = 0
+#           for entry in listB:
+#             if best_path in entry:
+#               test += 1
+#           if test == 0:
+#             push(listB, (best_weight, next(c), best_path, best_tt, best_wtt, best_dist, best_cost, best_num_line_transfers, best_num_mode_transfers, path_tt_data, path_wtt_data, path_dist_data, path_cost_data, path_line_trf_data, path_mode_trf_data, path_weight_labels, previous_edge_type_labels, previous_upstr_node_graph_type_labels, last_pt_vehicle_run_id_labels, current_time_labels, previous_edge_cost_labels, pt_trip_start_zone_labels, previous_edge_mode_labels, root)) #shortest_path_nodes_seq_data
+#           # print(listB[0][2])
+
+#         except nx.NetworkXNoPath:
+#           pass
+#         ignore_nodes.add(root[-1])
+
+#     if listB:
+#       (prev_best_w, _, prev_best_p, prev_best_tt, prev_best_wait_t, prev_best_dist, prev_best_cost, prev_best_n_line_trfs, prev_best_n_mode_trfs, prev_path_tt_d, prev_path_wtt_d, prev_path_dist_d, prev_path_cost_d, prev_path_n_line_trfs_d, prev_path_n_mode_trfs_d, prev_path_weight_d, prev_previous_e_tp_d, prev_previous_upstr_n_gt_d, prev_l_pt_veh_run_id_d, prev_path_node_curr_t_d, prev_prev_e_cost_d, prev_pt_tr_start_zone_d, prev_edge_md_d, root) = pop(listB) #prev_s_path_node_seq_d
+#         # path = listB.pop()
+#       if path_num != 0:
+#         prev_best_p[:0]=root[:-1]
+#         # yield prev_best_p
+#       listA.append(prev_best_p)
+#       prev_path = prev_best_p
+#       kpaths_dict.update({str(prev_path): [prev_best_w, prev_best_tt, prev_best_wait_t, prev_best_dist, prev_best_cost, prev_best_n_line_trfs, prev_best_n_mode_trfs]})
+#       kmin1path_node_travel_time_data.update(prev_path_tt_d)# = prev_path_in_v_tt_d
+#       kmin1path_node_wait_time_data.update(prev_path_wtt_d)# = prev_path_wait_t_d
+#       kmin1path_node_dist_data.update(prev_path_dist_d)# = prev_path_dist_d
+#       kmin1path_node_cost_data.update(prev_path_cost_d)# = prev_path_cost_d
+#       kmin1path_node_line_trfs_data.update(prev_path_n_line_trfs_d)# = prev_path_n_line_trfs_d
+#       kmin1path_node_mode_trfs_data.update(prev_path_n_mode_trfs_d)# = prev_path_n_mode_trfs_d
+#       kmin1path_node_weight_data.update(prev_path_weight_d)# = prev_path_weight_d
+#       kmin1path_node_prev_edge_type_data.update(prev_previous_e_tp_d)# = prev_previous_e_tp_d
+#       kmin1path_node_prev_graph_type_data.update(prev_previous_upstr_n_gt_d)
+#       kmin1path_node_last_pt_veh_run_id_data.update(prev_l_pt_veh_run_id_d)# = prev_l_pt_veh_run_id_d
+#       kmin1path_node_current_time_data.update(prev_path_node_curr_t_d)# = prev_path_node_curr_t_d
+#       kmin1path_node_last_edge_cost_data.update(prev_prev_e_cost_d)# = prev_prev_e_cost_d
+#       kmin1path_node_pt_trip_start_zone_data.update(prev_pt_tr_start_zone_d)# = prev_pt_tr_start_zone_d
+#       kmin1path_previous_edge_mode_data.update(prev_edge_md_d)
+#       path_num += 1
+#       if path_num == 11:
+#         print('stop')
+#     else:
+#         break
+#   return(kpaths_dict)
 
 
 def LY_shortest_path_with_attrs(G, source, target, time_of_request, travel_time='travel_time', distance='distance', pt_additive_cost='pt_distance_based_cost', pt_non_additive_cost='pt_zone_to_zone_cost', taxi_fares='taxi_fares', taxi_wait_time='taxi_wait_time', timetable='departure_time', edge_type='edge_type', node_type='node_type', node_graph_type='node_graph_type', fare_scheme='distance_based', ignore_nodes=None, ignore_edges=None, init_weight=0, init_travel_time = 0, init_wait_time = 0, init_distance = 0, init_cost = 0, init_num_line_trfs = 0, init_num_mode_trfs = 0, last_edge_type=None, last_upstr_node_graph_type=None, last_pt_veh_run_id=None, current_time=0, last_edge_cost=0, pt_trip_orig_zone=None, previous_edge_mode=None, walk_attrs_w=[], bus_attrs_w=[], train_attrs_w=[], taxi_attrs_w=[], sms_attrs_w=[], sms_pool_attrs_w=[], cs_attrs_w=[], mode_transfer_weight=0, pred=None, paths=None, orig_source=None):
