@@ -1637,7 +1637,7 @@ def _LY_dijkstra(G, source, target, time_of_request, travel_time_data, distance_
             # for zone_to_zone pt fare scheme we store the zone of the stop/station in which a pt trip started (origin); this zone will be used for the calculcation of the edge cost based on which pt stop the algorithm checks and hence the final stop of the pt trip
             if fare_scheme == 'zone_to_zone':
               if pr_ed_tp == 'access_edge':
-                if pr_md != 'Bus' or pr_md != 'Train':
+                if pr_md != 'Bus' and pr_md != 'Train':
                   zone_at_start_of_pt_trip = G.nodes[v]['zone']
                   previous_edge_cost = 0
             e_tt = travel_time_data(v, u, G[v][u])  # funtion that extracts the edge's in-vehicle travel time attribute
