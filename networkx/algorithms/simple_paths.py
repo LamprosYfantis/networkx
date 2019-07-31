@@ -1574,7 +1574,7 @@ def _LY_dijkstra(G, source, target, time_of_request, travel_time_data, distance_
           if e_type == 'access_edge':
             penalty = 0
             # when we are at an access edge that connects graphs we need to penalize unreasonable connections and path loops; e.g., from walk node to another mode-specific node and back to walk node, from a taxi/carsharing trip to a walk trip and back to taxi/carsharing trip
-            if (pr_md == 'taxi_graph' or pr_md == 'on_demand_single_taxi_graph' or pr_md == 'on_demand_shared_taxi_graph' or pr_md == 'Carsharing') and (G.nodes[u]['node_graph_type'] == 'taxi_graph' or G.nodes[u]['node_graph_type'] == 'on_demand_single_taxi_graph' or G.nodes[u]['node_graph_type'] == 'on_demand_shared_taxi_graph' or G.nodes[u]['node_graph_type'] == 'Carsharing'):
+            if (pr_md == 'taxi_graph' or pr_md == 'on_demand_single_taxi_graph' or pr_md == 'on_demand_shared_taxi_graph' or pr_md == 'car_sharing_graph') and (G.nodes[u]['node_graph_type'] == 'taxi_graph' or G.nodes[u]['node_graph_type'] == 'on_demand_single_taxi_graph' or G.nodes[u]['node_graph_type'] == 'on_demand_shared_taxi_graph' or G.nodes[u]['node_graph_type'] == 'car_sharing_graph'):
               penalty = math.inf
             if pr_ed_tp == 'access_edge':
               if (pre_upstr_n_gr_tp == 'Walk' and G.nodes[u]['node_graph_type'] == 'Walk') or (pre_upstr_n_gr_tp == 'Bus' and G.nodes[u]['node_graph_type'] == 'Bus') or (pre_upstr_n_gr_tp == 'Train' and G.nodes[u]['node_graph_type'] == 'Tain'):
