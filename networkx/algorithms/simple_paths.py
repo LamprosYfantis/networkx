@@ -1096,6 +1096,8 @@ def shortest_simple_paths_LY(G, source, target, time_of_request, k, travel_time=
   prev_path_previous_edge_mode_data = {}
 
   while path_num<=k-1:
+#    if path_num == 7:
+#        print('oops')
     if not prev_path:
       best_weight, best_path, best_tt, best_wtt, best_dist, best_cost, best_num_line_transfers, best_num_mode_transfers, path_tt_data, path_wtt_data, path_dist_data, path_cost_data, path_line_trf_data, path_mode_trf_data, path_weight_labels, previous_edge_type_labels, previous_upstr_node_graph_type_labels, last_pt_vehicle_run_id_labels, current_time_labels, previous_edge_cost_labels, pt_trip_start_zone_labels, previous_edge_mode_labels = shortest_path_func(G, source, target, time_of_request, travel_time=travel_time, distance=distance, pt_additive_cost=pt_additive_cost, pt_non_additive_cost=pt_non_additive_cost, taxi_fares=taxi_fares, taxi_wait_time=taxi_wait_time, timetable=timetable, edge_type=edge_type, node_type=node_type, node_graph_type=node_graph_type, fare_scheme=fare_scheme, ignore_nodes=None, ignore_edges=None, current_time=time_of_request, walk_attrs_w=walk_attrs_w, bus_attrs_w=bus_attrs_w, train_attrs_w=train_attrs_w, taxi_attrs_w=taxi_attrs_w, sms_attrs_w=sms_attrs_w, sms_pool_attrs_w=sms_pool_attrs_w, cs_attrs_w=cs_attrs_w, mode_transfer_weight=mode_transfer_weight, paths=None, orig_source=source)  #shortest_path_nodes_seq_data
 
@@ -1422,12 +1424,28 @@ def _LY_dijkstra(G, source, target, time_of_request, travel_time_data, distance_
 
         if v == target:
           break
+#        if v == '11,5_2,5':
+#            print('stop')
+#        if v == '40,3_1,6':
+#            print('stop')
+#        if v == '60,5_2,7':
+#            print('stop')
+#        if v ==  'w_bus_stop47':
+#            print('oops')
+#        if v == 'b47':
+#            print('oops')
+#        if v == 'b38':
+#            print('oops')
 
         for u in neighs(v):
+#          if u == '40,3_1,6':
+#            print('stop')
           e_type = edge_type_data(v, u, G[v][u])
           # n_type = node_type_data(v, G.nodes[v])
           n_gr_type = node_graph_type_data(v, G.nodes[v])
           prev_mode = pr_md
+          zone_at_start_of_pt_trip = pt_tr_st_z
+          previous_edge_cost = pr_e_cost
 
 
           if e_type == 'car_sharing_station_egress_edge' or e_type == 'car_sharing_station_access_edge':
@@ -1557,6 +1575,7 @@ def _LY_dijkstra(G, source, target, time_of_request, travel_time_data, distance_
             cost_till_u = mon_cost_label[v] + e_cost
             line_trasnf_num_till_u = line_trans_num_label[v] + e_num_lin_trf
             mode_transf_num_till_u = mode_trans_num_label[v] + e_num_mode_trf
+            
 
             time_till_u = curr_time + e_tt + e_wait_time
 
@@ -1599,6 +1618,7 @@ def _LY_dijkstra(G, source, target, time_of_request, travel_time_data, distance_
             e_cost = 0
             e_num_mode_trf = 0
             e_num_lin_trf = 0
+            
             # from mode and line transfers we store the previous path mode (not considering walk as a mode) and if a path with a new mode starts then we have a mode transfer, if with the same mode then a line transfer
             if G.nodes[v]['node_graph_type'] == 'Walk':
               if pr_md != None and G.nodes[u]['node_graph_type'] != pr_md:
@@ -1626,7 +1646,6 @@ def _LY_dijkstra(G, source, target, time_of_request, travel_time_data, distance_
             wait_time_till_u = wait_time_label[v] + e_wait_time
             distance_till_u = distance_label[v] + e_distance
             cost_till_u = mon_cost_label[v] + e_cost
-
             line_trasnf_num_till_u = line_trans_num_label[v] + e_num_lin_trf
             mode_transf_num_till_u = mode_trans_num_label[v] + e_num_mode_trf
 
@@ -1692,7 +1711,8 @@ def _LY_dijkstra(G, source, target, time_of_request, travel_time_data, distance_
               e_tt = tt_d[pt_vehicle_run_id] #calc_pt_route_edge_in_veh_tt_for_run_id(tt_d, pt_vehicle_run_id)  # fuction that travel time for corresponding pt vehicle run_id
             elif pr_ed_tp == 'pt_route_edge':
               e_wait_time = 0
-              e_tt = G[v][u]['departure_time'][lt_run_id] - curr_time + G[v][u]['travel_time'][lt_run_id]  # the subtraction fo the first two terms is the dwell time in the downstream station and the 3rd term is the travel time of the pt vehicle run_id that has been selected for the previous route edge
+              pt_vehicle_run_id = lt_run_id
+              e_tt = G[v][u]['departure_time'][pt_vehicle_run_id] - curr_time + G[v][u]['travel_time'][pt_vehicle_run_id]  # the subtraction fo the first two terms is the dwell time in the downstream station and the 3rd term is the travel time of the pt vehicle run_id that has been selected for the previous route edge
               if e_tt is None:
                 print('Missing in_veh_tt value in edge'.format((v, u)))
                 continue
@@ -1714,6 +1734,8 @@ def _LY_dijkstra(G, source, target, time_of_request, travel_time_data, distance_
                 print('Missing zn_to_zn_cost value in edge'.format((v, u)))
                 continue
               pt_cur_cost = calc_time_dep_zone_to_zone_cost(zn_to_zn_cost, curr_time, pt_tr_st_z, G.nodes[u]['zone'])  # function that extracts the cost of the edge based on the zone at the start of the pt trip, the zone of current stop/station and the current time we are in
+#              if pt_cur_cost == None or pr_e_cost == None:
+#                  print('stop')
               if pt_cur_cost < pr_e_cost:
                 e_cost = 0
                 previous_edge_cost = pr_e_cost
@@ -1751,7 +1773,7 @@ def _LY_dijkstra(G, source, target, time_of_request, travel_time_data, distance_
             if e_type == 'pt_route_edge' and pr_ed_tp != 'pt_route_edge':
               push(fringe, (vu_dist, next(c), u, travel_time_till_u, wait_time_till_u, distance_till_u, cost_till_u, line_trasnf_num_till_u, mode_transf_num_till_u, e_type, n_gr_type, pt_vehicle_run_id, time_till_u, previous_edge_cost, zone_at_start_of_pt_trip, prev_mode))
             elif e_type == 'pt_route_edge' and pr_ed_tp == 'pt_route_edge':
-              push(fringe, (vu_dist, next(c), u, travel_time_till_u, wait_time_till_u, distance_till_u, cost_till_u, line_trasnf_num_till_u, mode_transf_num_till_u, e_type, n_gr_type, lt_run_id, time_till_u, previous_edge_cost, zone_at_start_of_pt_trip, prev_mode))
+              push(fringe, (vu_dist, next(c), u, travel_time_till_u, wait_time_till_u, distance_till_u, cost_till_u, line_trasnf_num_till_u, mode_transf_num_till_u, e_type, n_gr_type, pt_vehicle_run_id, time_till_u, previous_edge_cost, zone_at_start_of_pt_trip, prev_mode))
             elif e_type == 'pt_transfer_edge':
               push(fringe, (vu_dist, next(c), u, travel_time_till_u, wait_time_till_u, distance_till_u, cost_till_u, line_trasnf_num_till_u, mode_transf_num_till_u, e_type, n_gr_type, None, time_till_u, previous_edge_cost, zone_at_start_of_pt_trip, prev_mode))
             elif e_type != 'pt_route_edge' and e_type != 'pt_transfer_edge':
