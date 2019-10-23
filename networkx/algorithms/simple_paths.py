@@ -121,14 +121,10 @@ def calc_plat_wait_time_and_train_id(arr_time=0, edge_departure_time={}):
   #     break
   return platform_wait_time, vehicle_id
 
-def get_time_dep_taxi_cost(current_time=0, taxi_cost_data={}):
+def get_time_dep_taxi_cost(current_time=0, taxi_cost_data=[]):
   current_time = current_time%86399
   index = int(current_time/300) # hardcoded, will work for 5min interval data
-  if index == 1:
-    time_intrv = list(taxi_cost_data.keys())[0]
-  else:
-    time_intrv = list(taxi_cost_data.keys())[index]
-  return taxi_cost_data[time_intrv]
+  return taxi_cost_data[index]
 
   # td_cost_data = list(taxi_cost_data.keys())
   # # sorted_data = sorted(data, key=itemgetter(0))
@@ -146,14 +142,10 @@ def get_time_dep_taxi_cost(current_time=0, taxi_cost_data={}):
   #     break
   # return edge_cost
 
-def get_time_dep_taxi_wait_time(current_time=0, taxi_wait_time_data={}):
+def get_time_dep_taxi_wait_time(current_time=0, taxi_wait_time_data=[]):
   current_time = current_time%86399
   index = int(current_time/300) # hardcoded, will work for 5min interval data
-  if index == 1:
-    time_intrv = list(taxi_wait_time_data.keys())[0]
-  else:
-    time_intrv = list(taxi_wait_time_data.keys())[index]
-  return taxi_wait_time_data[time_intrv]
+  return taxi_wait_time_data[index]
   # current_time = current_time%86399
   # td_cost_data = list(taxi_wait_time_data.keys())
   # # sorted_data = sorted(data, key=itemgetter(0))
@@ -171,14 +163,10 @@ def get_time_dep_taxi_wait_time(current_time=0, taxi_wait_time_data={}):
   #     break
   # return edge_wt_t
 
-def get_time_dep_taxi_travel_time(current_time=0, taxi_travel_time_data={}):
+def get_time_dep_taxi_travel_time(current_time=0, taxi_travel_time_data=[]):
   current_time = current_time%86399
   index = int(current_time/300) # hardcoded, will work for 5min interval data
-  if index == 1:
-    time_intrv = list(taxi_travel_time_data.keys())[0]
-  else:
-    time_intrv = list(taxi_travel_time_data.keys())[index]
-  return taxi_travel_time_data[time_intrv]
+  return taxi_travel_time_data[index]
   # current_time = current_time%86399
   # td_cost_data = list(taxi_travel_time_data.keys())
   # # sorted_data = sorted(data, key=itemgetter(0))
@@ -202,16 +190,16 @@ def get_time_dep_taxi_travel_time(current_time=0, taxi_travel_time_data={}):
 #   return edge_travel_times[]
 
 
-def calc_road_link_tt(cur_time, edge_attrs):  # calculate the proper travel time for the respective 5-min interval based on current time in the network
-  cur_time = (cur_time-86399)%86399
-  tt = None
-  for key, value in edge_attrs['weight'].items():
-    if cur_time >= int(key[0]) and cur_time <= int(key[1]):  # interval time data needs to be in seconds and hence integers not strings
-      tt = math.ceil(value)
-  if tt == None:
-    print('Current travel time could not be matched with 5min interval')
-  else:
-    return tt
+#def calc_road_link_tt(cur_time, edge_attrs):  # calculate the proper travel time for the respective 5-min interval based on current time in the network
+#  cur_time = (cur_time-86399)%86399
+#  tt = None
+#  for key, value in edge_attrs['weight'].items():
+#    if cur_time >= int(key[0]) and cur_time <= int(key[1]):  # interval time data needs to be in seconds and hence integers not strings
+#      tt = math.ceil(value)
+#  if tt == None:
+#    print('Current travel time could not be matched with 5min interval')
+#  else:
+#    return tt
 
 
 def _get_timetable(G, departure_time):  # this will work only for directed graphs and the timetable will be a list of departure times
@@ -2395,6 +2383,7 @@ def _LY_dijkstra(G, source, target, time_of_request, travel_time_data, distance_
           e_type = edge_type_data(v, u, e)
 #          n_type = node_type_data(v, G.nodes[v])
           n_gr_type = node_graph_type_data(v, G.nodes[v])
+#          n_gr_type = G[]
           prev_mode = pr_md
           zone_at_start_of_pt_trip = pt_tr_st_z
           previous_edge_cost = pr_e_cost
