@@ -262,7 +262,7 @@ def groups(many_to_one):
 
     For example::
 
-        >>> from networkx.utils import groups
+        >>> from networkx import groups
         >>> many_to_one = {'a': 1, 'b': 1, 'c': 2, 'd': 3, 'e': 3}
         >>> groups(many_to_one)  # doctest: +SKIP
         {1: {'a', 'b'}, 2: {'c'}, 3: {'d', 'e'}}
@@ -279,7 +279,7 @@ def to_tuple(x):
 
     For example::
 
-        >>> from networkx.utils import to_tuple
+        >>> from networkx import to_tuple
         >>> a_list = [1, 2, [1, 4]]
         >>> to_tuple(a_list)
         (1, 2, (1, 4))

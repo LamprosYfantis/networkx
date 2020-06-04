@@ -273,7 +273,7 @@ def shortest_augmenting_path(G, s, t, capacity='capacity', residual=None,
     Examples
     --------
     >>> import networkx as nx
-    >>> from networkx.algorithms.flow import shortest_augmenting_path
+    >>> from networkx import shortest_augmenting_path
 
     The functions that implement flow algorithms and output a residual
     network, such as this one, are not imported to the base NetworkX

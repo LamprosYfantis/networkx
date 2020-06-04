@@ -392,7 +392,7 @@ def preflow_push(G, s, t, capacity='capacity', residual=None,
     Examples
     --------
     >>> import networkx as nx
-    >>> from networkx.algorithms.flow import preflow_push
+    >>> from networkx import preflow_push
 
     The functions that implement flow algorithms and output a residual
     network, such as this one, are not imported to the base NetworkX

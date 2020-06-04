@@ -54,7 +54,7 @@ def node_redundancy(G, nodes=None):
     Compute the redundancy coefficient of each node in a graph::
 
         >>> import networkx as nx
-        >>> from networkx.algorithms import bipartite
+        >>> from networkx import bipartite
         >>> G = nx.cycle_graph(4)
         >>> rc = bipartite.node_redundancy(G)
         >>> rc[0]
@@ -63,7 +63,7 @@ def node_redundancy(G, nodes=None):
     Compute the average redundancy for the graph::
 
         >>> import networkx as nx
-        >>> from networkx.algorithms import bipartite
+        >>> from networkx import bipartite
         >>> G = nx.cycle_graph(4)
         >>> rc = bipartite.node_redundancy(G)
         >>> sum(rc.values()) / len(G)
@@ -72,7 +72,7 @@ def node_redundancy(G, nodes=None):
     Compute the average redundancy for a set of nodes::
 
         >>> import networkx as nx
-        >>> from networkx.algorithms import bipartite
+        >>> from networkx import bipartite
         >>> G = nx.cycle_graph(4)
         >>> rc = bipartite.node_redundancy(G)
         >>> nodes = [0, 2]

@@ -46,7 +46,7 @@ def greedy_modularity_communities(G, weight=None):
 
     Examples
     --------
-    >>> from networkx.algorithms.community import greedy_modularity_communities
+    >>> from networkx import greedy_modularity_communities
     >>> G = nx.karate_club_graph()
     >>> c = list(greedy_modularity_communities(G))
     >>> sorted(c[0])

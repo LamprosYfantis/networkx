@@ -30,12 +30,12 @@ class TestGeneratorThreshold():
         deg = [3, 2, 2, 1]
         assert_true(nxt.is_threshold_sequence(deg))
 
-        G = nx.generators.havel_hakimi_graph(deg)
+        G = networkx.generators.havel_hakimi_graph(deg)
         assert_true(nxt.is_threshold_graph(G))
 
     def test_creation_sequences(self):
         deg = [3, 2, 2, 1]
-        G = nx.generators.havel_hakimi_graph(deg)
+        G = networkx.generators.havel_hakimi_graph(deg)
 
         with assert_raises(ValueError):
             nxt.creation_sequence(deg, with_labels=True, compact=True)
@@ -87,7 +87,7 @@ class TestGeneratorThreshold():
 
     def test_shortest_path(self):
         deg = [3, 2, 2, 1]
-        G = nx.generators.havel_hakimi_graph(deg)
+        G = networkx.generators.havel_hakimi_graph(deg)
         cs1 = nxt.creation_sequence(deg, with_labels=True)
         for n, m in [(3, 0), (0, 3), (0, 2), (0, 1), (1, 3),
                      (3, 1), (1, 2), (2, 3)]:

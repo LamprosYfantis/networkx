@@ -222,7 +222,7 @@ def edmonds_karp(G, s, t, capacity='capacity', residual=None, value_only=False,
     Examples
     --------
     >>> import networkx as nx
-    >>> from networkx.algorithms.flow import edmonds_karp
+    >>> from networkx import edmonds_karp
 
     The functions that implement flow algorithms and output a residual
     network, such as this one, are not imported to the base NetworkX

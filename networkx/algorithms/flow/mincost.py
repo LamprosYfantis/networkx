@@ -326,7 +326,7 @@ def max_flow_min_cost(G, s, t, capacity='capacity', weight='weight'):
     >>> mincost = nx.cost_of_flow(G, mincostFlow)
     >>> mincost
     373
-    >>> from networkx.algorithms.flow import maximum_flow
+    >>> from networkx import maximum_flow
     >>> maxFlow = maximum_flow(G, 1, 7)[1]
     >>> nx.cost_of_flow(G, maxFlow) >= mincost
     True

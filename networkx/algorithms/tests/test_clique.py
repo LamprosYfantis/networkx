@@ -8,7 +8,7 @@ class TestCliques:
 
     def setUp(self):
         z = [3, 4, 3, 4, 2, 4, 2, 1, 1, 1, 1]
-        self.G = cnlti(nx.generators.havel_hakimi_graph(z), first_label=1)
+        self.G = cnlti(networkx.generators.havel_hakimi_graph(z), first_label=1)
         self.cl = list(nx.find_cliques(self.G))
         H = nx.complete_graph(6)
         H = nx.relabel_nodes(H, dict([(i, i + 1) for i in range(6)]))

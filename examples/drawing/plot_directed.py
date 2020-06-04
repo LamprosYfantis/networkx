@@ -15,7 +15,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import networkx as nx
 
-G = nx.generators.directed.random_k_out_graph(10, 3, 0.5)
+G = networkx.generators.directed.random_k_out_graph(10, 3, 0.5)
 pos = nx.layout.spring_layout(G)
 
 node_sizes = [3 + 10 * i for i in range(len(G))]

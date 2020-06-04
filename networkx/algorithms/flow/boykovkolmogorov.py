@@ -115,7 +115,7 @@ def boykov_kolmogorov(G, s, t, capacity='capacity', residual=None,
     Examples
     --------
     >>> import networkx as nx
-    >>> from networkx.algorithms.flow import boykov_kolmogorov
+    >>> from networkx import boykov_kolmogorov
 
     The functions that implement flow algorithms and output a residual
     network, such as this one, are not imported to the base NetworkX

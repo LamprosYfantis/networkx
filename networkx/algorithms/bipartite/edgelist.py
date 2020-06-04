@@ -113,7 +113,7 @@ def generate_edgelist(G, delimiter=' ', data=True):
 
     Examples
     --------
-    >>> from networkx.algorithms import bipartite
+    >>> from networkx import bipartite
     >>> G = nx.path_graph(4)
     >>> G.add_nodes_from([0,2], bipartite=0)
     >>> G.add_nodes_from([1,3], bipartite=1)
@@ -186,7 +186,7 @@ def parse_edgelist(lines, comments='#', delimiter=None,
     --------
     Edgelist with no data:
 
-    >>> from networkx.algorithms import bipartite
+    >>> from networkx import bipartite
     >>> lines = ["1 2",
     ...          "2 3",
     ...          "3 4"]
@@ -313,7 +313,7 @@ def read_edgelist(path, comments="#",
 
     Examples
     --------
-    >>> from networkx.algorithms import bipartite
+    >>> from networkx import bipartite
     >>> G = nx.path_graph(4)
     >>> G.add_nodes_from([0,2], bipartite=0)
     >>> G.add_nodes_from([1,3], bipartite=1)

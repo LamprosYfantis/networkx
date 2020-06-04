@@ -31,7 +31,7 @@ class TestMCS:
         assert_false(nx.is_chordal(nx.cycle_graph(5)))
 
     def test_induced_nodes(self):
-        G = nx.generators.classic.path_graph(10)
+        G = networkx.generators.classic.path_graph(10)
         I = nx.find_induced_nodes(G, 1, 9, 2)
         assert_equal(I, set([1, 2, 3, 4, 5, 6, 7, 8, 9]))
         assert_raises(nx.NetworkXTreewidthBoundExceeded,

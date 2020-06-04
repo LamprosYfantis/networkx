@@ -357,7 +357,7 @@ def minimum_spanning_edges(G, algorithm='kruskal', weight='weight',
 
     Examples
     --------
-    >>> from networkx.algorithms import tree
+    >>> from networkx import tree
 
     Find minimum spanning edges by Kruskal's algorithm
 
@@ -449,7 +449,7 @@ def maximum_spanning_edges(G, algorithm='kruskal', weight='weight',
 
     Examples
     --------
-    >>> from networkx.algorithms import tree
+    >>> from networkx import tree
 
     Find maximum spanning edges by Kruskal's algorithm
 

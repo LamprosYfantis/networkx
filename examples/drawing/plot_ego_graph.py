@@ -19,7 +19,7 @@ if __name__ == '__main__':
     # Create a BA model graph
     n = 1000
     m = 2
-    G = nx.generators.barabasi_albert_graph(n, m)
+    G = networkx.generators.barabasi_albert_graph(n, m)
     # find node with largest degree
     node_and_degree = G.degree()
     (largest_hub, degree) = sorted(node_and_degree, key=itemgetter(1))[-1]

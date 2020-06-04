@@ -151,7 +151,7 @@ def maximum_flow(flowG, _s, _t,
     You can also use alternative algorithms for computing the
     maximum flow by using the flow_func parameter.
 
-    >>> from networkx.algorithms.flow import shortest_augmenting_path
+    >>> from networkx import shortest_augmenting_path
     >>> flow_value == nx.maximum_flow(G, 'x', 'y',
     ...                         flow_func=shortest_augmenting_path)[0]
     True
@@ -290,7 +290,7 @@ def maximum_flow_value(flowG, _s, _t,
     You can also use alternative algorithms for computing the
     maximum flow by using the flow_func parameter.
 
-    >>> from networkx.algorithms.flow import shortest_augmenting_path
+    >>> from networkx import shortest_augmenting_path
     >>> flow_value == nx.maximum_flow_value(G, 'x', 'y',
     ...                                     flow_func=shortest_augmenting_path)
     True
@@ -439,7 +439,7 @@ def minimum_cut(flowG, _s, _t,
     You can also use alternative algorithms for computing the
     minimum cut by using the flow_func parameter.
 
-    >>> from networkx.algorithms.flow import shortest_augmenting_path
+    >>> from networkx import shortest_augmenting_path
     >>> cut_value == nx.minimum_cut(G, 'x', 'y',
     ...                             flow_func=shortest_augmenting_path)[0]
     True
@@ -590,7 +590,7 @@ def minimum_cut_value(flowG, _s, _t,
     You can also use alternative algorithms for computing the
     minimum cut by using the flow_func parameter.
 
-    >>> from networkx.algorithms.flow import shortest_augmenting_path
+    >>> from networkx import shortest_augmenting_path
     >>> cut_value == nx.minimum_cut_value(G, 'x', 'y',
     ...                                   flow_func=shortest_augmenting_path)
     True

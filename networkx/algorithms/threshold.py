@@ -114,7 +114,7 @@ def make_compact(creation_sequence):
 
     Examples
     --------
-    >>> from networkx.algorithms.threshold import make_compact
+    >>> from networkx import make_compact
     >>> make_compact(['d', 'i', 'i', 'd', 'd', 'i', 'i', 'i'])
     [1, 2, 2, 3]
     >>> make_compact(['d', 'd', 'd', 'i', 'd', 'd'])

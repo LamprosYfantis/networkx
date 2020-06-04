@@ -49,7 +49,7 @@ def node_link_data(G, attrs=None):
 
     Examples
     --------
-    >>> from networkx.readwrite import json_graph
+    >>> from networkx import json_graph
     >>> G = nx.Graph([('A', 'B')])
     >>> data1 = json_graph.node_link_data(G)
     >>> H = nx.gn_graph(2)
@@ -130,7 +130,7 @@ def node_link_graph(data, directed=False, multigraph=True, attrs=None):
 
     Examples
     --------
-    >>> from networkx.readwrite import json_graph
+    >>> from networkx import json_graph
     >>> G = nx.Graph([('A', 'B')])
     >>> data = json_graph.node_link_data(G)
     >>> H = json_graph.node_link_graph(data)

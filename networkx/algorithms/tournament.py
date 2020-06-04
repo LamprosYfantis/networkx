@@ -19,7 +19,7 @@ To access the functions in this module, you must access them through the
 :mod:`networkx.algorithms.tournament` module::
 
     >>> import networkx as nx
-    >>> from networkx.algorithms import tournament
+    >>> from networkx import tournament
     >>> G = nx.DiGraph([(0, 1), (1, 2), (2, 0)])
     >>> tournament.is_tournament(G)
     True

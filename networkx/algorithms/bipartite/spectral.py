@@ -35,7 +35,7 @@ def spectral_bipartivity(G, nodes=None, weight='weight'):
 
     Examples
     --------
-    >>> from networkx.algorithms import bipartite
+    >>> from networkx import bipartite
     >>> G = nx.path_graph(4)
     >>> bipartite.spectral_bipartivity(G)
     1.0

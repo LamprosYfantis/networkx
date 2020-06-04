@@ -6,7 +6,7 @@ the :mod:`networkx.algorithms.community` module, then accessing the
 functions as attributes of ``community``. For example::
 
     >>> import networkx as nx
-    >>> from networkx.algorithms import community
+    >>> from networkx import community
     >>> G = nx.barbell_graph(5, 1)
     >>> communities_generator = community.girvan_newman(G)
     >>> top_level_communities = next(communities_generator)

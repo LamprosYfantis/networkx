@@ -39,7 +39,7 @@ def cuthill_mckee_ordering(G, heuristic=None):
 
     Examples
     --------
-    >>> from networkx.utils import cuthill_mckee_ordering
+    >>> from networkx import cuthill_mckee_ordering
     >>> G = nx.path_graph(4)
     >>> rcm = list(cuthill_mckee_ordering(G))
     >>> A = nx.adjacency_matrix(G, nodelist=rcm) # doctest: +SKIP
@@ -98,7 +98,7 @@ def reverse_cuthill_mckee_ordering(G, heuristic=None):
 
     Examples
     --------
-    >>> from networkx.utils import reverse_cuthill_mckee_ordering
+    >>> from networkx import reverse_cuthill_mckee_ordering
     >>> G = nx.path_graph(4)
     >>> rcm = list(reverse_cuthill_mckee_ordering(G))
     >>> A = nx.adjacency_matrix(G, nodelist=rcm) # doctest: +SKIP

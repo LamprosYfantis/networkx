@@ -169,7 +169,8 @@ def is_isomorphic(G1, G2, node_match=None, edge_match=None):
 
     Examples
     --------
-    >>> import networkx.algorithms.isomorphism as iso
+
+import networkx as iso
 
     For digraphs G1 and G2, using 'weight' edge attribute (default: 1)
 

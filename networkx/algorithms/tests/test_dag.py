@@ -10,7 +10,6 @@ from nose.tools import ok_
 
 import networkx as nx
 from networkx.testing.utils import assert_edges_equal
-from networkx.utils import arbitrary_element
 from networkx.utils import consume
 from networkx.utils import pairwise
 
@@ -137,7 +136,7 @@ class TestDAG:
         assert_equal(tuple(nx.lexicographical_topological_sort(DG)), (1, 2, 3))
 
     def test_is_directed_acyclic_graph(self):
-        G = nx.generators.complete_graph(2)
+        G = networkx.generators.complete_graph(2)
         assert_false(nx.is_directed_acyclic_graph(G))
         assert_false(nx.is_directed_acyclic_graph(G.to_directed()))
         assert_false(nx.is_directed_acyclic_graph(nx.Graph([(3, 4), (4, 5)])))

@@ -46,7 +46,7 @@ def tree_data(G, root, attrs=_attrs):
 
     Examples
     --------
-    >>> from networkx.readwrite import json_graph
+    >>> from networkx import json_graph
     >>> G = nx.DiGraph([(1,2)])
     >>> data = json_graph.tree_data(G,root=1)
 
@@ -116,7 +116,7 @@ def tree_graph(data, attrs=_attrs):
 
     Examples
     --------
-    >>> from networkx.readwrite import json_graph
+    >>> from networkx import json_graph
     >>> G = nx.DiGraph([(1,2)])
     >>> data = json_graph.tree_data(G,root=1)
     >>> H = json_graph.tree_graph(data)

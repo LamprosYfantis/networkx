@@ -115,7 +115,7 @@ def gomory_hu_tree(G, capacity='capacity', flow_func=None):
     10
     >>> # You can use any maximum flow algorithm for the underlying
     ... # flow computations using the argument flow_func
-    ... from networkx.algorithms import flow
+    ... from networkx import flow
     >>> T = nx.gomory_hu_tree(G, flow_func=flow.boykov_kolmogorov)
     >>> cut_value, edge = minimum_edge_weight_in_shortest_path(T, u, v)
     >>> cut_value
