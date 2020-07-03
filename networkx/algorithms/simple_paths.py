@@ -5099,2484 +5099,2968 @@ def single_crt_backw_alg3(G, source, target, t_0, t_H, dt, travel_time_data, dis
     except KeyError:
         raise nx.NetworkXNoPath("Node %s not reachable from %s" % (target, source))
         
+
         
-def pareto_paths_with_attrs_backwards_new_pt(G, source, target, req_time, t_0, t_H, dt, travel_time='travel_time', distance='distance', \
-                                      pt_additive_cost='pt_distance_based_cost', pt_non_additive_cost='pt_zone_to_zone_cost', \
-                                      taxi_fares='taxi_fares', taxi_wait_time='taxi_wait_time', timetable='departure_time', \
-                                      edge_type='edge_type', node_type='node_type', node_graph_type='node_graph_type', \
-                                      fare_scheme='distance_based', init_travel_time = 0, init_wait_time = 0, init_distance = 0, \
-                                      init_cost = 0, init_num_line_trfs = 0, init_num_mode_trfs = 0, last_edge_type=None, \
-                                      last_upstr_node_graph_type=None, last_pt_veh_run_id=None, last_edge_cost=0, \
-                                      pt_trip_dest_zone=None, previous_edge_mode=None):
+# def ε_pareto_paths_with_attrs_backwards(G, source, target, req_time, t_0, t_H, dt, travel_time='travel_time', distance='distance', \
+#                                       pt_additive_cost='pt_distance_based_cost', pt_non_additive_cost='pt_zone_to_zone_cost', \
+#                                       taxi_fares='taxi_fares', taxi_wait_time='taxi_wait_time', timetable='departure_time', \
+#                                       edge_type='edge_type', node_type='node_type', node_graph_type='node_graph_type', \
+#                                       fare_scheme='distance_based', init_travel_time = 0, init_wait_time = 0, init_distance = 0, \
+#                                       init_cost = 0, init_num_line_trfs = 0, init_num_mode_trfs = 0, last_edge_type=None, \
+#                                       last_upstr_node_graph_type=None, last_pt_veh_run_id=None, last_edge_cost=0, \
+#                                       pt_trip_dest_zone=None, previous_edge_mode=None):
 
-  if source not in G:
-    raise nx.NodeNotFound("Source {} not in G".format(source))
-  if target not in G:
-    raise nx.NodeNotFound("Target {} not in G".format(target))
-  if source == target:
-    return 0, [target]
+#   if source not in G:
+#     raise nx.NodeNotFound("Source {} not in G".format(source))
+#   if target not in G:
+#     raise nx.NodeNotFound("Target {} not in G".format(target))
+#   if source == target:
+#     return 0, [target]
 
-  travel_time = _get_travel_time_function(G, travel_time)
-  distance = _get_distance_function(G, distance)
-  pt_additive_cost = _get_pt_additive_cost(G, pt_additive_cost)
-  pt_non_additive_cost = _get_pt_non_additive_cost(G, pt_non_additive_cost)
-  timetable = _get_timetable(G, timetable)
-  edge_type = _get_edge_type(G, edge_type)
-  node_type = _get_node_type(G, node_type)
-  node_graph_type = _get_dwnstr_graph_type_data(G, node_graph_type)
-  taxi_fares = _get_taxi_fares(G, taxi_fares)
-  taxi_wait_time = _get_taxi_wait_time(G, taxi_wait_time)
+#   travel_time = _get_travel_time_function(G, travel_time)
+#   distance = _get_distance_function(G, distance)
+#   pt_additive_cost = _get_pt_additive_cost(G, pt_additive_cost)
+#   pt_non_additive_cost = _get_pt_non_additive_cost(G, pt_non_additive_cost)
+#   timetable = _get_timetable(G, timetable)
+#   edge_type = _get_edge_type(G, edge_type)
+#   node_type = _get_node_type(G, node_type)
+#   node_graph_type = _get_dwnstr_graph_type_data(G, node_graph_type)
+#   taxi_fares = _get_taxi_fares(G, taxi_fares)
+#   taxi_wait_time = _get_taxi_wait_time(G, taxi_wait_time)
 
 
-  pareto_bag = mltcrtr_lbl_set_alg_bwds_new_pt(G, source, target, t_0, t_H, dt, travel_time, distance, pt_additive_cost, pt_non_additive_cost, \
-                                        taxi_fares, taxi_wait_time, timetable, edge_type, node_type, node_graph_type, fare_scheme, \
-                                        init_travel_time, init_wait_time, init_distance, init_cost, init_num_line_trfs, init_num_mode_trfs,\
-                                        last_edge_type, last_upstr_node_graph_type, last_pt_veh_run_id, last_edge_cost, pt_trip_dest_zone, \
-                                        previous_edge_mode)
+#   pareto_bag = ε_mltcrtr_lbl_set_alg_bwds(G, source, target, t_0, t_H, dt, travel_time, distance, pt_additive_cost, pt_non_additive_cost, \
+#                                         taxi_fares, taxi_wait_time, timetable, edge_type, node_type, node_graph_type, fare_scheme, \
+#                                         init_travel_time, init_wait_time, init_distance, init_cost, init_num_line_trfs, init_num_mode_trfs,\
+#                                         last_edge_type, last_upstr_node_graph_type, last_pt_veh_run_id, last_edge_cost, pt_trip_dest_zone, \
+#                                         previous_edge_mode)
   
-  i = count()
-  paths_with_attrs = {}
-  for label_id, attrs in pareto_bag[source][req_time].items():
+#   i = count()
+#   paths_with_attrs = {}
+#   for label_id, attrs in pareto_bag[source][req_time].items():
       
-      path = []
-      path.append(source)
-      next_node = attrs['pred_node']
-      next_time_intrv = attrs['pred_time_int']
-      next_label_id = attrs['pred_label_id']
+#       path = []
+#       path.append(source)
+#       next_node = attrs['pred_node']
+#       next_time_intrv = attrs['pred_time_int']
+#       next_label_id = attrs['pred_label_id']
       
-      while next_node != None and next_time_intrv != None and next_label_id != None:
-#          if next_label_id == '68585':
-##              print(next_node)
-##              print(next_time_intrv)
-##              print(path)
-#              print(pareto_bag['w56'][30720])
-#              print(pareto_bag['w17'][31230])
-          path.append(next_node)
-          new_node = pareto_bag[next_node][next_time_intrv][next_label_id]['pred_node']
-          new_time_intrv = pareto_bag[next_node][next_time_intrv][next_label_id]['pred_time_int']
-          new_label_id = pareto_bag[next_node][next_time_intrv][next_label_id]['pred_label_id']
-          next_node = new_node
-          next_time_intrv = new_time_intrv
-          next_label_id = new_label_id
+#       while next_node != None and next_time_intrv != None and next_label_id != None:
+#           if next_label_id == '37427':
+#               print(next_node)
+#               print(next_time_intrv)
+#               print(path)
+# #              print(pareto_bag['w56'][30720])
+# #              print(pareto_bag['w17'][31230])
+#           path.append(next_node)
+#           new_node = pareto_bag[next_node][next_time_intrv][next_label_id]['pred_node']
+#           new_time_intrv = pareto_bag[next_node][next_time_intrv][next_label_id]['pred_time_int']
+#           new_label_id = pareto_bag[next_node][next_time_intrv][next_label_id]['pred_label_id']
+#           next_node = new_node
+#           next_time_intrv = new_time_intrv
+#           next_label_id = new_label_id
       
-      paths_with_attrs.update({str(next(i)): {'fnl_path' : path, 'optimal_crt_values' : attrs['opt_crt_val'], 'travel_time' : attrs['tt'], \
-                              'waiting_time' : attrs['wt'], 'distance' : attrs['l'], 'cost' : attrs['c'], 'line_transfers' : attrs['lt'], \
-                              'mode_transfers' : attrs['mt'], 'walking_time': attrs['wkt']}})
+#       paths_with_attrs.update({str(next(i)): {'fnl_path' : path, 'optimal_crt_values' : attrs['opt_crt_val'], 'travel_time' : attrs['tt'], \
+#                               'waiting_time' : attrs['wt'], 'distance' : attrs['l'], 'cost' : attrs['c'], 'line_transfers' : attrs['lt'], \
+#                               'mode_transfers' : attrs['mt']}})
   
-  return paths_with_attrs
+#   return paths_with_attrs
 
 
-# the origin and destination inputs to the algorithm need to always be nodes of the walk network.
-def mltcrtr_lbl_set_alg_bwds_new_pt(G, source, target, t_0, t_H, dt, travel_time_data, distance_data, pt_additive_cost_data, pt_non_additive_cost_data, \
-                                taxi_fares, taxi_wait_time, timetable_data, edge_type_data, node_type_data, node_graph_type_data, fare_scheme, \
-                                init_travel_time, init_wait_time, init_distance, init_cost, init_num_line_trfs, init_num_mode_trfs, \
-                                last_edge_type, last_dstr_node_graph_type, last_pt_veh_run_id, last_edge_cost, pt_trip_dest_zone, \
-                                previous_edge_mode):
-    Gpred = G._pred
+# # the origin and destination inputs to the algorithm need to always be nodes of the walk network.
+# def ε_mltcrtr_lbl_set_alg_bwds(G, source, target, t_0, t_H, dt, travel_time_data, distance_data, pt_additive_cost_data, pt_non_additive_cost_data, \
+#                                 taxi_fares, taxi_wait_time, timetable_data, edge_type_data, node_type_data, node_graph_type_data, fare_scheme, \
+#                                 init_travel_time, init_wait_time, init_distance, init_cost, init_num_line_trfs, init_num_mode_trfs, \
+#                                 last_edge_type, last_dstr_node_graph_type, last_pt_veh_run_id, last_edge_cost, pt_trip_dest_zone, \
+#                                 previous_edge_mode):
+#     Gpred = G._pred
     
-    #--- initialization of the data structure that holds all the non-dominated multi-dimnesional labels and its label's required pointers
-    #--- for all nodes and all times within a time_horizon (t_0 <= t <= t_H)
-    c = count()
-    labels_bag = {}  
-    for n in G:
-        labels_bag.update({n: {}})
-        for t in range(t_0, t_H+1, dt):
-            t = t%86400
-            if n == target:
-                label_id = str(next(c))
-                labels_bag[n].update({t: {label_id: {'opt_crt_val':(init_travel_time, init_cost, init_num_line_trfs + init_num_mode_trfs), \
-                   'pred_node': None, 'pred_time_int': None, 'pred_label_id': None, 'tt': init_travel_time, 'wt': init_wait_time, \
-                   'l': init_distance, 'c': init_cost, 'lt': init_num_line_trfs, 'mt': init_num_mode_trfs, 'wkt': 0, 'prev_edge_type': None, \
-                   'prev_dstr_node_graph_type': None , 'prev_mode': None}}}) #'path': path
-            else:
-                labels_bag[n].update({t: {}})
+#     #--- initialization of the data structure that holds all the non-dominated multi-dimnesional labels and its label's required pointers
+#     #--- for all nodes and all times within a time_horizon (t_0 <= t <= t_H)
+#     c = count()
+# #    path = list()
+# #    path.append(target)
+#     labels_bag = {}  
+#     for n in G:
+#         labels_bag.update({n: {}})
+#         for t in range(t_0, t_H+1, dt):
+#             t = t%86400
+#             if n == target:
+#                 label_id = str(next(c))
+#                 labels_bag[n].update({t: {label_id: {'opt_crt_val':(init_travel_time, init_cost, init_num_line_trfs, init_num_mode_trfs), \
+#                    'pred_node': None, 'pred_time_int': None, 'pred_label_id': None, 'tt': init_travel_time, 'wt': init_wait_time, \
+#                    'l': init_distance, 'c': init_cost, 'lt': init_num_line_trfs, 'mt': init_num_mode_trfs, 'prev_edge_type': None, \
+#                    'prev_dstr_node_graph_type': None , 'prev_mode': None}}}) #'path': path
+#             else:
+#                 labels_bag[n].update({t: {}})
 
-    #--- initialization of the SE list used for scanning nodes in each iteration ---#
-    #--- it opertes as a double ended queue (deque) as in Ziliaskopoulos and Mahmassani (1993) ---#
-#    se_list = deque([target])
-    de_queue = {}
-    for n in G:
-        if n == target:
-            de_queue.update({n: 999999999})
-        else:
-            de_queue.update({n: 0})
-#    first = target
-#    last = target
+#     #--- initialization of the SE list used for scanning nodes in each iteration ---#
+#     #--- it opertes as a double ended queue (deque) as in Ziliaskopoulos and Mahmassani (1993) ---#
+# #    se_list = deque([target])
+#     de_queue = {}
+#     for n in G:
+#         if n == target:
+#             de_queue.update({n: 999999999})
+#         else:
+#             de_queue.update({n: 0})
+# #    first = target
+# #    last = target
     
-    se_list = deque([target])
+#     se_list = deque([target])
     
-    #--- the algorithm is running until the SE List is empty, meaning that there are no more node insertions for any time t 
-#    that can give a non-dominated paths \---#
-#    t_count = 0
-    while se_list: 
-#        v = first
-#        first = de_queue[v]
-#        de_queue[v] = -1
-        v = se_list.popleft()
-        de_queue[v] = -1
-#        if v == 'w17':
-#            t_count += 1
-        v_n_gr_type = G.nodes[v]['node_graph_type']
+    
+#     #--- the algorithm is running until the SE List is empty, meaning that there are no more node insertions for any time t 
+# #    that can give a non-dominated paths \---#
+#     t_count = 0
+#     while se_list: 
+# #        v = first
+# #        first = de_queue[v]
+# #        de_queue[v] = -1
+#         v = se_list.popleft()
+#         de_queue[v] = -1
         
-        for u, e in Gpred[v].items():
-            insert_in_se_list = False
-            # now for each t we first need to identify the total travel time that is required to travel from u to v
-            # this is the case because we need to know which label (path) or set of labels (paths) from node v will be extended
-            # the labels that will be extended will then be the one in labels_bag[v][t+tt_uv(t)]
-            for t in range(t_0, t_H+1, dt):
-                t = t%86400
-                e_type = e['edge_type']#_data(u, v, e)
+#         v_n_gr_type = G.nodes[v]['node_graph_type']
+        
+#         for u, e in Gpred[v].items():
+# #            if v == 'w17':
+# #                print(u)
+#             insert_in_se_list = False
+#             # now for each t we first need to identify the total travel time that is required to travel from u to v
+#             # this is the case because we need to know which label (path) or set of labels (paths) from node v will be extended
+#             # the labels that will be extended will then be the one in labels_bag[v][t+tt_uv(t)]
+#             for t in range(t_0, t_H+1, dt):
                 
-#                here we diffferentiate between the cases of public transport and road modes, since time-dependency
-#                is handled differently in each case; specifically waiting is allowed in PT but not in road services
-#                if e_type != 'pt_route_edge':
-                if e_type == 'car_sharing_station_egress_edge' or e_type == 'car_sharing_station_access_edge':
-                    e_tt = 0
-                    e_wait_time = e['wait_time']
-                    e_cost=0
-                    e_distance = 0
-                    e_num_lin_trf = 0
-                    e_num_mode_trf = 0
-                    e_walk_time = 0
-                    
-                if e_type == 'car_sharing_orig_dummy_edge':
-                    e_wait_time = 0
-                    e_tt = 0
-                    e_distance = 0
-                    e_cost = 0
-                    e_num_mode_trf = 0
-                    e_num_lin_trf = 0
-                    e_walk_time = 0
-                    
-                if e_type == 'car_sharing_dest_dummy_edge' or e_type == 'car_sharing_dual_edge':
-                    e_wait_time = 0
-#                    tt_d = e['travel_time']#_data(u, v, e)
-#                    if tt_d is None:
-#                      print('Missing in_veh_tt value in edge {}'.format((u, v))) 
-#                      continue
-                    e_tt = e['travel_time'][t]
-#                    e_tt = get_time_dep_taxi_travel_time(t, tt_d) # used this function cause it works the way it should, need to however have some generic function to extract data from different type of dictionaries without being mode-specific
-                    e_distance = e['distance']#_data(u, v, e)
-                    if e_distance is None:
-                      print('Missing distance value in edge {}'.format((u, v)))
-                      continue
-#                    e_cost_data = e['car_sharing_fares']
-                    e_cost = e['car_sharing_fares'][t]
-#                    e_cost = get_time_dep_taxi_cost(t, e_cost_data) # # used this function cause it works the way it should, need to however have some generic function to extract data from different type of dictionaries without being mode-specific
-                    e_num_mode_trf = 0
-                    e_num_lin_trf = 0
-                    e_walk_time = 0
-                    
-                if e_type == 'taxi_edge' or e_type == 'on_demand_single_taxi_edge' or e_type == 'on_demand_shared_taxi_edge':
-                    e_wait_time = e['taxi_wait_time'][t]
-                    e_tt = e['travel_time'][(t+e_wait_time)-((t+e_wait_time)%dt)]
-#                    e_wait_time_data = e['taxi_wait_time']#(u, v, e)
-#                    e_wait_time = get_time_dep_taxi_wait_time(t, e_wait_time_data)
-#                    tt_d = e['travel_time']#_data(u, v, e)
-#                    if tt_d is None:
-#                      print('Missing in_veh_tt value in edge {}'.format((u, v)))
-#                      continue
-#                    e_tt = get_time_dep_taxi_travel_time(t+e_wait_time, tt_d)
-                    e_distance = e['distance']#_data(u, v, e)        # funtion that extracts the edge's distance attribute
-                    if e_distance is None:
-                      print('Missing distance value in edge {}'.format((u, v)))
-                      continue
-                    e_num_mode_trf = 0
-                    e_num_lin_trf = 0
-                    e_cost = e['taxi_fares'][t]
-                    e_walk_time = 0
-#                    e_cost_data = e['taxi_fares']#(u, v, e)
-#                    e_cost = get_time_dep_taxi_cost(t, e_cost_data)
+#                 t = t%86400
                 
-                if e_type == 'walk_edge':
-                    e_tt = e['travel_time']#_data(u, v, e)  # funtion that extracts the edge's in-vehicle travel time attribute
-                    if e_tt is None:
-                      print('Missing in_veh_tt value in edge {}'.format((u, v)))
-                      continue
-                    e_wait_time = 0
-                    e_distance = e['distance']#_data(u, v, e)        # funtion that extracts the edge's distance attribute
-                    if e_distance is None:
-                      print('Missing distance value in edge {}'.format((u, v)))
-                      continue
-                    e_cost = 0
-                    e_num_mode_trf = 0
-                    e_num_lin_trf = 0
-                    e_walk_time = e['travel_time']
+#                 e_type = e['edge_type']#_data(u, v, e)
+                
+# #                here we diffferentiate between the cases of public transport and road modes, since time-dependency
+# #                is handled differently in each case; specifically waiting is allowed in PT but not in road services
+# #                if e_type != 'pt_route_edge':
+#                 if e_type == 'car_sharing_station_egress_edge' or e_type == 'car_sharing_station_access_edge':
+#                     e_tt = 0
+#                     e_wait_time = e['wait_time']
+#                     e_cost=0
+#                     e_distance = 0
+#                     e_num_lin_trf = 0
+#                     e_num_mode_trf = 0
                     
-                if e_type == 'access_edge':
-                    e_tt = e['travel_time']#_data(u, v, e)  # funtion that extracts the edge's in-vehicle travel time attribute
-                    if e_tt is None:
-                      print('Missing in_veh_tt value in edge {}'.format((u, v)))
-                      continue
-                    e_wait_time = 0
-                    e_distance = e['distance']#_data(u, v, e)        # funtion that extracts the edge's distance attribute
-                    if e_distance is None:
-                      print('Missing distance value in edge {}'.format((u, v)))
-                      continue
-                    e_cost = 0
-                    e_num_mode_trf = 0
-                    e_num_lin_trf = 0
-                    u_n_type = e['up_node_type']
-#                        v_n_type = e['dstr_node_type']
-                    if u_n_type == 'walk_graph_node':
-                        e_num_mode_trf = 1
-                    e_walk_time = e['travel_time']
+#                 if e_type == 'car_sharing_orig_dummy_edge':
+#                     e_wait_time = 0
+#                     e_tt = 0
+#                     e_distance = 0
+#                     e_cost = 0
+#                     e_num_mode_trf = 0
+#                     e_num_lin_trf = 0
                     
-                if e_type == 'pt_transfer_edge':
-                    e_tt = e['travel_time']#_data(u, v, e)  # funtion that extracts the edge's in-vehicle travel time attribute
-                    if e_tt is None:
-                      print('Missing in_veh_tt value in edge {}'.format((u, v)))
-                      continue
-                    e_wait_time = 0
-                    e_distance = e['distance']#_data(u, v, e)        # funtion that extracts the edge's distance attribute
-                    if e_distance is None:
-                      print('Missing distance value in edge {}'.format((u, v)))
-                      continue
-                    e_cost = 0
-                    e_num_mode_trf = 0
-                    e_num_lin_trf = 0
-                    u_n_type = e['up_node_type']
-                    v_n_type = e['dstr_node_type']
-                    if (u_n_type == 'stop_node' or u_n_type=='station_node') and v_n_type == 'route_node':
-                        e_num_lin_trf =1
-                    e_walk_time = e['travel_time']
+#                 if e_type == 'car_sharing_dest_dummy_edge' or e_type == 'car_sharing_dual_edge':
+#                     e_wait_time = 0
+# #                    tt_d = e['travel_time']#_data(u, v, e)
+# #                    if tt_d is None:
+# #                      print('Missing in_veh_tt value in edge {}'.format((u, v))) 
+# #                      continue
+#                     e_tt = e['travel_time'][t]
+# #                    e_tt = get_time_dep_taxi_travel_time(t, tt_d) # used this function cause it works the way it should, need to however have some generic function to extract data from different type of dictionaries without being mode-specific
+#                     e_distance = e['distance']#_data(u, v, e)
+#                     if e_distance is None:
+#                       print('Missing distance value in edge {}'.format((u, v)))
+#                       continue
+# #                    e_cost_data = e['car_sharing_fares']
+#                     e_cost = e['car_sharing_fares'][t]
+# #                    e_cost = get_time_dep_taxi_cost(t, e_cost_data) # # used this function cause it works the way it should, need to however have some generic function to extract data from different type of dictionaries without being mode-specific
+#                     e_num_mode_trf = 0
+#                     e_num_lin_trf = 0
                     
-                if e_type == 'pt_route_edge':
-#                    dep_timetable = timetable_data(u, v, e)  # fuction that extracts the stop's/station's timetable dict
-#                    if dep_timetable is None:
-#                        print('Missing timetable value in edge'.format((u, v)))
-#                        continue
-#                    e_wait_time, pt_vehicle_run_id = calc_plat_wait_time_and_train_id(t, dep_timetable)  # function that extracts waiting time for next pt vehicle and the vehicle_id; the next departing vehicle is being found using a binary search algorithm that operates on a sorted list of the deparure times for this edge (departure times of the downstream stop/station)
-                    e_wait_time = e['wait_time'][t]
-#                    pt_vehicle_run_id = e['wait_time'][t]['veh_id']
-                    if e_wait_time is None:
-                        print('Missing wait_time value in edge'.format((u, v)))
-                        continue
-                    e_tt = e['travel_time'][t]
-#                    tt_d = e['travel_time']#_data(u, v, e)  # fuction that extracts the travel time dict
-#                    if tt_d is None:
-#                        print('Missing in_veh_tt value in edge'.format((u, v)))
-#                        continue
-#                    e_tt = tt_d[pt_vehicle_run_id] #calc_pt_route_edge_in_veh_tt_for_run_id(tt_d, pt_vehicle_run_id)  # fuction that travel time for corresponding pt vehicle run_id
-                    e_distance = e['distance']#_data(u, v, e)  # fuction that extracts the travel time dict
-                    if e_distance is None:
-                        print('Missing distance value in edge'.format((u, v)))
-                        continue
-                    # edge costs for pt depend on the pt fare scheme; if it is additive (distance_based) or zone_to_zone !! consider adding a price cap !!
-#                    if fare_scheme == 'distance_based':
-#                    dist_bas_cost = e['pt_distance_based_cost']#(u, v, e)  # fuction that extracts the time-dependent distance-based cost dict
-#                    if dist_bas_cost is None:
-#                        print('Missing dist_bas_cost value in edge'.format((u, v)))
-#                        continue
-#                    e_cost = calc_time_dep_distance_based_cost(dist_bas_cost, t)  # fuction that extracts the cost based on time-dependent distance-based cost dict and the current time (finds in which time-zone we currently are)
-                    e_cost = e['pt_distance_based_cost'][t]
-                    e_num_lin_trf = 0
-                    e_num_mode_trf = 0
-                    e_walk_time = 0
+#                 if e_type == 'taxi_edge' or e_type == 'on_demand_single_taxi_edge' or e_type == 'on_demand_shared_taxi_edge':
+#                     e_wait_time = e['taxi_wait_time'][t]
+#                     e_tt = e['travel_time'][(t+e_wait_time)-((t+e_wait_time)%dt)]
+# #                    e_wait_time_data = e['taxi_wait_time']#(u, v, e)
+# #                    e_wait_time = get_time_dep_taxi_wait_time(t, e_wait_time_data)
+# #                    tt_d = e['travel_time']#_data(u, v, e)
+# #                    if tt_d is None:
+# #                      print('Missing in_veh_tt value in edge {}'.format((u, v)))
+# #                      continue
+# #                    e_tt = get_time_dep_taxi_travel_time(t+e_wait_time, tt_d)
+#                     e_distance = e['distance']#_data(u, v, e)        # funtion that extracts the edge's distance attribute
+#                     if e_distance is None:
+#                       print('Missing distance value in edge {}'.format((u, v)))
+#                       continue
+#                     e_num_mode_trf = 0
+#                     e_num_lin_trf = 0
+#                     e_cost = e['taxi_fares'][t]
+# #                    e_cost_data = e['taxi_fares']#(u, v, e)
+# #                    e_cost = get_time_dep_taxi_cost(t, e_cost_data)
+                
+#                 if e_type == 'walk_edge':
+#                     e_tt = e['travel_time']#_data(u, v, e)  # funtion that extracts the edge's in-vehicle travel time attribute
+#                     if e_tt is None:
+#                       print('Missing in_veh_tt value in edge {}'.format((u, v)))
+#                       continue
+#                     e_wait_time = 0
+#                     e_distance = e['distance']#_data(u, v, e)        # funtion that extracts the edge's distance attribute
+#                     if e_distance is None:
+#                       print('Missing distance value in edge {}'.format((u, v)))
+#                       continue
+#                     e_cost = 0
+#                     e_num_mode_trf = 0
+#                     e_num_lin_trf = 0
                     
-                v_arr_time = t + e_tt + e_wait_time
-                mod_v_arr_time = v_arr_time-((v_arr_time-t_0)%dt)
-#                if u == 'w56' and v == 'w17' and (t_count == 7 or t_count == 8):
-#                    print(e_tt, v_arr_time, mod_v_arr_time)
+#                 if e_type == 'access_edge':
+#                     e_tt = e['travel_time']#_data(u, v, e)  # funtion that extracts the edge's in-vehicle travel time attribute
+#                     if e_tt is None:
+#                       print('Missing in_veh_tt value in edge {}'.format((u, v)))
+#                       continue
+#                     e_wait_time = 0
+#                     e_distance = e['distance']#_data(u, v, e)        # funtion that extracts the edge's distance attribute
+#                     if e_distance is None:
+#                       print('Missing distance value in edge {}'.format((u, v)))
+#                       continue
+#                     e_cost = 0
+#                     e_num_mode_trf = 0
+#                     e_num_lin_trf = 0
+#                     u_n_type = e['up_node_type']
+# #                        v_n_type = e['dstr_node_type']
+#                     if u_n_type == 'walk_graph_node':
+#                         e_num_mode_trf = 1
                     
-                if v_arr_time <= t_H:                     
-                    for label_id, info in labels_bag[v][mod_v_arr_time].items():
-                        if u == info['pred_node']:
-                            continue
-                        prev_mode = info['prev_mode']
-                        pr_ed_tp = info['prev_edge_type']
-                        pre_dstr_n_gr_tp = info['prev_dstr_node_graph_type']
+#                 if e_type == 'pt_transfer_edge':
+#                     e_tt = e['travel_time']#_data(u, v, e)  # funtion that extracts the edge's in-vehicle travel time attribute
+#                     if e_tt is None:
+#                       print('Missing in_veh_tt value in edge {}'.format((u, v)))
+#                       continue
+#                     e_wait_time = 0
+#                     e_distance = e['distance']#_data(u, v, e)        # funtion that extracts the edge's distance attribute
+#                     if e_distance is None:
+#                       print('Missing distance value in edge {}'.format((u, v)))
+#                       continue
+#                     e_cost = 0
+#                     e_num_mode_trf = 0
+#                     e_num_lin_trf = 0
+#                     u_n_type = e['up_node_type']
+#                     v_n_type = e['dstr_node_type']
+#                     if (u_n_type == 'stop_node' or u_n_type=='station_node') and v_n_type == 'route_node':
+#                         e_num_lin_trf =1
+#                 if e_type == 'pt_route_edge':
+# #                    dep_timetable = timetable_data(u, v, e)  # fuction that extracts the stop's/station's timetable dict
+# #                    if dep_timetable is None:
+# #                        print('Missing timetable value in edge'.format((u, v)))
+# #                        continue
+# #                    e_wait_time, pt_vehicle_run_id = calc_plat_wait_time_and_train_id(t, dep_timetable)  # function that extracts waiting time for next pt vehicle and the vehicle_id; the next departing vehicle is being found using a binary search algorithm that operates on a sorted list of the deparure times for this edge (departure times of the downstream stop/station)
+#                     e_wait_time = e['wait_time'][t]
+# #                    pt_vehicle_run_id = e['wait_time'][t]['veh_id']
+#                     if e_wait_time is None:
+#                         print('Missing wait_time value in edge'.format((u, v)))
+#                         continue
+#                     e_tt = e['travel_time'][t]
+# #                    tt_d = e['travel_time']#_data(u, v, e)  # fuction that extracts the travel time dict
+# #                    if tt_d is None:
+# #                        print('Missing in_veh_tt value in edge'.format((u, v)))
+# #                        continue
+# #                    e_tt = tt_d[pt_vehicle_run_id] #calc_pt_route_edge_in_veh_tt_for_run_id(tt_d, pt_vehicle_run_id)  # fuction that travel time for corresponding pt vehicle run_id
+#                     e_distance = e['distance']#_data(u, v, e)  # fuction that extracts the travel time dict
+#                     if e_distance is None:
+#                         print('Missing distance value in edge'.format((u, v)))
+#                         continue
+#                     # edge costs for pt depend on the pt fare scheme; if it is additive (distance_based) or zone_to_zone !! consider adding a price cap !!
+# #                    if fare_scheme == 'distance_based':
+# #                    dist_bas_cost = e['pt_distance_based_cost']#(u, v, e)  # fuction that extracts the time-dependent distance-based cost dict
+# #                    if dist_bas_cost is None:
+# #                        print('Missing dist_bas_cost value in edge'.format((u, v)))
+# #                        continue
+# #                    e_cost = calc_time_dep_distance_based_cost(dist_bas_cost, t)  # fuction that extracts the cost based on time-dependent distance-based cost dict and the current time (finds in which time-zone we currently are)
+#                     e_cost = e['pt_distance_based_cost'][t]
+#                     e_num_lin_trf = 0
+#                     e_num_mode_trf = 0
+                    
+#                 v_arr_time = int(t + e_tt + e_wait_time)
+#                 mod_v_arr_time = v_arr_time-((v_arr_time-t_0)%dt)
+                    
+#                 if v_arr_time <= t_H:                     
+#                     for label_id, info in labels_bag[v][mod_v_arr_time].items():
+#                         if u == info['pred_node']:
+#                             continue
+#                         prev_mode = info['prev_mode']
+#                         pr_ed_tp = info['prev_edge_type']
+#                         pre_dstr_n_gr_tp = info['prev_dstr_node_graph_type']
+# #                            pr_md = info['prev_mode']
                         
-                        # restraint walking before taxi modes - active
-                        if e_type == 'walk_edge' and pr_ed_tp == 'access_edge' and \
-                        (pre_dstr_n_gr_tp == 'taxi_graph' or pre_dstr_n_gr_tp == 'on_demand_single_taxi_graph' or pre_dstr_n_gr_tp == 'on_demand_shared_taxi_graph'):
-                            continue
+#                         # restraint walking before taxi modes
+#                         if e_type == 'walk_edge' and pr_ed_tp == 'access_edge' and \
+#                         (pre_dstr_n_gr_tp == 'taxi_graph' or pre_dstr_n_gr_tp == 'on_demand_single_taxi_graph' or pre_dstr_n_gr_tp == 'on_demand_shared_taxi_graph'):
+#                             continue
                         
-                        if e_type == 'access_edge':
-                            u_n_type = e['up_node_type']#G.nodes[v]['node_type']
-                            u_n_gr_type = e['up_node_graph_type']#G.nodes[u]['node_graph_type']#node_graph_type_data(u, G.nodes[u])
-                            v_n_type = e['dstr_node_type']#G.nodes[u]['node_type']#node_type_data(u, G.nodes[u])
-#                                penalty = 0
+#                         if e_type == 'access_edge':
+#                             u_n_type = e['up_node_type']#G.nodes[v]['node_type']
+#                             u_n_gr_type = e['up_node_graph_type']#G.nodes[u]['node_graph_type']#node_graph_type_data(u, G.nodes[u])
+#                             v_n_type = e['dstr_node_type']#G.nodes[u]['node_type']#node_type_data(u, G.nodes[u])
+# #                                penalty = 0
                             
-                            if u_n_gr_type == 'Walk':
-                              prev_mode = v_n_gr_type   
-#                           when we are at an access edge that connects graphs we need to penalize unreasonable connections and path loops; 
-#                           e.g., from walk node to another mode-specific node and back to walk node, from a taxi/carsharing trip to a walk trip 
-#                           and back to taxi/carsharing trip
-#                            if pr_ed_tp == 'access_edge': #active
-#                              if (pre_dstr_n_gr_tp == 'Walk' and u_n_gr_type == 'Walk') or (pre_dstr_n_gr_tp == 'Bus' and \
-#                                 u_n_gr_type == 'Bus') or (pre_dstr_n_gr_tp == 'Train' and u_n_gr_type == 'Train'):
-#                                  continue#penalty = 1000000000000000
-                             
-#                           avoid paths that include two consecutive taxis or carsharign legs in one trip
-                            if (prev_mode == 'taxi_graph' or prev_mode == 'on_demand_single_taxi_graph' or \
-                                prev_mode == 'on_demand_shared_taxi_graph' or prev_mode == 'car_sharing_graph') and \
-                                (u_n_gr_type == 'taxi_graph' or u_n_gr_type == 'on_demand_single_taxi_graph' or \
-                                 u_n_gr_type == 'on_demand_shared_taxi_graph' or u_n_gr_type == 'car_sharing_graph'):
-                                    continue#penalty = 1000000000000000 active
-
-                            if v_n_type == 'car_sharing_station_node':
-                              if G.nodes[v]['stock_level'] == 0:
-                                  continue#penalty = 1000000000000000
-                            if u_n_type == 'car_sharing_station_node':
-                              if G.nodes[u]['stock_level'] == G.nodes[u]['capacity']:
-                                  continue#penalty = 1000000000000000
-                            # restraint pick up -active
-                            if v_n_gr_type == 'taxi_graph' or v_n_gr_type == 'on_demand_single_taxi_graph' or v_n_gr_type == 'on_demand_shared_taxi_graph':
-                                if e['up_node_zone'] == G.nodes[source]['zone'] and u != source:
-                                  continue#penalty = 1000000000000000
-                              
-                            # restraint drop off - active
-                            if (u_n_gr_type == 'taxi_graph' or u_n_gr_type == 'on_demand_single_taxi_graph' or u_n_gr_type == 'on_demand_shared_taxi_graph') \
-                            and e['dstr_node_zone'] == G.nodes[target]['zone'] and v != target:
-                                continue
-                            
-                            # restraint walking after taxi modes - active
-                            if (u_n_gr_type == 'taxi_graph' or u_n_gr_type == 'on_demand_single_taxi_graph' or u_n_gr_type == 'on_demand_shared_taxi_graph') \
-                            and pr_ed_tp == 'walk_edge':
-                                continue
-                            
-#                                if (v_n_gr_type == 'taxi_graph' or v_n_gr_type == 'on_demand_single_taxi_graph' \
-#                                    or v_n_gr_type == 'on_demand_shared_taxi_graph') and u != source:
-#                                    continue
-#                                if u_n_gr_type == 'taxi_graph' or u_n_gr_type == 'on_demand_single_taxi_graph' or u_n_gr_type == 'on_demand_shared_taxi_graph' \
-#                                     or u_n_gr_type == 'car_sharing_graph'pr_ed_tp == 'walk_edge' and G.nodes[info['pred_node']]['is_mode_dupl']:
-#                                    continue
+# #                            if pr_ed_tp == 'access_edge':
+# #                                continue
+#                             if u_n_gr_type == 'Walk':
+#                               prev_mode = v_n_gr_type   
+# #                               from mode and line transfers we store the previous path mode (not considering walk as a mode) and if a path with a new mode starts then we have a mode transfer, if with the same mode then a line transfer
+# #                                if v_n_gr_type == 'Walk':
+# #                                  if prev_mode != None and u_n_gr_type != prev_mode:
+# #                                    e_num_mode_trf = 1
+# #                                    e_num_lin_trf = 0
+# #                                  elif (prev_mode =='Train' or prev_mode =='Bus') and u_n_gr_type == prev_mode:
+# #                                    e_num_mode_trf = 0
+# #                                    e_num_lin_trf = 1
+# #                             when we are at an access edge that connects graphs we need to penalize unreasonable connections and path loops; e.g., from walk node to another mode-specific node and back to walk node, from a taxi/carsharing trip to a walk trip and back to taxi/carsharing trip
+#                             if (prev_mode == 'taxi_graph' or prev_mode == 'on_demand_single_taxi_graph' or \
+#                                 prev_mode == 'on_demand_shared_taxi_graph' or prev_mode == 'car_sharing_graph') and \
+#                                 (u_n_gr_type == 'taxi_graph' or u_n_gr_type == 'on_demand_single_taxi_graph' or \
+#                                  u_n_gr_type == 'on_demand_shared_taxi_graph' or u_n_gr_type == 'car_sharing_graph'):
+#                                     continue#penalty = 1000000000000000
+#                             if pr_ed_tp == 'access_edge':
+#                               if (pre_dstr_n_gr_tp == 'Walk' and u_n_gr_type == 'Walk') or (pre_dstr_n_gr_tp == 'Bus' and \
+#                                  u_n_gr_type == 'Bus') or (pre_dstr_n_gr_tp == 'Train' and u_n_gr_type == 'Train'):
+#                                   continue#penalty = 1000000000000000
+#                             if v_n_type == 'car_sharing_station_node':
+#                               if G.nodes[v]['stock_level'] == 0:
+#                                   continue#penalty = 1000000000000000
+#                             if u_n_type == 'car_sharing_station_node':
+#                               if G.nodes[u]['stock_level'] == G.nodes[u]['capacity']:
+#                                   continue#penalty = 1000000000000000
+#                             # restraint pick up
+#                             if v_n_gr_type == 'taxi_graph' or v_n_gr_type == 'on_demand_single_taxi_graph' or v_n_gr_type == 'on_demand_shared_taxi_graph':
+#                                 if e['up_node_zone'] == G.nodes[source]['zone'] and u != source:
+#                                   continue#penalty = 1000000000000000
+# #                                if v_n_gr_type == 'Walk' and (u_n_gr_type == 'taxi_graph' or u_n_gr_type == 'on_demand_single_taxi_graph' \
+# #                                                              or u_n_gr_type == 'on_demand_shared_taxi_graph'):
+# #                                  if e['dstr_node_zone'] == G.nodes[target]['zone'] and v != target:
+# #                                    continue#penalty = 1000000000000000
+#                             # restraint drop off
+#                             if (u_n_gr_type == 'taxi_graph' or u_n_gr_type == 'on_demand_single_taxi_graph' or u_n_gr_type == 'on_demand_shared_taxi_graph') \
+#                             and e['dstr_node_zone'] == G.nodes[target]['zone'] and v != target:
+#                                 continue
+#                             # restraint walking after taxi modes
+#                             if (u_n_gr_type == 'taxi_graph' or u_n_gr_type == 'on_demand_single_taxi_graph' or u_n_gr_type == 'on_demand_shared_taxi_graph') \
+#                             and pr_ed_tp == 'walk_edge':
+#                                 continue
+# #                                if (v_n_gr_type == 'taxi_graph' or v_n_gr_type == 'on_demand_single_taxi_graph' \
+# #                                    or v_n_gr_type == 'on_demand_shared_taxi_graph') and u != source:
+# #                                    continue
+# #                                if u_n_gr_type == 'taxi_graph' or u_n_gr_type == 'on_demand_single_taxi_graph' or u_n_gr_type == 'on_demand_shared_taxi_graph' \
+# #                                     or u_n_gr_type == 'car_sharing_graph'pr_ed_tp == 'walk_edge' and G.nodes[info['pred_node']]['is_mode_dupl']:
+# #                                    continue
+# #                            if e_type == 'pt_transfer_edge':
+# #                                v_n_gr_type = e['dstr_node_graph_type']#G.nodes[v]['node_graph_type']#node_graph_type_data(v, G.nodes[v])
+# #                    #            v_n_type = e['up_node_type']#G.nodes[v]['node_type']
+# #                                u_n_gr_type = e['up_node_graph_type']#G.nodes[u]['node_graph_type']#node_graph_type_data(u, G.nodes[u])
+# #                    #            u_n_type = e['dstr_node_type']#G.nodes[u]['node_type']#node_type_data(u, G.nodes[u])
+# #                                # for zone_to_zone pt fare scheme we store the zone of the stop/station in which a pt trip started (origin); this zone will be used for the calculcation of the edge cost based on which pt stop the algorithm checks and hence the final stop of the pt trip
+# #                                if fare_scheme == 'zone_to_zone':
+# #                                  if pr_ed_tp == 'access_edge':
+# #                                    if prev_mode != 'Bus' and prev_mode != 'Train':
+# #                                      zone_at_end_of_pt_trip = e['dstr_node_zone']#G.nodes[v]['zone']
+# #                                      previous_edge_cost = 0
+#                             # to compute line transfers in pt we check the previous edge type; if the previous edge type is also a tranfer edge then we have a line transfer; this constraint allows us to avoid adding a line transfer when the algorithm traverses a transfer edge at the start of a pt trip
+# #                                if pr_ed_tp == 'pt_transfer_edge':
+# #                                  e_num_lin_trf = 1
+# #                                else:
+# #                                  e_num_lin_trf = 0
                           
-                        travel_time_till_u = e_tt + info['tt']
-                        wait_time_till_u = e_wait_time + info['wt']
-                        distance_till_u = e_distance + info['l']
-                        cost_till_u = e_cost + info['c']
-                        line_trasnf_num_till_u = e_num_lin_trf + info['lt']
-                        mode_transf_num_till_u = e_num_mode_trf + info['mt']
-                        walk_time_till_u = e_walk_time + info['wkt']
+#                         travel_time_till_u = int(e_tt + info['tt'])
+#                         wait_time_till_u = int(e_wait_time + info['wt'])
+#                         distance_till_u = int(e_distance + info['l'])
+#                         cost_till_u = int(e_cost + info['c'])
+#                         line_trasnf_num_till_u = int(e_num_lin_trf + info['lt'])
+#                         mode_transf_num_till_u = int(e_num_mode_trf + info['mt'])
                         
-                        curr_cost_label = [travel_time_till_u + wait_time_till_u, cost_till_u, line_trasnf_num_till_u \
-                                           + mode_transf_num_till_u]
-                        back_val_curr_cost_label = [(travel_time_till_u + wait_time_till_u) - ((travel_time_till_u + wait_time_till_u)%60), \
-                                           cost_till_u - (cost_till_u%8), line_trasnf_num_till_u + mode_transf_num_till_u]
-#                        curr_cost_label = [travel_time_till_u + wait_time_till_u, cost_till_u, line_trasnf_num_till_u, \
-#                                           mode_transf_num_till_u]
-                        labels_to_be_deleted = deque([])
-#                        if u == 'w56' and v == 'w17' and t = label_id == '80490':
-#                            print('oops')
-#                            print(labels_bag[u][t])
-#                        if u == 'w56' and v == 'w17' and t_count == 8 and t == 30720: #and label_id == '80490'
-#                            print(label_id)
-#                            print(labels_bag[v][mod_v_arr_time])
-#                            print(u, t)
-#                            print(labels_bag[u][t])
-#                            print('')
-#                            print(v, mod_v_arr_time)
-#                            print(labels_bag[v][mod_v_arr_time])
-#                            if label_id == '80490':
-#                                print('oops')
-                        if not(labels_bag[u][t]):
-                            non_dominated_label = 1
-                        else:
-                            for label, label_info in labels_bag[u][t].items():
-#                                prev_cost_label = label_info['opt_crt_val']
-                                back_val_prev_cost_label = [label_info['opt_crt_val'][0] - (label_info['opt_crt_val'][0]%60), label_info['opt_crt_val'][1] - \
-                                                            (label_info['opt_crt_val'][1]%8), label_info['opt_crt_val'][2], label_info['opt_crt_val'][2]]
-                                if back_val_curr_cost_label == back_val_prev_cost_label:
-                                    if label_info['pred_label_id'] == label_id:
-                                        non_dominated_label = 0
-                                        break
-                                    non_dominated_label = 1   
-                                    continue
-                                q_1 = 0 
-                                for i,j in zip(back_val_curr_cost_label,back_val_prev_cost_label):
-                                    if i>=j:
-                                        q_1 = q_1+1
-                                if q_1 == 4:
-                                    non_dominated_label = 0
-                                    break
-                                q_2 = 0
-                                for i,j in zip(back_val_curr_cost_label,back_val_prev_cost_label):
-                                    if i<=j:
-                                        q_2 = q_2+1
-                                if q_2 == 4:
-                                    labels_to_be_deleted.append(label)
-                                non_dominated_label = 1
+#                         curr_cost_label = [travel_time_till_u + wait_time_till_u, cost_till_u, line_trasnf_num_till_u, \
+#                                            mode_transf_num_till_u]
+
+# #                        if u == 'b54' and v == 'w17' and t_count == 8 and t == 30720: #and label_id == '80490'
+# #                            print(label_id)
+# #                            print(labels_bag[v][mod_v_arr_time])
+# #                            print(u, t)
+# #                            print(labels_bag[u][t])
+# #                            print('')
+# #                            print(v, mod_v_arr_time)
+# #                            print(labels_bag[v][mod_v_arr_time])
+# #                            if label_id == '80490':
+# #                                print('oops')
+
+# #                        def ε_dominance_check(curr_label=[], optimal_label_set={}):
+# #                            ε_curr_label = [i*1.2 for i in curr_label]
+# #                            labels_to_be_deleted = deque([])
+# #                            if not(optimal_label_set):
+# #                                non_dominated_label = 1
+# #                            else:
+# #                                skip = False
+# #                                for label, label_info in optimal_label_set.items():
+# ##                                    if label == '99740' and label_info['pred_label_id'] == '99005':
+# ##                                        print()
+# #                                    prev_cost_label = label_info['opt_crt_val']
+# #                                    q_1 = 0
+# #                                    q_2 = 0
+# #                                    for i,j in zip(ε_curr_label,prev_cost_label):
+# #                                        if j <= i:
+# #                                            q_1 += 1
+# #                                        if j == i:
+# #                                            q_2 += 1
+# #                                    if q_1 == 4 and q_2 != 4:
+# #                                        non_dominated_label = 0
+# #                                        skip = True
+# #                                        return non_dominated_label
+# #                                for label, label_info in optimal_label_set.items():
+# #                                    prev_cost_label = label_info['opt_crt_val']
+# #                                    ε_prev_cost_label = [1.2*i for i in prev_cost_label]
+# #                                    q_1 = 0
+# #                                    q_2 = 0
+# #                                    for i,j in zip(curr_label,ε_prev_cost_label):
+# #                                        if i <= j:
+# #                                            q_1 += 1
+# #                                        if i == j:
+# #                                            q_2 += 1
+# #                                    if q_1 == 4 and q_2 != 4:
+# #                                        labels_to_be_deleted.append(label)
+# #                                non_dominated_label = 1
+# #                          
+# #                            if non_dominated_label and labels_to_be_deleted:
+# #                                
+# #                                for labelid in labels_to_be_deleted:
+# #                                    if labelid == '37275':
+# ##                                        print(t_count)
+# #                                        print(t, e_tt)
+# ##                                    print(se_list)
+# #                                        print(u)
+# ##                                    print('oops')
+# #                                        print(curr_label)
+# #                                        print(optimal_label_set)
+# #                                        print(new_label_id)
+# ##                                    
+# ###                                    print(labelid)
+# #                                    for pred_l in G.pred[u]:
+# ##                                            print(pred_l)
+# #                                        for tim_itrv, stuff in labels_bag[pred_l].items():
+# #                                            for lae_id, stuff_2 in stuff.items():
+# #                                                if stuff_2['pred_label_id'] == '37275':
+# #                                                    print(lae_id, pred_l, tim_itrv)
+# #                                    
+# #                                    del(optimal_label_set[labelid])
+# #                            
+# #                            return non_dominated_label
+#                         ε_curr_label = [i*1.2 for i in curr_cost_label]
+#                         labels_to_be_deleted = deque([])
+                        
+#                         if not(labels_bag[u][t]):
+#                             non_dominated_label = 1
+#                         else:
+#                             check = True
+#                             for label, label_info in labels_bag[u][t].items():
+#                                 if t_count == 5 and label == '42173' and t== 29910:
+# #                                    print(labels_bag[u][t])
+#                                     print(mod_v_arr_time)
+#                                     print(labels_bag[v][30300])
+#                                 prev_cost_label = label_info['opt_crt_val']
+#                                 q_1 = 0
+#                                 q_2 = 0
+#                                 for i,j in zip(ε_curr_label,prev_cost_label):
+#                                     if j <= i:
+#                                         q_1 += 1
+#                                     if j == i:
+#                                         q_2 += 1
+#                                 if q_1 == 4 and q_2 != 4:
+#                                     non_dominated_label = 0
+#                                     check = False
+#                             if check:
+#                                 for label, label_info in labels_bag[u][t].items():
+#                                     prev_cost_label = label_info['opt_crt_val']
+#                                     ε_prev_cost_label = [1.2*i for i in prev_cost_label]
+#                                     q_1 = 0
+#                                     q_2 = 0
+#                                     for i,j in zip(curr_cost_label,ε_prev_cost_label):
+#                                         if i <= j:
+#                                             q_1 += 1
+#                                         if i == j:
+#                                             q_2 += 1
+#                                     if q_1 == 4 and q_2 != 4:
+#                                         labels_to_be_deleted.append(label)
+#                                 non_dominated_label = 1
                       
-                        if non_dominated_label and labels_to_be_deleted:
-                            for labelid in labels_to_be_deleted:
-#                                if labelid == '68585':
-#                                    print(t_count)
-#                                    print(t, e_tt)
-##                                    print(se_list)
-#                                    print(u)
-##                                    print('oops')
-#                                    print(curr_cost_label)
-##                                    print(labels_bag[u][t])
-##                                    print(new_label_id)
-##                                    
-###                                    print(labelid)
-#                                    for pred_l in G.pred[u]:
-##                                            print(pred_l)
-#                                        for tim_itrv, stuff in labels_bag[pred_l].items():
-#                                            for lae_id, stuff_2 in stuff.items():
-#                                                if stuff_2['pred_label_id'] == '68585':
-#                                                    print(lae_id, pred_l, tim_itrv)
-                                        
-                                del(labels_bag[u][t][labelid])
-                #                  for i in range(len(fringe)):
-                #                      if fringe[i][4] == labelid:
-                #                          queue_labels_to_be_del.append(i)
-                                      
-                        if non_dominated_label:
-                            insert_in_se_list = True     
-                            new_label_id = str(next(c))
-                            labels_bag[u][t].update({new_label_id: {'opt_crt_val' : curr_cost_label, 'pred_node' : v, \
-                                      'pred_time_int': mod_v_arr_time, 'pred_label_id' : label_id, 'tt' : travel_time_till_u, \
-                                      'wt' : wait_time_till_u, 'l' : distance_till_u, 'c' : cost_till_u, 'lt' : line_trasnf_num_till_u, \
-                                      'mt' : mode_transf_num_till_u, 'wkt': walk_time_till_u, 'prev_edge_type': e_type, 'prev_dstr_node_graph_type': v_n_gr_type, \
-                                      'prev_mode': prev_mode}}) #, 'path': new_path
-                                    
-            if insert_in_se_list:
-                if de_queue[u] == 0:
-                    if se_list:
-                        de_queue[se_list[-1]] = u
-                    de_queue[u] = 999999999
-                    se_list.append(u)
-                elif de_queue[u] == -1:
-                    if se_list:
-                        de_queue[u] = se_list[0]
-                    else:
-                        de_queue[u] = 999999999
-                    se_list.appendleft(u)
-    try:
-#        print(t_count)
-        return labels_bag
-    except KeyError:
-        raise nx.NetworkXNoPath("Node %s not reachable from %s" % (target, source))
-        
-def ε_pareto_paths_with_attrs_backwards(G, source, target, req_time, t_0, t_H, dt, travel_time='travel_time', distance='distance', \
-                                      pt_additive_cost='pt_distance_based_cost', pt_non_additive_cost='pt_zone_to_zone_cost', \
-                                      taxi_fares='taxi_fares', taxi_wait_time='taxi_wait_time', timetable='departure_time', \
-                                      edge_type='edge_type', node_type='node_type', node_graph_type='node_graph_type', \
-                                      fare_scheme='distance_based', init_travel_time = 0, init_wait_time = 0, init_distance = 0, \
-                                      init_cost = 0, init_num_line_trfs = 0, init_num_mode_trfs = 0, last_edge_type=None, \
-                                      last_upstr_node_graph_type=None, last_pt_veh_run_id=None, last_edge_cost=0, \
-                                      pt_trip_dest_zone=None, previous_edge_mode=None):
-
-  if source not in G:
-    raise nx.NodeNotFound("Source {} not in G".format(source))
-  if target not in G:
-    raise nx.NodeNotFound("Target {} not in G".format(target))
-  if source == target:
-    return 0, [target]
-
-  travel_time = _get_travel_time_function(G, travel_time)
-  distance = _get_distance_function(G, distance)
-  pt_additive_cost = _get_pt_additive_cost(G, pt_additive_cost)
-  pt_non_additive_cost = _get_pt_non_additive_cost(G, pt_non_additive_cost)
-  timetable = _get_timetable(G, timetable)
-  edge_type = _get_edge_type(G, edge_type)
-  node_type = _get_node_type(G, node_type)
-  node_graph_type = _get_dwnstr_graph_type_data(G, node_graph_type)
-  taxi_fares = _get_taxi_fares(G, taxi_fares)
-  taxi_wait_time = _get_taxi_wait_time(G, taxi_wait_time)
-
-
-  pareto_bag = ε_mltcrtr_lbl_set_alg_bwds(G, source, target, t_0, t_H, dt, travel_time, distance, pt_additive_cost, pt_non_additive_cost, \
-                                        taxi_fares, taxi_wait_time, timetable, edge_type, node_type, node_graph_type, fare_scheme, \
-                                        init_travel_time, init_wait_time, init_distance, init_cost, init_num_line_trfs, init_num_mode_trfs,\
-                                        last_edge_type, last_upstr_node_graph_type, last_pt_veh_run_id, last_edge_cost, pt_trip_dest_zone, \
-                                        previous_edge_mode)
-  
-  i = count()
-  paths_with_attrs = {}
-  for label_id, attrs in pareto_bag[source][req_time].items():
-      
-      path = []
-      path.append(source)
-      next_node = attrs['pred_node']
-      next_time_intrv = attrs['pred_time_int']
-      next_label_id = attrs['pred_label_id']
-      
-      while next_node != None and next_time_intrv != None and next_label_id != None:
-          if next_label_id == '37427':
-              print(next_node)
-              print(next_time_intrv)
-              print(path)
-#              print(pareto_bag['w56'][30720])
-#              print(pareto_bag['w17'][31230])
-          path.append(next_node)
-          new_node = pareto_bag[next_node][next_time_intrv][next_label_id]['pred_node']
-          new_time_intrv = pareto_bag[next_node][next_time_intrv][next_label_id]['pred_time_int']
-          new_label_id = pareto_bag[next_node][next_time_intrv][next_label_id]['pred_label_id']
-          next_node = new_node
-          next_time_intrv = new_time_intrv
-          next_label_id = new_label_id
-      
-      paths_with_attrs.update({str(next(i)): {'fnl_path' : path, 'optimal_crt_values' : attrs['opt_crt_val'], 'travel_time' : attrs['tt'], \
-                              'waiting_time' : attrs['wt'], 'distance' : attrs['l'], 'cost' : attrs['c'], 'line_transfers' : attrs['lt'], \
-                              'mode_transfers' : attrs['mt']}})
-  
-  return paths_with_attrs
-
-
-# the origin and destination inputs to the algorithm need to always be nodes of the walk network.
-def ε_mltcrtr_lbl_set_alg_bwds(G, source, target, t_0, t_H, dt, travel_time_data, distance_data, pt_additive_cost_data, pt_non_additive_cost_data, \
-                                taxi_fares, taxi_wait_time, timetable_data, edge_type_data, node_type_data, node_graph_type_data, fare_scheme, \
-                                init_travel_time, init_wait_time, init_distance, init_cost, init_num_line_trfs, init_num_mode_trfs, \
-                                last_edge_type, last_dstr_node_graph_type, last_pt_veh_run_id, last_edge_cost, pt_trip_dest_zone, \
-                                previous_edge_mode):
-    Gpred = G._pred
-    
-    #--- initialization of the data structure that holds all the non-dominated multi-dimnesional labels and its label's required pointers
-    #--- for all nodes and all times within a time_horizon (t_0 <= t <= t_H)
-    c = count()
-#    path = list()
-#    path.append(target)
-    labels_bag = {}  
-    for n in G:
-        labels_bag.update({n: {}})
-        for t in range(t_0, t_H+1, dt):
-            t = t%86400
-            if n == target:
-                label_id = str(next(c))
-                labels_bag[n].update({t: {label_id: {'opt_crt_val':(init_travel_time, init_cost, init_num_line_trfs, init_num_mode_trfs), \
-                   'pred_node': None, 'pred_time_int': None, 'pred_label_id': None, 'tt': init_travel_time, 'wt': init_wait_time, \
-                   'l': init_distance, 'c': init_cost, 'lt': init_num_line_trfs, 'mt': init_num_mode_trfs, 'prev_edge_type': None, \
-                   'prev_dstr_node_graph_type': None , 'prev_mode': None}}}) #'path': path
-            else:
-                labels_bag[n].update({t: {}})
-
-    #--- initialization of the SE list used for scanning nodes in each iteration ---#
-    #--- it opertes as a double ended queue (deque) as in Ziliaskopoulos and Mahmassani (1993) ---#
-#    se_list = deque([target])
-    de_queue = {}
-    for n in G:
-        if n == target:
-            de_queue.update({n: 999999999})
-        else:
-            de_queue.update({n: 0})
-#    first = target
-#    last = target
-    
-    se_list = deque([target])
-    
-    
-    #--- the algorithm is running until the SE List is empty, meaning that there are no more node insertions for any time t 
-#    that can give a non-dominated paths \---#
-    t_count = 0
-    while se_list: 
-#        v = first
-#        first = de_queue[v]
-#        de_queue[v] = -1
-        v = se_list.popleft()
-        de_queue[v] = -1
-        
-        v_n_gr_type = G.nodes[v]['node_graph_type']
-        
-        for u, e in Gpred[v].items():
-#            if v == 'w17':
-#                print(u)
-            insert_in_se_list = False
-            # now for each t we first need to identify the total travel time that is required to travel from u to v
-            # this is the case because we need to know which label (path) or set of labels (paths) from node v will be extended
-            # the labels that will be extended will then be the one in labels_bag[v][t+tt_uv(t)]
-            for t in range(t_0, t_H+1, dt):
-                
-                t = t%86400
-                
-                e_type = e['edge_type']#_data(u, v, e)
-                
-#                here we diffferentiate between the cases of public transport and road modes, since time-dependency
-#                is handled differently in each case; specifically waiting is allowed in PT but not in road services
-#                if e_type != 'pt_route_edge':
-                if e_type == 'car_sharing_station_egress_edge' or e_type == 'car_sharing_station_access_edge':
-                    e_tt = 0
-                    e_wait_time = e['wait_time']
-                    e_cost=0
-                    e_distance = 0
-                    e_num_lin_trf = 0
-                    e_num_mode_trf = 0
-                    
-                if e_type == 'car_sharing_orig_dummy_edge':
-                    e_wait_time = 0
-                    e_tt = 0
-                    e_distance = 0
-                    e_cost = 0
-                    e_num_mode_trf = 0
-                    e_num_lin_trf = 0
-                    
-                if e_type == 'car_sharing_dest_dummy_edge' or e_type == 'car_sharing_dual_edge':
-                    e_wait_time = 0
-#                    tt_d = e['travel_time']#_data(u, v, e)
-#                    if tt_d is None:
-#                      print('Missing in_veh_tt value in edge {}'.format((u, v))) 
-#                      continue
-                    e_tt = e['travel_time'][t]
-#                    e_tt = get_time_dep_taxi_travel_time(t, tt_d) # used this function cause it works the way it should, need to however have some generic function to extract data from different type of dictionaries without being mode-specific
-                    e_distance = e['distance']#_data(u, v, e)
-                    if e_distance is None:
-                      print('Missing distance value in edge {}'.format((u, v)))
-                      continue
-#                    e_cost_data = e['car_sharing_fares']
-                    e_cost = e['car_sharing_fares'][t]
-#                    e_cost = get_time_dep_taxi_cost(t, e_cost_data) # # used this function cause it works the way it should, need to however have some generic function to extract data from different type of dictionaries without being mode-specific
-                    e_num_mode_trf = 0
-                    e_num_lin_trf = 0
-                    
-                if e_type == 'taxi_edge' or e_type == 'on_demand_single_taxi_edge' or e_type == 'on_demand_shared_taxi_edge':
-                    e_wait_time = e['taxi_wait_time'][t]
-                    e_tt = e['travel_time'][(t+e_wait_time)-((t+e_wait_time)%dt)]
-#                    e_wait_time_data = e['taxi_wait_time']#(u, v, e)
-#                    e_wait_time = get_time_dep_taxi_wait_time(t, e_wait_time_data)
-#                    tt_d = e['travel_time']#_data(u, v, e)
-#                    if tt_d is None:
-#                      print('Missing in_veh_tt value in edge {}'.format((u, v)))
-#                      continue
-#                    e_tt = get_time_dep_taxi_travel_time(t+e_wait_time, tt_d)
-                    e_distance = e['distance']#_data(u, v, e)        # funtion that extracts the edge's distance attribute
-                    if e_distance is None:
-                      print('Missing distance value in edge {}'.format((u, v)))
-                      continue
-                    e_num_mode_trf = 0
-                    e_num_lin_trf = 0
-                    e_cost = e['taxi_fares'][t]
-#                    e_cost_data = e['taxi_fares']#(u, v, e)
-#                    e_cost = get_time_dep_taxi_cost(t, e_cost_data)
-                
-                if e_type == 'walk_edge':
-                    e_tt = e['travel_time']#_data(u, v, e)  # funtion that extracts the edge's in-vehicle travel time attribute
-                    if e_tt is None:
-                      print('Missing in_veh_tt value in edge {}'.format((u, v)))
-                      continue
-                    e_wait_time = 0
-                    e_distance = e['distance']#_data(u, v, e)        # funtion that extracts the edge's distance attribute
-                    if e_distance is None:
-                      print('Missing distance value in edge {}'.format((u, v)))
-                      continue
-                    e_cost = 0
-                    e_num_mode_trf = 0
-                    e_num_lin_trf = 0
-                    
-                if e_type == 'access_edge':
-                    e_tt = e['travel_time']#_data(u, v, e)  # funtion that extracts the edge's in-vehicle travel time attribute
-                    if e_tt is None:
-                      print('Missing in_veh_tt value in edge {}'.format((u, v)))
-                      continue
-                    e_wait_time = 0
-                    e_distance = e['distance']#_data(u, v, e)        # funtion that extracts the edge's distance attribute
-                    if e_distance is None:
-                      print('Missing distance value in edge {}'.format((u, v)))
-                      continue
-                    e_cost = 0
-                    e_num_mode_trf = 0
-                    e_num_lin_trf = 0
-                    u_n_type = e['up_node_type']
-#                        v_n_type = e['dstr_node_type']
-                    if u_n_type == 'walk_graph_node':
-                        e_num_mode_trf = 1
-                    
-                if e_type == 'pt_transfer_edge':
-                    e_tt = e['travel_time']#_data(u, v, e)  # funtion that extracts the edge's in-vehicle travel time attribute
-                    if e_tt is None:
-                      print('Missing in_veh_tt value in edge {}'.format((u, v)))
-                      continue
-                    e_wait_time = 0
-                    e_distance = e['distance']#_data(u, v, e)        # funtion that extracts the edge's distance attribute
-                    if e_distance is None:
-                      print('Missing distance value in edge {}'.format((u, v)))
-                      continue
-                    e_cost = 0
-                    e_num_mode_trf = 0
-                    e_num_lin_trf = 0
-                    u_n_type = e['up_node_type']
-                    v_n_type = e['dstr_node_type']
-                    if (u_n_type == 'stop_node' or u_n_type=='station_node') and v_n_type == 'route_node':
-                        e_num_lin_trf =1
-                if e_type == 'pt_route_edge':
-#                    dep_timetable = timetable_data(u, v, e)  # fuction that extracts the stop's/station's timetable dict
-#                    if dep_timetable is None:
-#                        print('Missing timetable value in edge'.format((u, v)))
-#                        continue
-#                    e_wait_time, pt_vehicle_run_id = calc_plat_wait_time_and_train_id(t, dep_timetable)  # function that extracts waiting time for next pt vehicle and the vehicle_id; the next departing vehicle is being found using a binary search algorithm that operates on a sorted list of the deparure times for this edge (departure times of the downstream stop/station)
-                    e_wait_time = e['wait_time'][t]
-#                    pt_vehicle_run_id = e['wait_time'][t]['veh_id']
-                    if e_wait_time is None:
-                        print('Missing wait_time value in edge'.format((u, v)))
-                        continue
-                    e_tt = e['travel_time'][t]
-#                    tt_d = e['travel_time']#_data(u, v, e)  # fuction that extracts the travel time dict
-#                    if tt_d is None:
-#                        print('Missing in_veh_tt value in edge'.format((u, v)))
-#                        continue
-#                    e_tt = tt_d[pt_vehicle_run_id] #calc_pt_route_edge_in_veh_tt_for_run_id(tt_d, pt_vehicle_run_id)  # fuction that travel time for corresponding pt vehicle run_id
-                    e_distance = e['distance']#_data(u, v, e)  # fuction that extracts the travel time dict
-                    if e_distance is None:
-                        print('Missing distance value in edge'.format((u, v)))
-                        continue
-                    # edge costs for pt depend on the pt fare scheme; if it is additive (distance_based) or zone_to_zone !! consider adding a price cap !!
-#                    if fare_scheme == 'distance_based':
-#                    dist_bas_cost = e['pt_distance_based_cost']#(u, v, e)  # fuction that extracts the time-dependent distance-based cost dict
-#                    if dist_bas_cost is None:
-#                        print('Missing dist_bas_cost value in edge'.format((u, v)))
-#                        continue
-#                    e_cost = calc_time_dep_distance_based_cost(dist_bas_cost, t)  # fuction that extracts the cost based on time-dependent distance-based cost dict and the current time (finds in which time-zone we currently are)
-                    e_cost = e['pt_distance_based_cost'][t]
-                    e_num_lin_trf = 0
-                    e_num_mode_trf = 0
-                    
-                v_arr_time = int(t + e_tt + e_wait_time)
-                mod_v_arr_time = v_arr_time-((v_arr_time-t_0)%dt)
-                    
-                if v_arr_time <= t_H:                     
-                    for label_id, info in labels_bag[v][mod_v_arr_time].items():
-                        if u == info['pred_node']:
-                            continue
-                        prev_mode = info['prev_mode']
-                        pr_ed_tp = info['prev_edge_type']
-                        pre_dstr_n_gr_tp = info['prev_dstr_node_graph_type']
-#                            pr_md = info['prev_mode']
-                        
-                        # restraint walking before taxi modes
-                        if e_type == 'walk_edge' and pr_ed_tp == 'access_edge' and \
-                        (pre_dstr_n_gr_tp == 'taxi_graph' or pre_dstr_n_gr_tp == 'on_demand_single_taxi_graph' or pre_dstr_n_gr_tp == 'on_demand_shared_taxi_graph'):
-                            continue
-                        
-                        if e_type == 'access_edge':
-                            u_n_type = e['up_node_type']#G.nodes[v]['node_type']
-                            u_n_gr_type = e['up_node_graph_type']#G.nodes[u]['node_graph_type']#node_graph_type_data(u, G.nodes[u])
-                            v_n_type = e['dstr_node_type']#G.nodes[u]['node_type']#node_type_data(u, G.nodes[u])
-#                                penalty = 0
+#                         if non_dominated_label and labels_to_be_deleted:
                             
-#                            if pr_ed_tp == 'access_edge':
-#                                continue
-                            if u_n_gr_type == 'Walk':
-                              prev_mode = v_n_gr_type   
-#                               from mode and line transfers we store the previous path mode (not considering walk as a mode) and if a path with a new mode starts then we have a mode transfer, if with the same mode then a line transfer
-#                                if v_n_gr_type == 'Walk':
-#                                  if prev_mode != None and u_n_gr_type != prev_mode:
-#                                    e_num_mode_trf = 1
-#                                    e_num_lin_trf = 0
-#                                  elif (prev_mode =='Train' or prev_mode =='Bus') and u_n_gr_type == prev_mode:
-#                                    e_num_mode_trf = 0
-#                                    e_num_lin_trf = 1
-#                             when we are at an access edge that connects graphs we need to penalize unreasonable connections and path loops; e.g., from walk node to another mode-specific node and back to walk node, from a taxi/carsharing trip to a walk trip and back to taxi/carsharing trip
-                            if (prev_mode == 'taxi_graph' or prev_mode == 'on_demand_single_taxi_graph' or \
-                                prev_mode == 'on_demand_shared_taxi_graph' or prev_mode == 'car_sharing_graph') and \
-                                (u_n_gr_type == 'taxi_graph' or u_n_gr_type == 'on_demand_single_taxi_graph' or \
-                                 u_n_gr_type == 'on_demand_shared_taxi_graph' or u_n_gr_type == 'car_sharing_graph'):
-                                    continue#penalty = 1000000000000000
-                            if pr_ed_tp == 'access_edge':
-                              if (pre_dstr_n_gr_tp == 'Walk' and u_n_gr_type == 'Walk') or (pre_dstr_n_gr_tp == 'Bus' and \
-                                 u_n_gr_type == 'Bus') or (pre_dstr_n_gr_tp == 'Train' and u_n_gr_type == 'Train'):
-                                  continue#penalty = 1000000000000000
-                            if v_n_type == 'car_sharing_station_node':
-                              if G.nodes[v]['stock_level'] == 0:
-                                  continue#penalty = 1000000000000000
-                            if u_n_type == 'car_sharing_station_node':
-                              if G.nodes[u]['stock_level'] == G.nodes[u]['capacity']:
-                                  continue#penalty = 1000000000000000
-                            # restraint pick up
-                            if v_n_gr_type == 'taxi_graph' or v_n_gr_type == 'on_demand_single_taxi_graph' or v_n_gr_type == 'on_demand_shared_taxi_graph':
-                                if e['up_node_zone'] == G.nodes[source]['zone'] and u != source:
-                                  continue#penalty = 1000000000000000
-#                                if v_n_gr_type == 'Walk' and (u_n_gr_type == 'taxi_graph' or u_n_gr_type == 'on_demand_single_taxi_graph' \
-#                                                              or u_n_gr_type == 'on_demand_shared_taxi_graph'):
-#                                  if e['dstr_node_zone'] == G.nodes[target]['zone'] and v != target:
-#                                    continue#penalty = 1000000000000000
-                            # restraint drop off
-                            if (u_n_gr_type == 'taxi_graph' or u_n_gr_type == 'on_demand_single_taxi_graph' or u_n_gr_type == 'on_demand_shared_taxi_graph') \
-                            and e['dstr_node_zone'] == G.nodes[target]['zone'] and v != target:
-                                continue
-                            # restraint walking after taxi modes
-                            if (u_n_gr_type == 'taxi_graph' or u_n_gr_type == 'on_demand_single_taxi_graph' or u_n_gr_type == 'on_demand_shared_taxi_graph') \
-                            and pr_ed_tp == 'walk_edge':
-                                continue
-#                                if (v_n_gr_type == 'taxi_graph' or v_n_gr_type == 'on_demand_single_taxi_graph' \
-#                                    or v_n_gr_type == 'on_demand_shared_taxi_graph') and u != source:
-#                                    continue
-#                                if u_n_gr_type == 'taxi_graph' or u_n_gr_type == 'on_demand_single_taxi_graph' or u_n_gr_type == 'on_demand_shared_taxi_graph' \
-#                                     or u_n_gr_type == 'car_sharing_graph'pr_ed_tp == 'walk_edge' and G.nodes[info['pred_node']]['is_mode_dupl']:
-#                                    continue
-#                            if e_type == 'pt_transfer_edge':
-#                                v_n_gr_type = e['dstr_node_graph_type']#G.nodes[v]['node_graph_type']#node_graph_type_data(v, G.nodes[v])
-#                    #            v_n_type = e['up_node_type']#G.nodes[v]['node_type']
-#                                u_n_gr_type = e['up_node_graph_type']#G.nodes[u]['node_graph_type']#node_graph_type_data(u, G.nodes[u])
-#                    #            u_n_type = e['dstr_node_type']#G.nodes[u]['node_type']#node_type_data(u, G.nodes[u])
-#                                # for zone_to_zone pt fare scheme we store the zone of the stop/station in which a pt trip started (origin); this zone will be used for the calculcation of the edge cost based on which pt stop the algorithm checks and hence the final stop of the pt trip
-#                                if fare_scheme == 'zone_to_zone':
-#                                  if pr_ed_tp == 'access_edge':
-#                                    if prev_mode != 'Bus' and prev_mode != 'Train':
-#                                      zone_at_end_of_pt_trip = e['dstr_node_zone']#G.nodes[v]['zone']
-#                                      previous_edge_cost = 0
-                            # to compute line transfers in pt we check the previous edge type; if the previous edge type is also a tranfer edge then we have a line transfer; this constraint allows us to avoid adding a line transfer when the algorithm traverses a transfer edge at the start of a pt trip
-#                                if pr_ed_tp == 'pt_transfer_edge':
-#                                  e_num_lin_trf = 1
-#                                else:
-#                                  e_num_lin_trf = 0
-                          
-                        travel_time_till_u = int(e_tt + info['tt'])
-                        wait_time_till_u = int(e_wait_time + info['wt'])
-                        distance_till_u = int(e_distance + info['l'])
-                        cost_till_u = int(e_cost + info['c'])
-                        line_trasnf_num_till_u = int(e_num_lin_trf + info['lt'])
-                        mode_transf_num_till_u = int(e_num_mode_trf + info['mt'])
-                        
-                        curr_cost_label = [travel_time_till_u + wait_time_till_u, cost_till_u, line_trasnf_num_till_u, \
-                                           mode_transf_num_till_u]
-
-#                        if u == 'b54' and v == 'w17' and t_count == 8 and t == 30720: #and label_id == '80490'
-#                            print(label_id)
-#                            print(labels_bag[v][mod_v_arr_time])
-#                            print(u, t)
-#                            print(labels_bag[u][t])
-#                            print('')
-#                            print(v, mod_v_arr_time)
-#                            print(labels_bag[v][mod_v_arr_time])
-#                            if label_id == '80490':
-#                                print('oops')
-
-#                        def ε_dominance_check(curr_label=[], optimal_label_set={}):
-#                            ε_curr_label = [i*1.2 for i in curr_label]
-#                            labels_to_be_deleted = deque([])
-#                            if not(optimal_label_set):
-#                                non_dominated_label = 1
-#                            else:
-#                                skip = False
-#                                for label, label_info in optimal_label_set.items():
-##                                    if label == '99740' and label_info['pred_label_id'] == '99005':
-##                                        print()
-#                                    prev_cost_label = label_info['opt_crt_val']
-#                                    q_1 = 0
-#                                    q_2 = 0
-#                                    for i,j in zip(ε_curr_label,prev_cost_label):
-#                                        if j <= i:
-#                                            q_1 += 1
-#                                        if j == i:
-#                                            q_2 += 1
-#                                    if q_1 == 4 and q_2 != 4:
-#                                        non_dominated_label = 0
-#                                        skip = True
-#                                        return non_dominated_label
-#                                for label, label_info in optimal_label_set.items():
-#                                    prev_cost_label = label_info['opt_crt_val']
-#                                    ε_prev_cost_label = [1.2*i for i in prev_cost_label]
-#                                    q_1 = 0
-#                                    q_2 = 0
-#                                    for i,j in zip(curr_label,ε_prev_cost_label):
-#                                        if i <= j:
-#                                            q_1 += 1
-#                                        if i == j:
-#                                            q_2 += 1
-#                                    if q_1 == 4 and q_2 != 4:
-#                                        labels_to_be_deleted.append(label)
-#                                non_dominated_label = 1
-#                          
-#                            if non_dominated_label and labels_to_be_deleted:
-#                                
-#                                for labelid in labels_to_be_deleted:
-#                                    if labelid == '37275':
-##                                        print(t_count)
-#                                        print(t, e_tt)
-##                                    print(se_list)
-#                                        print(u)
-##                                    print('oops')
-#                                        print(curr_label)
-#                                        print(optimal_label_set)
-#                                        print(new_label_id)
-##                                    
-###                                    print(labelid)
-#                                    for pred_l in G.pred[u]:
-##                                            print(pred_l)
-#                                        for tim_itrv, stuff in labels_bag[pred_l].items():
-#                                            for lae_id, stuff_2 in stuff.items():
-#                                                if stuff_2['pred_label_id'] == '37275':
-#                                                    print(lae_id, pred_l, tim_itrv)
-#                                    
-#                                    del(optimal_label_set[labelid])
-#                            
-#                            return non_dominated_label
-                        ε_curr_label = [i*1.2 for i in curr_cost_label]
-                        labels_to_be_deleted = deque([])
-                        
-                        if not(labels_bag[u][t]):
-                            non_dominated_label = 1
-                        else:
-                            check = True
-                            for label, label_info in labels_bag[u][t].items():
-                                if t_count == 5 and label == '42173' and t== 29910:
-#                                    print(labels_bag[u][t])
-                                    print(mod_v_arr_time)
-                                    print(labels_bag[v][30300])
-                                prev_cost_label = label_info['opt_crt_val']
-                                q_1 = 0
-                                q_2 = 0
-                                for i,j in zip(ε_curr_label,prev_cost_label):
-                                    if j <= i:
-                                        q_1 += 1
-                                    if j == i:
-                                        q_2 += 1
-                                if q_1 == 4 and q_2 != 4:
-                                    non_dominated_label = 0
-                                    check = False
-                            if check:
-                                for label, label_info in labels_bag[u][t].items():
-                                    prev_cost_label = label_info['opt_crt_val']
-                                    ε_prev_cost_label = [1.2*i for i in prev_cost_label]
-                                    q_1 = 0
-                                    q_2 = 0
-                                    for i,j in zip(curr_cost_label,ε_prev_cost_label):
-                                        if i <= j:
-                                            q_1 += 1
-                                        if i == j:
-                                            q_2 += 1
-                                    if q_1 == 4 and q_2 != 4:
-                                        labels_to_be_deleted.append(label)
-                                non_dominated_label = 1
-                      
-                        if non_dominated_label and labels_to_be_deleted:
-                            
-                            for labelid in labels_to_be_deleted:
-                                if labelid == '37427':
-#                                    print(labels_to_be_deleted)
-#                                    print(t_count)
-                                    print(t, e_tt)
-###                                    print(se_list)
-#                                    print(u)
-#                                    print('oops')
-#                                    print(curr_cost_label)
-#                                    print(labels_bag[u][t])
-#                                    print(new_label_id)
-#                                    print(G['b54']['w17']['travel_time'])
-##                                    
-###                                    print(labelid)
-#                                    for pred_l in G.pred[u]:
-#                                        if pred_l == 'b54':
-#                                            for tim_itrv, stuff in labels_bag[pred_l].items():
-#                                                for lae_id, stuff_2 in stuff.items():
-#                                                    if stuff_2['pred_label_id'] == '37427':
-#                                                        print(lae_id, pred_l, tim_itrv, stuff_2['opt_crt_val'])
+#                             for labelid in labels_to_be_deleted:
+#                                 if labelid == '37427':
+# #                                    print(labels_to_be_deleted)
+# #                                    print(t_count)
+#                                     print(t, e_tt)
+# ###                                    print(se_list)
+# #                                    print(u)
+# #                                    print('oops')
+# #                                    print(curr_cost_label)
+# #                                    print(labels_bag[u][t])
+# #                                    print(new_label_id)
+# #                                    print(G['b54']['w17']['travel_time'])
+# ##                                    
+# ###                                    print(labelid)
+# #                                    for pred_l in G.pred[u]:
+# #                                        if pred_l == 'b54':
+# #                                            for tim_itrv, stuff in labels_bag[pred_l].items():
+# #                                                for lae_id, stuff_2 in stuff.items():
+# #                                                    if stuff_2['pred_label_id'] == '37427':
+# #                                                        print(lae_id, pred_l, tim_itrv, stuff_2['opt_crt_val'])
                                 
-                                del(labels_bag[u][t][labelid])
+#                                 del(labels_bag[u][t][labelid])
 
-#                        non_dom_label = ε_dominance_check(curr_cost_label, labels_bag[u][t])
+# #                        non_dom_label = ε_dominance_check(curr_cost_label, labels_bag[u][t])
                                       
-                        if non_dominated_label:
-                            insert_in_se_list = True   
-                            new_label_id = str(next(c))
-                            labels_bag[u][t].update({new_label_id: {'opt_crt_val' : curr_cost_label, 'pred_node' : v, \
-                                      'pred_time_int': v_arr_time-(v_arr_time%dt), 'pred_label_id' : label_id, 'tt' : travel_time_till_u, \
-                                      'wt' : wait_time_till_u, 'l' : distance_till_u, 'c' : cost_till_u, 'lt' : line_trasnf_num_till_u, \
-                                      'mt' : mode_transf_num_till_u, 'prev_edge_type': e_type, 'prev_dstr_node_graph_type': v_n_gr_type, \
-                                      'prev_mode': prev_mode}}) #, 'path': new_path
+#                         if non_dominated_label:
+#                             insert_in_se_list = True   
+#                             new_label_id = str(next(c))
+#                             labels_bag[u][t].update({new_label_id: {'opt_crt_val' : curr_cost_label, 'pred_node' : v, \
+#                                       'pred_time_int': v_arr_time-(v_arr_time%dt), 'pred_label_id' : label_id, 'tt' : travel_time_till_u, \
+#                                       'wt' : wait_time_till_u, 'l' : distance_till_u, 'c' : cost_till_u, 'lt' : line_trasnf_num_till_u, \
+#                                       'mt' : mode_transf_num_till_u, 'prev_edge_type': e_type, 'prev_dstr_node_graph_type': v_n_gr_type, \
+#                                       'prev_mode': prev_mode}}) #, 'path': new_path
                                     
-            if insert_in_se_list:
-                if de_queue[u] == 0:
-                    if se_list:
-                        de_queue[se_list[-1]] = u
-                    de_queue[u] = 999999999
-                    se_list.append(u)
-                elif de_queue[u] == -1:
-                    if se_list:
-                        de_queue[u] = se_list[0]
-                    else:
-                        de_queue[u] = 999999999
-                    se_list.appendleft(u)
-                if u == 'w17':
-                    t_count +=1
-    try:
-        print(t_count)
-        return labels_bag
-    except KeyError:
-        raise nx.NetworkXNoPath("Node %s not reachable from %s" % (target, source))
+#             if insert_in_se_list:
+#                 if de_queue[u] == 0:
+#                     if se_list:
+#                         de_queue[se_list[-1]] = u
+#                     de_queue[u] = 999999999
+#                     se_list.append(u)
+#                 elif de_queue[u] == -1:
+#                     if se_list:
+#                         de_queue[u] = se_list[0]
+#                     else:
+#                         de_queue[u] = 999999999
+#                     se_list.appendleft(u)
+#                 if u == 'w17':
+#                     t_count +=1
+#     try:
+#         print(t_count)
+#         return labels_bag
+#     except KeyError:
+#         raise nx.NetworkXNoPath("Node %s not reachable from %s" % (target, source))
         
 
-def pareto_paths_with_attrs_backwards_ellipse(G, source, target, req_time, t_0, t_H, dt, travel_time='travel_time', distance='distance', \
-                                      pt_additive_cost='pt_distance_based_cost', pt_non_additive_cost='pt_zone_to_zone_cost', \
-                                      taxi_fares='taxi_fares', taxi_wait_time='taxi_wait_time', timetable='departure_time', \
-                                      edge_type='edge_type', node_type='node_type', node_graph_type='node_graph_type', \
-                                      fare_scheme='distance_based', init_travel_time = 0, init_wait_time = 0, init_distance = 0, \
-                                      init_cost = 0, init_num_line_trfs = 0, init_num_mode_trfs = 0, last_edge_type=None, \
-                                      last_upstr_node_graph_type=None, last_pt_veh_run_id=None, last_edge_cost=0, \
-                                      pt_trip_dest_zone=None, previous_edge_mode=None):
+# def pareto_paths_with_attrs_backwards_ellipse(G, source, target, req_time, t_0, t_H, dt, travel_time='travel_time', distance='distance', \
+#                                       pt_additive_cost='pt_distance_based_cost', pt_non_additive_cost='pt_zone_to_zone_cost', \
+#                                       taxi_fares='taxi_fares', taxi_wait_time='taxi_wait_time', timetable='departure_time', \
+#                                       edge_type='edge_type', node_type='node_type', node_graph_type='node_graph_type', \
+#                                       fare_scheme='distance_based', init_travel_time = 0, init_wait_time = 0, init_distance = 0, \
+#                                       init_cost = 0, init_num_line_trfs = 0, init_num_mode_trfs = 0, last_edge_type=None, \
+#                                       last_upstr_node_graph_type=None, last_pt_veh_run_id=None, last_edge_cost=0, \
+#                                       pt_trip_dest_zone=None, previous_edge_mode=None):
 
-  if source not in G:
-    raise nx.NodeNotFound("Source {} not in G".format(source))
-  if target not in G:
-    raise nx.NodeNotFound("Target {} not in G".format(target))
-  if source == target:
-    return 0, [target]
+#   if source not in G:
+#     raise nx.NodeNotFound("Source {} not in G".format(source))
+#   if target not in G:
+#     raise nx.NodeNotFound("Target {} not in G".format(target))
+#   if source == target:
+#     return 0, [target]
 
-  travel_time = _get_travel_time_function(G, travel_time)
-  distance = _get_distance_function(G, distance)
-  pt_additive_cost = _get_pt_additive_cost(G, pt_additive_cost)
-  pt_non_additive_cost = _get_pt_non_additive_cost(G, pt_non_additive_cost)
-  timetable = _get_timetable(G, timetable)
-  edge_type = _get_edge_type(G, edge_type)
-  node_type = _get_node_type(G, node_type)
-  node_graph_type = _get_dwnstr_graph_type_data(G, node_graph_type)
-  taxi_fares = _get_taxi_fares(G, taxi_fares)
-  taxi_wait_time = _get_taxi_wait_time(G, taxi_wait_time)
+#   travel_time = _get_travel_time_function(G, travel_time)
+#   distance = _get_distance_function(G, distance)
+#   pt_additive_cost = _get_pt_additive_cost(G, pt_additive_cost)
+#   pt_non_additive_cost = _get_pt_non_additive_cost(G, pt_non_additive_cost)
+#   timetable = _get_timetable(G, timetable)
+#   edge_type = _get_edge_type(G, edge_type)
+#   node_type = _get_node_type(G, node_type)
+#   node_graph_type = _get_dwnstr_graph_type_data(G, node_graph_type)
+#   taxi_fares = _get_taxi_fares(G, taxi_fares)
+#   taxi_wait_time = _get_taxi_wait_time(G, taxi_wait_time)
 
 
-  pareto_bag = mltcrtr_lbl_set_alg_bwds_ellipse(G, source, target, t_0, t_H, dt, travel_time, distance, pt_additive_cost, pt_non_additive_cost, \
-                                        taxi_fares, taxi_wait_time, timetable, edge_type, node_type, node_graph_type, fare_scheme, \
-                                        init_travel_time, init_wait_time, init_distance, init_cost, init_num_line_trfs, init_num_mode_trfs,\
-                                        last_edge_type, last_upstr_node_graph_type, last_pt_veh_run_id, last_edge_cost, pt_trip_dest_zone, \
-                                        previous_edge_mode)
+#   pareto_bag = mltcrtr_lbl_set_alg_bwds_ellipse(G, source, target, t_0, t_H, dt, travel_time, distance, pt_additive_cost, pt_non_additive_cost, \
+#                                         taxi_fares, taxi_wait_time, timetable, edge_type, node_type, node_graph_type, fare_scheme, \
+#                                         init_travel_time, init_wait_time, init_distance, init_cost, init_num_line_trfs, init_num_mode_trfs,\
+#                                         last_edge_type, last_upstr_node_graph_type, last_pt_veh_run_id, last_edge_cost, pt_trip_dest_zone, \
+#                                         previous_edge_mode)
   
-  i = count()
-  paths_with_attrs = {}
-  for label_id, attrs in pareto_bag[source][req_time].items():
+#   i = count()
+#   paths_with_attrs = {}
+#   for label_id, attrs in pareto_bag[source][req_time].items():
       
-      path = []
-      path.append(source)
-      next_node = attrs['pred_node']
-      next_time_intrv = attrs['pred_time_int']
-      next_label_id = attrs['pred_label_id']
+#       path = []
+#       path.append(source)
+#       next_node = attrs['pred_node']
+#       next_time_intrv = attrs['pred_time_int']
+#       next_label_id = attrs['pred_label_id']
       
-      while next_node != None and next_time_intrv != None and next_label_id != None:
-          path.append(next_node)
-          new_node = pareto_bag[next_node][next_time_intrv][next_label_id]['pred_node']
-          new_time_intrv = pareto_bag[next_node][next_time_intrv][next_label_id]['pred_time_int']
-          new_label_id = pareto_bag[next_node][next_time_intrv][next_label_id]['pred_label_id']
-          next_node = new_node
-          next_time_intrv = new_time_intrv
-          next_label_id = new_label_id
+#       while next_node != None and next_time_intrv != None and next_label_id != None:
+#           path.append(next_node)
+#           new_node = pareto_bag[next_node][next_time_intrv][next_label_id]['pred_node']
+#           new_time_intrv = pareto_bag[next_node][next_time_intrv][next_label_id]['pred_time_int']
+#           new_label_id = pareto_bag[next_node][next_time_intrv][next_label_id]['pred_label_id']
+#           next_node = new_node
+#           next_time_intrv = new_time_intrv
+#           next_label_id = new_label_id
       
-      paths_with_attrs.update({str(next(i)): {'fnl_path' : path, 'optimal_crt_values' : attrs['opt_crt_val'], 'travel_time' : attrs['tt'], \
-                              'waiting_time' : attrs['wt'], 'distance' : attrs['l'], 'cost' : attrs['c'], 'line_transfers' : attrs['lt'], \
-                              'mode_transfers' : attrs['mt']}})
+#       paths_with_attrs.update({str(next(i)): {'fnl_path' : path, 'optimal_crt_values' : attrs['opt_crt_val'], 'travel_time' : attrs['tt'], \
+#                               'waiting_time' : attrs['wt'], 'distance' : attrs['l'], 'cost' : attrs['c'], 'line_transfers' : attrs['lt'], \
+#                               'mode_transfers' : attrs['mt']}})
   
-  return paths_with_attrs
+#   return paths_with_attrs
 
 
-# the origin and destination inputs to the algorithm need to always be nodes of the walk network.
-def mltcrtr_lbl_set_alg_bwds_ellipse(G, source, target, t_0, t_H, dt, travel_time_data, distance_data, pt_additive_cost_data, pt_non_additive_cost_data, \
-                                taxi_fares, taxi_wait_time, timetable_data, edge_type_data, node_type_data, node_graph_type_data, fare_scheme, \
-                                init_travel_time, init_wait_time, init_distance, init_cost, init_num_line_trfs, init_num_mode_trfs, \
-                                last_edge_type, last_dstr_node_graph_type, last_pt_veh_run_id, last_edge_cost, pt_trip_dest_zone, \
-                                previous_edge_mode):
-    Gpred = G._pred
+# # the origin and destination inputs to the algorithm need to always be nodes of the walk network.
+# def mltcrtr_lbl_set_alg_bwds_ellipse(G, source, target, t_0, t_H, dt, travel_time_data, distance_data, pt_additive_cost_data, pt_non_additive_cost_data, \
+#                                 taxi_fares, taxi_wait_time, timetable_data, edge_type_data, node_type_data, node_graph_type_data, fare_scheme, \
+#                                 init_travel_time, init_wait_time, init_distance, init_cost, init_num_line_trfs, init_num_mode_trfs, \
+#                                 last_edge_type, last_dstr_node_graph_type, last_pt_veh_run_id, last_edge_cost, pt_trip_dest_zone, \
+#                                 previous_edge_mode):
+#     Gpred = G._pred
     
-    #--- initialization of the data structure that holds all the non-dominated multi-dimnesional labels and its label's required pointers
-    #--- for all nodes and all times within a time_horizon (t_0 <= t <= t_H)
-    c = count()
-#    path = list()
-#    path.append(target)
-    labels_bag = {}  
-    for n in G:
-        labels_bag.update({n: {}})
-        for t in range(t_0, t_H+1, dt):
-            t = t%86400
-            if n == target:
-                label_id = str(next(c))
-                labels_bag[n].update({t: {label_id: {'opt_crt_val':(init_travel_time, init_cost, init_num_line_trfs, init_num_mode_trfs), \
-                   'pred_node': None, 'pred_time_int': None, 'pred_label_id': None, 'tt': init_travel_time, 'wt': init_wait_time, \
-                   'l': init_distance, 'c': init_cost, 'lt': init_num_line_trfs, 'mt': init_num_mode_trfs, 'prev_edge_type': None, \
-                   'prev_dstr_node_graph_type': None , 'prev_mode': None}}}) #'path': path
-            else:
-                labels_bag[n].update({t: {}})
+#     #--- initialization of the data structure that holds all the non-dominated multi-dimnesional labels and its label's required pointers
+#     #--- for all nodes and all times within a time_horizon (t_0 <= t <= t_H)
+#     c = count()
+# #    path = list()
+# #    path.append(target)
+#     labels_bag = {}  
+#     for n in G:
+#         labels_bag.update({n: {}})
+#         for t in range(t_0, t_H+1, dt):
+#             t = t%86400
+#             if n == target:
+#                 label_id = str(next(c))
+#                 labels_bag[n].update({t: {label_id: {'opt_crt_val':(init_travel_time, init_cost, init_num_line_trfs, init_num_mode_trfs), \
+#                    'pred_node': None, 'pred_time_int': None, 'pred_label_id': None, 'tt': init_travel_time, 'wt': init_wait_time, \
+#                    'l': init_distance, 'c': init_cost, 'lt': init_num_line_trfs, 'mt': init_num_mode_trfs, 'prev_edge_type': None, \
+#                    'prev_dstr_node_graph_type': None , 'prev_mode': None}}}) #'path': path
+#             else:
+#                 labels_bag[n].update({t: {}})
 
-    #--- initialization of the SE list used for scanning nodes in each iteration ---#
-    #--- it opertes as a double ended queue (deque) as in Ziliaskopoulos and Mahmassani (1993) ---#
-#    se_list = deque([target])
-    de_queue = {}
-    for n in G:
-        if n == target:
-            de_queue.update({n: 999999999})
-        else:
-            de_queue.update({n: 0})
-#    first = target
-#    last = target
+#     #--- initialization of the SE list used for scanning nodes in each iteration ---#
+#     #--- it opertes as a double ended queue (deque) as in Ziliaskopoulos and Mahmassani (1993) ---#
+# #    se_list = deque([target])
+#     de_queue = {}
+#     for n in G:
+#         if n == target:
+#             de_queue.update({n: 999999999})
+#         else:
+#             de_queue.update({n: 0})
+# #    first = target
+# #    last = target
     
-    se_list = deque([target])
-#    ellipse_ratio = 1.25 # a/b ration is 1.33 meaning that b=0.8a
-    c_ellipse = math.sqrt(sum([(a - b) ** 2 for a, b in zip(G.nodes[source]['pos'], G.nodes[target]['pos'])]))
-    a_ellipse = 1.1*c_ellipse
+#     se_list = deque([target])
+# #    ellipse_ratio = 1.25 # a/b ration is 1.33 meaning that b=0.8a
+#     c_ellipse = math.sqrt(sum([(a - b) ** 2 for a, b in zip(G.nodes[source]['pos'], G.nodes[target]['pos'])]))
+#     a_ellipse = 1.1*c_ellipse  
     
     
-    #--- the algorithm is running until the SE List is empty, meaning that there are no more node insertions for any time t 
-#    that can give a non-dominated paths \---#
-    while se_list: 
-#        v = first
-#        first = de_queue[v]
-#        de_queue[v] = -1
-        v = se_list.popleft()
-        de_queue[v] = -1
+    
+#     #--- the algorithm is running until the SE List is empty, meaning that there are no more node insertions for any time t 
+# #    that can give a non-dominated paths \---#
+#     while se_list: 
+# #        v = first
+# #        first = de_queue[v]
+# #        de_queue[v] = -1
+#         v = se_list.popleft()
+#         de_queue[v] = -1
         
-        v_n_gr_type = G.nodes[v]['node_graph_type']
+#         v_n_gr_type = G.nodes[v]['node_graph_type']
         
-        for u, e in Gpred[v].items():
-            insert_in_se_list = False
-            # now for each t we first need to identify the total travel time that is required to travel from u to v
-            # this is the case because we need to know which label (path) or set of labels (paths) from node v will be extended
-            # the labels that will be extended will then be the one in labels_bag[v][t+tt_uv(t)]
-            if 'pos' in G.nodes[u]:
-                eucl_dist_source_to_u = math.sqrt(sum([(a - b) ** 2 for a, b in zip(G.nodes[source]['pos'], G.nodes[u]['pos'])]))
-                eucl_dist_u_to_target = math.sqrt(sum([(a - b) ** 2 for a, b in zip(G.nodes[u]['pos'], G.nodes[target]['pos'])]))
+#         for u, e in Gpred[v].items():
+#             insert_in_se_list = False
+#             # now for each t we first need to identify the total travel time that is required to travel from u to v
+#             # this is the case because we need to know which label (path) or set of labels (paths) from node v will be extended
+#             # the labels that will be extended will then be the one in labels_bag[v][t+tt_uv(t)]
+#             if 'pos' in G.nodes[u]:
+#                 eucl_dist_source_to_u = math.sqrt(sum([(a - b) ** 2 for a, b in zip(G.nodes[source]['pos'], G.nodes[u]['pos'])]))
+#                 eucl_dist_u_to_target = math.sqrt(sum([(a - b) ** 2 for a, b in zip(G.nodes[u]['pos'], G.nodes[target]['pos'])]))
             
-                if eucl_dist_source_to_u + eucl_dist_u_to_target > 2*a_ellipse:
-                    continue
+#                 if eucl_dist_source_to_u + eucl_dist_u_to_target > 2*a_ellipse:
+#                     continue
 
-            for t in range(t_0, t_H+1, dt):
+#             for t in range(t_0, t_H+1, dt):
                 
-                t = t%86400
+#                 t = t%86400
                 
-                e_type = e['edge_type']#_data(u, v, e)
+#                 e_type = e['edge_type']#_data(u, v, e)
                 
-#                here we diffferentiate between the cases of public transport and road modes, since time-dependency
-#                is handled differently in each case; specifically waiting is allowed in PT but not in road services
-#                if e_type != 'pt_route_edge':
-                if e_type == 'car_sharing_station_egress_edge' or e_type == 'car_sharing_station_access_edge':
-                    e_tt = 0
-                    e_wait_time = e['wait_time']
-                    e_cost=0
-                    e_distance = 0
-                    e_num_lin_trf = 0
-                    e_num_mode_trf = 0
+# #                here we diffferentiate between the cases of public transport and road modes, since time-dependency
+# #                is handled differently in each case; specifically waiting is allowed in PT but not in road services
+# #                if e_type != 'pt_route_edge':
+#                 if e_type == 'car_sharing_station_egress_edge' or e_type == 'car_sharing_station_access_edge':
+#                     e_tt = 0
+#                     e_wait_time = e['wait_time']
+#                     e_cost=0
+#                     e_distance = 0
+#                     e_num_lin_trf = 0
+#                     e_num_mode_trf = 0
                     
-                if e_type == 'car_sharing_orig_dummy_edge':
-                    e_wait_time = 0
-                    e_tt = 0
-                    e_distance = 0
-                    e_cost = 0
-                    e_num_mode_trf = 0
-                    e_num_lin_trf = 0
+#                 if e_type == 'car_sharing_orig_dummy_edge':
+#                     e_wait_time = 0
+#                     e_tt = 0
+#                     e_distance = 0
+#                     e_cost = 0
+#                     e_num_mode_trf = 0
+#                     e_num_lin_trf = 0
                     
-                if e_type == 'car_sharing_dest_dummy_edge' or e_type == 'car_sharing_dual_edge':
-                    e_wait_time = 0
-#                    tt_d = e['travel_time']#_data(u, v, e)
-#                    if tt_d is None:
-#                      print('Missing in_veh_tt value in edge {}'.format((u, v))) 
-#                      continue
-                    e_tt = e['travel_time'][t]
-#                    e_tt = get_time_dep_taxi_travel_time(t, tt_d) # used this function cause it works the way it should, need to however have some generic function to extract data from different type of dictionaries without being mode-specific
-                    e_distance = e['distance']#_data(u, v, e)
-                    if e_distance is None:
-                      print('Missing distance value in edge {}'.format((u, v)))
-                      continue
-#                    e_cost_data = e['car_sharing_fares']
-                    e_cost = e['car_sharing_fares'][t]
-#                    e_cost = get_time_dep_taxi_cost(t, e_cost_data) # # used this function cause it works the way it should, need to however have some generic function to extract data from different type of dictionaries without being mode-specific
-                    e_num_mode_trf = 0
-                    e_num_lin_trf = 0
+#                 if e_type == 'car_sharing_dest_dummy_edge' or e_type == 'car_sharing_dual_edge':
+#                     e_wait_time = 0
+# #                    tt_d = e['travel_time']#_data(u, v, e)
+# #                    if tt_d is None:
+# #                      print('Missing in_veh_tt value in edge {}'.format((u, v))) 
+# #                      continue
+#                     e_tt = e['travel_time'][t]
+# #                    e_tt = get_time_dep_taxi_travel_time(t, tt_d) # used this function cause it works the way it should, need to however have some generic function to extract data from different type of dictionaries without being mode-specific
+#                     e_distance = e['distance']#_data(u, v, e)
+#                     if e_distance is None:
+#                       print('Missing distance value in edge {}'.format((u, v)))
+#                       continue
+# #                    e_cost_data = e['car_sharing_fares']
+#                     e_cost = e['car_sharing_fares'][t]
+# #                    e_cost = get_time_dep_taxi_cost(t, e_cost_data) # # used this function cause it works the way it should, need to however have some generic function to extract data from different type of dictionaries without being mode-specific
+#                     e_num_mode_trf = 0
+#                     e_num_lin_trf = 0
                     
-                if e_type == 'taxi_edge' or e_type == 'on_demand_single_taxi_edge' or e_type == 'on_demand_shared_taxi_edge':
-                    e_wait_time = e['taxi_wait_time'][t]
-                    e_tt = e['travel_time'][(t+e_wait_time)-((t+e_wait_time)%dt)]
-#                    e_wait_time_data = e['taxi_wait_time']#(u, v, e)
-#                    e_wait_time = get_time_dep_taxi_wait_time(t, e_wait_time_data)
-#                    tt_d = e['travel_time']#_data(u, v, e)
-#                    if tt_d is None:
-#                      print('Missing in_veh_tt value in edge {}'.format((u, v)))
-#                      continue
-#                    e_tt = get_time_dep_taxi_travel_time(t+e_wait_time, tt_d)
-                    e_distance = e['distance']#_data(u, v, e)        # funtion that extracts the edge's distance attribute
-                    if e_distance is None:
-                      print('Missing distance value in edge {}'.format((u, v)))
-                      continue
-                    e_num_mode_trf = 0
-                    e_num_lin_trf = 0
-                    e_cost = e['taxi_fares'][t]
-#                    e_cost_data = e['taxi_fares']#(u, v, e)
-#                    e_cost = get_time_dep_taxi_cost(t, e_cost_data)
+#                 if e_type == 'taxi_edge' or e_type == 'on_demand_single_taxi_edge' or e_type == 'on_demand_shared_taxi_edge':
+#                     e_wait_time = e['taxi_wait_time'][t]
+#                     e_tt = e['travel_time'][(t+e_wait_time)-((t+e_wait_time)%dt)]
+# #                    e_wait_time_data = e['taxi_wait_time']#(u, v, e)
+# #                    e_wait_time = get_time_dep_taxi_wait_time(t, e_wait_time_data)
+# #                    tt_d = e['travel_time']#_data(u, v, e)
+# #                    if tt_d is None:
+# #                      print('Missing in_veh_tt value in edge {}'.format((u, v)))
+# #                      continue
+# #                    e_tt = get_time_dep_taxi_travel_time(t+e_wait_time, tt_d)
+#                     e_distance = e['distance']#_data(u, v, e)        # funtion that extracts the edge's distance attribute
+#                     if e_distance is None:
+#                       print('Missing distance value in edge {}'.format((u, v)))
+#                       continue
+#                     e_num_mode_trf = 0
+#                     e_num_lin_trf = 0
+#                     e_cost = e['taxi_fares'][t]
+# #                    e_cost_data = e['taxi_fares']#(u, v, e)
+# #                    e_cost = get_time_dep_taxi_cost(t, e_cost_data)
                 
-                if e_type == 'walk_edge':
-                    e_tt = e['travel_time']#_data(u, v, e)  # funtion that extracts the edge's in-vehicle travel time attribute
-                    if e_tt is None:
-                      print('Missing in_veh_tt value in edge {}'.format((u, v)))
-                      continue
-                    e_wait_time = 0
-                    e_distance = e['distance']#_data(u, v, e)        # funtion that extracts the edge's distance attribute
-                    if e_distance is None:
-                      print('Missing distance value in edge {}'.format((u, v)))
-                      continue
-                    e_cost = 0
-                    e_num_mode_trf = 0
-                    e_num_lin_trf = 0
+#                 if e_type == 'walk_edge':
+#                     e_tt = e['travel_time']#_data(u, v, e)  # funtion that extracts the edge's in-vehicle travel time attribute
+#                     if e_tt is None:
+#                       print('Missing in_veh_tt value in edge {}'.format((u, v)))
+#                       continue
+#                     e_wait_time = 0
+#                     e_distance = e['distance']#_data(u, v, e)        # funtion that extracts the edge's distance attribute
+#                     if e_distance is None:
+#                       print('Missing distance value in edge {}'.format((u, v)))
+#                       continue
+#                     e_cost = 0
+#                     e_num_mode_trf = 0
+#                     e_num_lin_trf = 0
                     
-                if e_type == 'access_edge':
-                    e_tt = e['travel_time']#_data(u, v, e)  # funtion that extracts the edge's in-vehicle travel time attribute
-                    if e_tt is None:
-                      print('Missing in_veh_tt value in edge {}'.format((u, v)))
-                      continue
-                    e_wait_time = 0
-                    e_distance = e['distance']#_data(u, v, e)        # funtion that extracts the edge's distance attribute
-                    if e_distance is None:
-                      print('Missing distance value in edge {}'.format((u, v)))
-                      continue
-                    e_cost = 0
-                    e_num_mode_trf = 0
-                    e_num_lin_trf = 0
-                    u_n_type = e['up_node_type']
-#                        v_n_type = e['dstr_node_type']
-                    if u_n_type == 'walk_graph_node':
-                        e_num_mode_trf = 1
+#                 if e_type == 'access_edge':
+#                     e_tt = e['travel_time']#_data(u, v, e)  # funtion that extracts the edge's in-vehicle travel time attribute
+#                     if e_tt is None:
+#                       print('Missing in_veh_tt value in edge {}'.format((u, v)))
+#                       continue
+#                     e_wait_time = 0
+#                     e_distance = e['distance']#_data(u, v, e)        # funtion that extracts the edge's distance attribute
+#                     if e_distance is None:
+#                       print('Missing distance value in edge {}'.format((u, v)))
+#                       continue
+#                     e_cost = 0
+#                     e_num_mode_trf = 0
+#                     e_num_lin_trf = 0
+#                     u_n_type = e['up_node_type']
+# #                        v_n_type = e['dstr_node_type']
+#                     if u_n_type == 'walk_graph_node':
+#                         e_num_mode_trf = 1
                     
-                if e_type == 'pt_transfer_edge':
-                    e_tt = e['travel_time']#_data(u, v, e)  # funtion that extracts the edge's in-vehicle travel time attribute
-                    if e_tt is None:
-                      print('Missing in_veh_tt value in edge {}'.format((u, v)))
-                      continue
-                    e_wait_time = 0
-                    e_distance = e['distance']#_data(u, v, e)        # funtion that extracts the edge's distance attribute
-                    if e_distance is None:
-                      print('Missing distance value in edge {}'.format((u, v)))
-                      continue
-                    e_cost = 0
-                    e_num_mode_trf = 0
-                    e_num_lin_trf = 0
-                    u_n_type = e['up_node_type']
-                    v_n_type = e['dstr_node_type']
-                    if (u_n_type == 'stop_node' or u_n_type=='station_node') and v_n_type == 'route_node':
-                        e_num_lin_trf =1
-                if e_type == 'pt_route_edge':
-#                    dep_timetable = timetable_data(u, v, e)  # fuction that extracts the stop's/station's timetable dict
-#                    if dep_timetable is None:
-#                        print('Missing timetable value in edge'.format((u, v)))
-#                        continue
-#                    e_wait_time, pt_vehicle_run_id = calc_plat_wait_time_and_train_id(t, dep_timetable)  # function that extracts waiting time for next pt vehicle and the vehicle_id; the next departing vehicle is being found using a binary search algorithm that operates on a sorted list of the deparure times for this edge (departure times of the downstream stop/station)
-                    e_wait_time = e['wait_time'][t]
-#                    pt_vehicle_run_id = e['wait_time'][t]['veh_id']
-                    if e_wait_time is None:
-                        print('Missing wait_time value in edge'.format((u, v)))
-                        continue
-                    e_tt = e['travel_time'][t]
-#                    tt_d = e['travel_time']#_data(u, v, e)  # fuction that extracts the travel time dict
-#                    if tt_d is None:
-#                        print('Missing in_veh_tt value in edge'.format((u, v)))
-#                        continue
-#                    e_tt = tt_d[pt_vehicle_run_id] #calc_pt_route_edge_in_veh_tt_for_run_id(tt_d, pt_vehicle_run_id)  # fuction that travel time for corresponding pt vehicle run_id
-                    e_distance = e['distance']#_data(u, v, e)  # fuction that extracts the travel time dict
-                    if e_distance is None:
-                        print('Missing distance value in edge'.format((u, v)))
-                        continue
-                    # edge costs for pt depend on the pt fare scheme; if it is additive (distance_based) or zone_to_zone !! consider adding a price cap !!
-#                    if fare_scheme == 'distance_based':
-#                    dist_bas_cost = e['pt_distance_based_cost']#(u, v, e)  # fuction that extracts the time-dependent distance-based cost dict
-#                    if dist_bas_cost is None:
-#                        print('Missing dist_bas_cost value in edge'.format((u, v)))
-#                        continue
-#                    e_cost = calc_time_dep_distance_based_cost(dist_bas_cost, t)  # fuction that extracts the cost based on time-dependent distance-based cost dict and the current time (finds in which time-zone we currently are)
-                    e_cost = e['pt_distance_based_cost'][t]
-                    e_num_lin_trf = 0
-                    e_num_mode_trf = 0
+#                 if e_type == 'pt_transfer_edge':
+#                     e_tt = e['travel_time']#_data(u, v, e)  # funtion that extracts the edge's in-vehicle travel time attribute
+#                     if e_tt is None:
+#                       print('Missing in_veh_tt value in edge {}'.format((u, v)))
+#                       continue
+#                     e_wait_time = 0
+#                     e_distance = e['distance']#_data(u, v, e)        # funtion that extracts the edge's distance attribute
+#                     if e_distance is None:
+#                       print('Missing distance value in edge {}'.format((u, v)))
+#                       continue
+#                     e_cost = 0
+#                     e_num_mode_trf = 0
+#                     e_num_lin_trf = 0
+#                     u_n_type = e['up_node_type']
+#                     v_n_type = e['dstr_node_type']
+#                     if (u_n_type == 'stop_node' or u_n_type=='station_node') and v_n_type == 'route_node':
+#                         e_num_lin_trf =1
+#                 if e_type == 'pt_route_edge':
+# #                    dep_timetable = timetable_data(u, v, e)  # fuction that extracts the stop's/station's timetable dict
+# #                    if dep_timetable is None:
+# #                        print('Missing timetable value in edge'.format((u, v)))
+# #                        continue
+# #                    e_wait_time, pt_vehicle_run_id = calc_plat_wait_time_and_train_id(t, dep_timetable)  # function that extracts waiting time for next pt vehicle and the vehicle_id; the next departing vehicle is being found using a binary search algorithm that operates on a sorted list of the deparure times for this edge (departure times of the downstream stop/station)
+#                     e_wait_time = e['wait_time'][t]
+# #                    pt_vehicle_run_id = e['wait_time'][t]['veh_id']
+#                     if e_wait_time is None:
+#                         print('Missing wait_time value in edge'.format((u, v)))
+#                         continue
+#                     e_tt = e['travel_time'][t]
+# #                    tt_d = e['travel_time']#_data(u, v, e)  # fuction that extracts the travel time dict
+# #                    if tt_d is None:
+# #                        print('Missing in_veh_tt value in edge'.format((u, v)))
+# #                        continue
+# #                    e_tt = tt_d[pt_vehicle_run_id] #calc_pt_route_edge_in_veh_tt_for_run_id(tt_d, pt_vehicle_run_id)  # fuction that travel time for corresponding pt vehicle run_id
+#                     e_distance = e['distance']#_data(u, v, e)  # fuction that extracts the travel time dict
+#                     if e_distance is None:
+#                         print('Missing distance value in edge'.format((u, v)))
+#                         continue
+#                     # edge costs for pt depend on the pt fare scheme; if it is additive (distance_based) or zone_to_zone !! consider adding a price cap !!
+# #                    if fare_scheme == 'distance_based':
+# #                    dist_bas_cost = e['pt_distance_based_cost']#(u, v, e)  # fuction that extracts the time-dependent distance-based cost dict
+# #                    if dist_bas_cost is None:
+# #                        print('Missing dist_bas_cost value in edge'.format((u, v)))
+# #                        continue
+# #                    e_cost = calc_time_dep_distance_based_cost(dist_bas_cost, t)  # fuction that extracts the cost based on time-dependent distance-based cost dict and the current time (finds in which time-zone we currently are)
+#                     e_cost = e['pt_distance_based_cost'][t]
+#                     e_num_lin_trf = 0
+#                     e_num_mode_trf = 0
                     
-                v_arr_time = int(t + e_tt + e_wait_time)
-                mod_v_arr_time = v_arr_time-((v_arr_time-t_0)%dt)
-#                    if u == 'NS4/SC4':
-#                        print(v_arr_time)
+#                 v_arr_time = int(t + e_tt + e_wait_time)
+#                 mod_v_arr_time = v_arr_time-((v_arr_time-t_0)%dt)
+# #                    if u == 'NS4/SC4':
+# #                        print(v_arr_time)
                     
-                if v_arr_time <= t_H:                     
-                    for label_id, info in labels_bag[v][mod_v_arr_time].items():
-                        if u == info['pred_node']:
-                            continue
-                        prev_mode = info['prev_mode']
-                        pr_ed_tp = info['prev_edge_type']
-                        pre_dstr_n_gr_tp = info['prev_dstr_node_graph_type']
-#                            pr_md = info['prev_mode']
+#                 if v_arr_time <= t_H:                     
+#                     for label_id, info in labels_bag[v][mod_v_arr_time].items():
+#                         if u == info['pred_node']:
+#                             continue
+#                         prev_mode = info['prev_mode']
+#                         pr_ed_tp = info['prev_edge_type']
+#                         pre_dstr_n_gr_tp = info['prev_dstr_node_graph_type']
+# #                            pr_md = info['prev_mode']
                         
-                        # restraint walking before taxi modes
-                        if e_type == 'walk_edge' and pr_ed_tp == 'access_edge' and \
-                        (pre_dstr_n_gr_tp == 'taxi_graph' or pre_dstr_n_gr_tp == 'on_demand_single_taxi_graph' or pre_dstr_n_gr_tp == 'on_demand_shared_taxi_graph'):
-                            continue
+#                         # restraint walking before taxi modes
+#                         if e_type == 'walk_edge' and pr_ed_tp == 'access_edge' and \
+#                         (pre_dstr_n_gr_tp == 'taxi_graph' or pre_dstr_n_gr_tp == 'on_demand_single_taxi_graph' or pre_dstr_n_gr_tp == 'on_demand_shared_taxi_graph'):
+#                             continue
                         
-                        if e_type == 'access_edge':
-                            u_n_type = e['up_node_type']#G.nodes[v]['node_type']
-                            u_n_gr_type = e['up_node_graph_type']#G.nodes[u]['node_graph_type']#node_graph_type_data(u, G.nodes[u])
-                            v_n_type = e['dstr_node_type']#G.nodes[u]['node_type']#node_type_data(u, G.nodes[u])
-#                                penalty = 0
+#                         if e_type == 'access_edge':
+#                             u_n_type = e['up_node_type']#G.nodes[v]['node_type']
+#                             u_n_gr_type = e['up_node_graph_type']#G.nodes[u]['node_graph_type']#node_graph_type_data(u, G.nodes[u])
+#                             v_n_type = e['dstr_node_type']#G.nodes[u]['node_type']#node_type_data(u, G.nodes[u])
+# #                                penalty = 0
                             
-                            if u_n_gr_type == 'Walk':
-                              prev_mode = v_n_gr_type   
-#                               from mode and line transfers we store the previous path mode (not considering walk as a mode) and if a path with a new mode starts then we have a mode transfer, if with the same mode then a line transfer
-#                                if v_n_gr_type == 'Walk':
-#                                  if prev_mode != None and u_n_gr_type != prev_mode:
-#                                    e_num_mode_trf = 1
-#                                    e_num_lin_trf = 0
-#                                  elif (prev_mode =='Train' or prev_mode =='Bus') and u_n_gr_type == prev_mode:
-#                                    e_num_mode_trf = 0
-#                                    e_num_lin_trf = 1
-                #             when we are at an access edge that connects graphs we need to penalize unreasonable connections and path loops; e.g., from walk node to another mode-specific node and back to walk node, from a taxi/carsharing trip to a walk trip and back to taxi/carsharing trip
-                            if (prev_mode == 'taxi_graph' or prev_mode == 'on_demand_single_taxi_graph' or \
-                                prev_mode == 'on_demand_shared_taxi_graph' or prev_mode == 'car_sharing_graph') and \
-                                (u_n_gr_type == 'taxi_graph' or u_n_gr_type == 'on_demand_single_taxi_graph' or \
-                                 u_n_gr_type == 'on_demand_shared_taxi_graph' or u_n_gr_type == 'car_sharing_graph'):
-                                    continue#penalty = 1000000000000000
-                            if pr_ed_tp == 'access_edge':
-                              if (pre_dstr_n_gr_tp == 'Walk' and u_n_gr_type == 'Walk') or (pre_dstr_n_gr_tp == 'Bus' and \
-                                 u_n_gr_type == 'Bus') or (pre_dstr_n_gr_tp == 'Train' and u_n_gr_type == 'Train'):
-                                  continue#penalty = 1000000000000000
-                            if v_n_type == 'car_sharing_station_node':
-                              if G.nodes[v]['stock_level'] == 0:
-                                  continue#penalty = 1000000000000000
-                            if u_n_type == 'car_sharing_station_node':
-                              if G.nodes[u]['stock_level'] == G.nodes[u]['capacity']:
-                                  continue#penalty = 1000000000000000
-                            # restraint pick up
-                            if v_n_gr_type == 'taxi_graph' or v_n_gr_type == 'on_demand_single_taxi_graph' or v_n_gr_type == 'on_demand_shared_taxi_graph':
-                                if e['up_node_zone'] == G.nodes[source]['zone'] and u != source:
-                                  continue#penalty = 1000000000000000
-#                                if v_n_gr_type == 'Walk' and (u_n_gr_type == 'taxi_graph' or u_n_gr_type == 'on_demand_single_taxi_graph' \
-#                                                              or u_n_gr_type == 'on_demand_shared_taxi_graph'):
-#                                  if e['dstr_node_zone'] == G.nodes[target]['zone'] and v != target:
-#                                    continue#penalty = 1000000000000000
-                            # restraint drop off
-                            if (u_n_gr_type == 'taxi_graph' or u_n_gr_type == 'on_demand_single_taxi_graph' or u_n_gr_type == 'on_demand_shared_taxi_graph') \
-                            and e['dstr_node_zone'] == G.nodes[target]['zone'] and v != target:
-                                continue
-                            # restraint walking after taxi modes
-                            if (u_n_gr_type == 'taxi_graph' or u_n_gr_type == 'on_demand_single_taxi_graph' or u_n_gr_type == 'on_demand_shared_taxi_graph') \
-                            and pr_ed_tp == 'walk_edge':
-                                continue
-#                                if (v_n_gr_type == 'taxi_graph' or v_n_gr_type == 'on_demand_single_taxi_graph' \
-#                                    or v_n_gr_type == 'on_demand_shared_taxi_graph') and u != source:
-#                                    continue
-#                                if u_n_gr_type == 'taxi_graph' or u_n_gr_type == 'on_demand_single_taxi_graph' or u_n_gr_type == 'on_demand_shared_taxi_graph' \
-#                                     or u_n_gr_type == 'car_sharing_graph'pr_ed_tp == 'walk_edge' and G.nodes[info['pred_node']]['is_mode_dupl']:
-#                                    continue
-#                            if e_type == 'pt_transfer_edge':
-#                                v_n_gr_type = e['dstr_node_graph_type']#G.nodes[v]['node_graph_type']#node_graph_type_data(v, G.nodes[v])
-#                    #            v_n_type = e['up_node_type']#G.nodes[v]['node_type']
-#                                u_n_gr_type = e['up_node_graph_type']#G.nodes[u]['node_graph_type']#node_graph_type_data(u, G.nodes[u])
-#                    #            u_n_type = e['dstr_node_type']#G.nodes[u]['node_type']#node_type_data(u, G.nodes[u])
-#                                # for zone_to_zone pt fare scheme we store the zone of the stop/station in which a pt trip started (origin); this zone will be used for the calculcation of the edge cost based on which pt stop the algorithm checks and hence the final stop of the pt trip
-#                                if fare_scheme == 'zone_to_zone':
-#                                  if pr_ed_tp == 'access_edge':
-#                                    if prev_mode != 'Bus' and prev_mode != 'Train':
-#                                      zone_at_end_of_pt_trip = e['dstr_node_zone']#G.nodes[v]['zone']
-#                                      previous_edge_cost = 0
-                            # to compute line transfers in pt we check the previous edge type; if the previous edge type is also a tranfer edge then we have a line transfer; this constraint allows us to avoid adding a line transfer when the algorithm traverses a transfer edge at the start of a pt trip
-#                                if pr_ed_tp == 'pt_transfer_edge':
-#                                  e_num_lin_trf = 1
-#                                else:
-#                                  e_num_lin_trf = 0
+#                             if u_n_gr_type == 'Walk':
+#                               prev_mode = v_n_gr_type   
+# #                               from mode and line transfers we store the previous path mode (not considering walk as a mode) and if a path with a new mode starts then we have a mode transfer, if with the same mode then a line transfer
+# #                                if v_n_gr_type == 'Walk':
+# #                                  if prev_mode != None and u_n_gr_type != prev_mode:
+# #                                    e_num_mode_trf = 1
+# #                                    e_num_lin_trf = 0
+# #                                  elif (prev_mode =='Train' or prev_mode =='Bus') and u_n_gr_type == prev_mode:
+# #                                    e_num_mode_trf = 0
+# #                                    e_num_lin_trf = 1
+#                 #             when we are at an access edge that connects graphs we need to penalize unreasonable connections and path loops; e.g., from walk node to another mode-specific node and back to walk node, from a taxi/carsharing trip to a walk trip and back to taxi/carsharing trip
+#                             if (prev_mode == 'taxi_graph' or prev_mode == 'on_demand_single_taxi_graph' or \
+#                                 prev_mode == 'on_demand_shared_taxi_graph' or prev_mode == 'car_sharing_graph') and \
+#                                 (u_n_gr_type == 'taxi_graph' or u_n_gr_type == 'on_demand_single_taxi_graph' or \
+#                                  u_n_gr_type == 'on_demand_shared_taxi_graph' or u_n_gr_type == 'car_sharing_graph'):
+#                                     continue#penalty = 1000000000000000
+#                             if pr_ed_tp == 'access_edge':
+#                               if (pre_dstr_n_gr_tp == 'Walk' and u_n_gr_type == 'Walk') or (pre_dstr_n_gr_tp == 'Bus' and \
+#                                  u_n_gr_type == 'Bus') or (pre_dstr_n_gr_tp == 'Train' and u_n_gr_type == 'Train'):
+#                                   continue#penalty = 1000000000000000
+#                             if v_n_type == 'car_sharing_station_node':
+#                               if G.nodes[v]['stock_level'] == 0:
+#                                   continue#penalty = 1000000000000000
+#                             if u_n_type == 'car_sharing_station_node':
+#                               if G.nodes[u]['stock_level'] == G.nodes[u]['capacity']:
+#                                   continue#penalty = 1000000000000000
+#                             # restraint pick up
+#                             if v_n_gr_type == 'taxi_graph' or v_n_gr_type == 'on_demand_single_taxi_graph' or v_n_gr_type == 'on_demand_shared_taxi_graph':
+#                                 if e['up_node_zone'] == G.nodes[source]['zone'] and u != source:
+#                                   continue#penalty = 1000000000000000
+# #                                if v_n_gr_type == 'Walk' and (u_n_gr_type == 'taxi_graph' or u_n_gr_type == 'on_demand_single_taxi_graph' \
+# #                                                              or u_n_gr_type == 'on_demand_shared_taxi_graph'):
+# #                                  if e['dstr_node_zone'] == G.nodes[target]['zone'] and v != target:
+# #                                    continue#penalty = 1000000000000000
+#                             # restraint drop off
+#                             if (u_n_gr_type == 'taxi_graph' or u_n_gr_type == 'on_demand_single_taxi_graph' or u_n_gr_type == 'on_demand_shared_taxi_graph') \
+#                             and e['dstr_node_zone'] == G.nodes[target]['zone'] and v != target:
+#                                 continue
+#                             # restraint walking after taxi modes
+#                             if (u_n_gr_type == 'taxi_graph' or u_n_gr_type == 'on_demand_single_taxi_graph' or u_n_gr_type == 'on_demand_shared_taxi_graph') \
+#                             and pr_ed_tp == 'walk_edge':
+#                                 continue
+# #                                if (v_n_gr_type == 'taxi_graph' or v_n_gr_type == 'on_demand_single_taxi_graph' \
+# #                                    or v_n_gr_type == 'on_demand_shared_taxi_graph') and u != source:
+# #                                    continue
+# #                                if u_n_gr_type == 'taxi_graph' or u_n_gr_type == 'on_demand_single_taxi_graph' or u_n_gr_type == 'on_demand_shared_taxi_graph' \
+# #                                     or u_n_gr_type == 'car_sharing_graph'pr_ed_tp == 'walk_edge' and G.nodes[info['pred_node']]['is_mode_dupl']:
+# #                                    continue
+# #                            if e_type == 'pt_transfer_edge':
+# #                                v_n_gr_type = e['dstr_node_graph_type']#G.nodes[v]['node_graph_type']#node_graph_type_data(v, G.nodes[v])
+# #                    #            v_n_type = e['up_node_type']#G.nodes[v]['node_type']
+# #                                u_n_gr_type = e['up_node_graph_type']#G.nodes[u]['node_graph_type']#node_graph_type_data(u, G.nodes[u])
+# #                    #            u_n_type = e['dstr_node_type']#G.nodes[u]['node_type']#node_type_data(u, G.nodes[u])
+# #                                # for zone_to_zone pt fare scheme we store the zone of the stop/station in which a pt trip started (origin); this zone will be used for the calculcation of the edge cost based on which pt stop the algorithm checks and hence the final stop of the pt trip
+# #                                if fare_scheme == 'zone_to_zone':
+# #                                  if pr_ed_tp == 'access_edge':
+# #                                    if prev_mode != 'Bus' and prev_mode != 'Train':
+# #                                      zone_at_end_of_pt_trip = e['dstr_node_zone']#G.nodes[v]['zone']
+# #                                      previous_edge_cost = 0
+#                             # to compute line transfers in pt we check the previous edge type; if the previous edge type is also a tranfer edge then we have a line transfer; this constraint allows us to avoid adding a line transfer when the algorithm traverses a transfer edge at the start of a pt trip
+# #                                if pr_ed_tp == 'pt_transfer_edge':
+# #                                  e_num_lin_trf = 1
+# #                                else:
+# #                                  e_num_lin_trf = 0
                           
-                        travel_time_till_u = int(e_tt + info['tt'])
-                        wait_time_till_u = int(e_wait_time + info['wt'])
-                        distance_till_u = int(e_distance + info['l'])
-                        cost_till_u = int(e_cost + info['c'])
-                        line_trasnf_num_till_u = int(e_num_lin_trf + info['lt'])
-                        mode_transf_num_till_u = int(e_num_mode_trf + info['mt'])
+#                         travel_time_till_u = int(e_tt + info['tt'])
+#                         wait_time_till_u = int(e_wait_time + info['wt'])
+#                         distance_till_u = int(e_distance + info['l'])
+#                         cost_till_u = int(e_cost + info['c'])
+#                         line_trasnf_num_till_u = int(e_num_lin_trf + info['lt'])
+#                         mode_transf_num_till_u = int(e_num_mode_trf + info['mt'])
                         
-                        curr_cost_label = [travel_time_till_u + wait_time_till_u, cost_till_u, line_trasnf_num_till_u, \
-                                           mode_transf_num_till_u]
-                        labels_to_be_deleted = deque([])
+#                         curr_cost_label = [travel_time_till_u + wait_time_till_u, cost_till_u, line_trasnf_num_till_u, \
+#                                            mode_transf_num_till_u]
+#                         labels_to_be_deleted = deque([])
                         
-                        if not(labels_bag[u][t]):
-                            non_dominated_label = 1
-                        else:
-                            for label, label_info in labels_bag[u][t].items():
-                                prev_cost_label = label_info['opt_crt_val']
-                                if curr_cost_label == prev_cost_label:
-                                    if label_info['pred_label_id'] == label_id:
-                                        non_dominated_label = 0
-                                        break
-                                    non_dominated_label = 1   
-                                    continue
-                                q_1 = 0 
-                                for i,j in zip(curr_cost_label,prev_cost_label):
-                                    if i>=j:
-                                        q_1 = q_1+1
-                                if q_1 == 4:
-                                    non_dominated_label = 0
-                                    break
-                                q_2 = 0
-                                for i,j in zip(curr_cost_label,prev_cost_label):
-                                    if i<=j:
-                                        q_2 = q_2+1
-                                if q_2 == 4:
-                                    labels_to_be_deleted.append(label)
-                                non_dominated_label = 1
+#                         if not(labels_bag[u][t]):
+#                             non_dominated_label = 1
+#                         else:
+#                             for label, label_info in labels_bag[u][t].items():
+#                                 prev_cost_label = label_info['opt_crt_val']
+#                                 if curr_cost_label == prev_cost_label:
+#                                     if label_info['pred_label_id'] == label_id:
+#                                         non_dominated_label = 0
+#                                         break
+#                                     non_dominated_label = 1   
+#                                     continue
+#                                 q_1 = 0 
+#                                 for i,j in zip(curr_cost_label,prev_cost_label):
+#                                     if i>=j:
+#                                         q_1 = q_1+1
+#                                 if q_1 == 4:
+#                                     non_dominated_label = 0
+#                                     break
+#                                 q_2 = 0
+#                                 for i,j in zip(curr_cost_label,prev_cost_label):
+#                                     if i<=j:
+#                                         q_2 = q_2+1
+#                                 if q_2 == 4:
+#                                     labels_to_be_deleted.append(label)
+#                                 non_dominated_label = 1
                       
-                        if non_dominated_label and labels_to_be_deleted:
-                            for labelid in labels_to_be_deleted:
-                                del(labels_bag[u][t][labelid])
+#                         if non_dominated_label and labels_to_be_deleted:
+#                             for labelid in labels_to_be_deleted:
+#                                 del(labels_bag[u][t][labelid])
                                       
-                        if non_dominated_label:
-                            insert_in_se_list = True
-                            new_label_id = str(next(c))
-                            labels_bag[u][t].update({new_label_id: {'opt_crt_val' : curr_cost_label, 'pred_node' : v, \
-                                      'pred_time_int': v_arr_time-(v_arr_time%dt), 'pred_label_id' : label_id, 'tt' : travel_time_till_u, \
-                                      'wt' : wait_time_till_u, 'l' : distance_till_u, 'c' : cost_till_u, 'lt' : line_trasnf_num_till_u, \
-                                      'mt' : mode_transf_num_till_u, 'prev_edge_type': e_type, 'prev_dstr_node_graph_type': v_n_gr_type, \
-                                      'prev_mode': prev_mode}}) #, 'path': new_path
+#                         if non_dominated_label:
+#                             insert_in_se_list = True
+#                             new_label_id = str(next(c))
+#                             labels_bag[u][t].update({new_label_id: {'opt_crt_val' : curr_cost_label, 'pred_node' : v, \
+#                                       'pred_time_int': v_arr_time-(v_arr_time%dt), 'pred_label_id' : label_id, 'tt' : travel_time_till_u, \
+#                                       'wt' : wait_time_till_u, 'l' : distance_till_u, 'c' : cost_till_u, 'lt' : line_trasnf_num_till_u, \
+#                                       'mt' : mode_transf_num_till_u, 'prev_edge_type': e_type, 'prev_dstr_node_graph_type': v_n_gr_type, \
+#                                       'prev_mode': prev_mode}}) #, 'path': new_path
                                     
-            if insert_in_se_list:
-                if de_queue[u] == 0:
-                    if se_list:
-                        de_queue[se_list[-1]] = u
-                    de_queue[u] = 999999999
-                    se_list.append(u)
-                elif de_queue[u] == -1:
-                    if se_list:
-                        de_queue[u] = se_list[0]
-                    else:
-                        de_queue[u] = 999999999
-                    se_list.appendleft(u)
-    try:
-        return labels_bag
-    except KeyError:
-        raise nx.NetworkXNoPath("Node %s not reachable from %s" % (target, source))
+#             if insert_in_se_list:
+#                 if de_queue[u] == 0:
+#                     if se_list:
+#                         de_queue[se_list[-1]] = u
+#                     de_queue[u] = 999999999
+#                     se_list.append(u)
+#                 elif de_queue[u] == -1:
+#                     if se_list:
+#                         de_queue[u] = se_list[0]
+#                     else:
+#                         de_queue[u] = 999999999
+#                     se_list.appendleft(u)
+#     try:
+#         return labels_bag
+#     except KeyError:
+#         raise nx.NetworkXNoPath("Node %s not reachable from %s" % (target, source))
         
 
-def ε_pareto_paths_with_attrs_backwards_ellipse(G, source, target, req_time, t_0, t_H, dt, travel_time='travel_time', distance='distance', \
-                                      pt_additive_cost='pt_distance_based_cost', pt_non_additive_cost='pt_zone_to_zone_cost', \
-                                      taxi_fares='taxi_fares', taxi_wait_time='taxi_wait_time', timetable='departure_time', \
-                                      edge_type='edge_type', node_type='node_type', node_graph_type='node_graph_type', \
-                                      fare_scheme='distance_based', init_travel_time = 0, init_wait_time = 0, init_distance = 0, \
-                                      init_cost = 0, init_num_line_trfs = 0, init_num_mode_trfs = 0, last_edge_type=None, \
-                                      last_upstr_node_graph_type=None, last_pt_veh_run_id=None, last_edge_cost=0, \
-                                      pt_trip_dest_zone=None, previous_edge_mode=None):
+# def ε_pareto_paths_with_attrs_backwards_ellipse(G, source, target, req_time, t_0, t_H, dt, travel_time='travel_time', distance='distance', \
+#                                       pt_additive_cost='pt_distance_based_cost', pt_non_additive_cost='pt_zone_to_zone_cost', \
+#                                       taxi_fares='taxi_fares', taxi_wait_time='taxi_wait_time', timetable='departure_time', \
+#                                       edge_type='edge_type', node_type='node_type', node_graph_type='node_graph_type', \
+#                                       fare_scheme='distance_based', init_travel_time = 0, init_wait_time = 0, init_distance = 0, \
+#                                       init_cost = 0, init_num_line_trfs = 0, init_num_mode_trfs = 0, last_edge_type=None, \
+#                                       last_upstr_node_graph_type=None, last_pt_veh_run_id=None, last_edge_cost=0, \
+#                                       pt_trip_dest_zone=None, previous_edge_mode=None):
 
-  if source not in G:
-    raise nx.NodeNotFound("Source {} not in G".format(source))
-  if target not in G:
-    raise nx.NodeNotFound("Target {} not in G".format(target))
-  if source == target:
-    return 0, [target]
+#   if source not in G:
+#     raise nx.NodeNotFound("Source {} not in G".format(source))
+#   if target not in G:
+#     raise nx.NodeNotFound("Target {} not in G".format(target))
+#   if source == target:
+#     return 0, [target]
 
-  travel_time = _get_travel_time_function(G, travel_time)
-  distance = _get_distance_function(G, distance)
-  pt_additive_cost = _get_pt_additive_cost(G, pt_additive_cost)
-  pt_non_additive_cost = _get_pt_non_additive_cost(G, pt_non_additive_cost)
-  timetable = _get_timetable(G, timetable)
-  edge_type = _get_edge_type(G, edge_type)
-  node_type = _get_node_type(G, node_type)
-  node_graph_type = _get_dwnstr_graph_type_data(G, node_graph_type)
-  taxi_fares = _get_taxi_fares(G, taxi_fares)
-  taxi_wait_time = _get_taxi_wait_time(G, taxi_wait_time)
+#   travel_time = _get_travel_time_function(G, travel_time)
+#   distance = _get_distance_function(G, distance)
+#   pt_additive_cost = _get_pt_additive_cost(G, pt_additive_cost)
+#   pt_non_additive_cost = _get_pt_non_additive_cost(G, pt_non_additive_cost)
+#   timetable = _get_timetable(G, timetable)
+#   edge_type = _get_edge_type(G, edge_type)
+#   node_type = _get_node_type(G, node_type)
+#   node_graph_type = _get_dwnstr_graph_type_data(G, node_graph_type)
+#   taxi_fares = _get_taxi_fares(G, taxi_fares)
+#   taxi_wait_time = _get_taxi_wait_time(G, taxi_wait_time)
 
 
-  pareto_bag = ε_mltcrtr_lbl_set_alg_bwds_ellipse(G, source, target, t_0, t_H, dt, travel_time, distance, pt_additive_cost, pt_non_additive_cost, \
-                                        taxi_fares, taxi_wait_time, timetable, edge_type, node_type, node_graph_type, fare_scheme, \
-                                        init_travel_time, init_wait_time, init_distance, init_cost, init_num_line_trfs, init_num_mode_trfs,\
-                                        last_edge_type, last_upstr_node_graph_type, last_pt_veh_run_id, last_edge_cost, pt_trip_dest_zone, \
-                                        previous_edge_mode)
+#   pareto_bag = ε_mltcrtr_lbl_set_alg_bwds_ellipse(G, source, target, t_0, t_H, dt, travel_time, distance, pt_additive_cost, pt_non_additive_cost, \
+#                                         taxi_fares, taxi_wait_time, timetable, edge_type, node_type, node_graph_type, fare_scheme, \
+#                                         init_travel_time, init_wait_time, init_distance, init_cost, init_num_line_trfs, init_num_mode_trfs,\
+#                                         last_edge_type, last_upstr_node_graph_type, last_pt_veh_run_id, last_edge_cost, pt_trip_dest_zone, \
+#                                         previous_edge_mode)
   
-  i = count()
-  paths_with_attrs = {}
-  for label_id, attrs in pareto_bag[source][req_time].items():
+#   i = count()
+#   paths_with_attrs = {}
+#   for label_id, attrs in pareto_bag[source][req_time].items():
       
-      path = []
-      path.append(source)
-      next_node = attrs['pred_node']
-      next_time_intrv = attrs['pred_time_int']
-      next_label_id = attrs['pred_label_id']
+#       path = []
+#       path.append(source)
+#       next_node = attrs['pred_node']
+#       next_time_intrv = attrs['pred_time_int']
+#       next_label_id = attrs['pred_label_id']
       
-      while next_node != None and next_time_intrv != None and next_label_id != None:
-          path.append(next_node)
-          new_node = pareto_bag[next_node][next_time_intrv][next_label_id]['pred_node']
-          new_time_intrv = pareto_bag[next_node][next_time_intrv][next_label_id]['pred_time_int']
-          new_label_id = pareto_bag[next_node][next_time_intrv][next_label_id]['pred_label_id']
-          next_node = new_node
-          next_time_intrv = new_time_intrv
-          next_label_id = new_label_id
+#       while next_node != None and next_time_intrv != None and next_label_id != None:
+#           path.append(next_node)
+#           new_node = pareto_bag[next_node][next_time_intrv][next_label_id]['pred_node']
+#           new_time_intrv = pareto_bag[next_node][next_time_intrv][next_label_id]['pred_time_int']
+#           new_label_id = pareto_bag[next_node][next_time_intrv][next_label_id]['pred_label_id']
+#           next_node = new_node
+#           next_time_intrv = new_time_intrv
+#           next_label_id = new_label_id
       
-      paths_with_attrs.update({str(next(i)): {'fnl_path' : path, 'optimal_crt_values' : attrs['opt_crt_val'], 'travel_time' : attrs['tt'], \
-                              'waiting_time' : attrs['wt'], 'distance' : attrs['l'], 'cost' : attrs['c'], 'line_transfers' : attrs['lt'], \
-                              'mode_transfers' : attrs['mt']}})
+#       paths_with_attrs.update({str(next(i)): {'fnl_path' : path, 'optimal_crt_values' : attrs['opt_crt_val'], 'travel_time' : attrs['tt'], \
+#                               'waiting_time' : attrs['wt'], 'distance' : attrs['l'], 'cost' : attrs['c'], 'line_transfers' : attrs['lt'], \
+#                               'mode_transfers' : attrs['mt']}})
   
-  return paths_with_attrs
+#   return paths_with_attrs
 
 
-# the origin and destination inputs to the algorithm need to always be nodes of the walk network.
-def ε_mltcrtr_lbl_set_alg_bwds_ellipse(G, source, target, t_0, t_H, dt, travel_time_data, distance_data, pt_additive_cost_data, pt_non_additive_cost_data, \
-                                taxi_fares, taxi_wait_time, timetable_data, edge_type_data, node_type_data, node_graph_type_data, fare_scheme, \
-                                init_travel_time, init_wait_time, init_distance, init_cost, init_num_line_trfs, init_num_mode_trfs, \
-                                last_edge_type, last_dstr_node_graph_type, last_pt_veh_run_id, last_edge_cost, pt_trip_dest_zone, \
-                                previous_edge_mode):
-    Gpred = G._pred
+# # the origin and destination inputs to the algorithm need to always be nodes of the walk network.
+# def ε_mltcrtr_lbl_set_alg_bwds_ellipse(G, source, target, t_0, t_H, dt, travel_time_data, distance_data, pt_additive_cost_data, pt_non_additive_cost_data, \
+#                                 taxi_fares, taxi_wait_time, timetable_data, edge_type_data, node_type_data, node_graph_type_data, fare_scheme, \
+#                                 init_travel_time, init_wait_time, init_distance, init_cost, init_num_line_trfs, init_num_mode_trfs, \
+#                                 last_edge_type, last_dstr_node_graph_type, last_pt_veh_run_id, last_edge_cost, pt_trip_dest_zone, \
+#                                 previous_edge_mode):
+#     Gpred = G._pred
     
-    #--- initialization of the data structure that holds all the non-dominated multi-dimnesional labels and its label's required pointers
-    #--- for all nodes and all times within a time_horizon (t_0 <= t <= t_H)
-    c = count()
-#    path = list()
-#    path.append(target)
-    labels_bag = {}  
-    for n in G:
-        labels_bag.update({n: {}})
-        for t in range(t_0, t_H+1, dt):
-            t = t%86400
-            if n == target:
-                label_id = str(next(c))
-                labels_bag[n].update({t: {label_id: {'opt_crt_val':(init_travel_time, init_cost, init_num_line_trfs, init_num_mode_trfs), \
-                   'pred_node': None, 'pred_time_int': None, 'pred_label_id': None, 'tt': init_travel_time, 'wt': init_wait_time, \
-                   'l': init_distance, 'c': init_cost, 'lt': init_num_line_trfs, 'mt': init_num_mode_trfs, 'prev_edge_type': None, \
-                   'prev_dstr_node_graph_type': None , 'prev_mode': None}}}) #'path': path
-            else:
-                labels_bag[n].update({t: {}})
+#     #--- initialization of the data structure that holds all the non-dominated multi-dimnesional labels and its label's required pointers
+#     #--- for all nodes and all times within a time_horizon (t_0 <= t <= t_H)
+#     c = count()
+# #    path = list()
+# #    path.append(target)
+#     labels_bag = {}  
+#     for n in G:
+#         labels_bag.update({n: {}})
+#         for t in range(t_0, t_H+1, dt):
+#             t = t%86400
+#             if n == target:
+#                 label_id = str(next(c))
+#                 labels_bag[n].update({t: {label_id: {'opt_crt_val':(init_travel_time, init_cost, init_num_line_trfs, init_num_mode_trfs), \
+#                    'pred_node': None, 'pred_time_int': None, 'pred_label_id': None, 'tt': init_travel_time, 'wt': init_wait_time, \
+#                    'l': init_distance, 'c': init_cost, 'lt': init_num_line_trfs, 'mt': init_num_mode_trfs, 'prev_edge_type': None, \
+#                    'prev_dstr_node_graph_type': None , 'prev_mode': None}}}) #'path': path
+#             else:
+#                 labels_bag[n].update({t: {}})
 
-    #--- initialization of the SE list used for scanning nodes in each iteration ---#
-    #--- it opertes as a double ended queue (deque) as in Ziliaskopoulos and Mahmassani (1993) ---#
-#    se_list = deque([target])
-    de_queue = {}
-    for n in G:
-        if n == target:
-            de_queue.update({n: 999999999})
-        else:
-            de_queue.update({n: 0})
-#    first = target
-#    last = target
+#     #--- initialization of the SE list used for scanning nodes in each iteration ---#
+#     #--- it opertes as a double ended queue (deque) as in Ziliaskopoulos and Mahmassani (1993) ---#
+# #    se_list = deque([target])
+#     de_queue = {}
+#     for n in G:
+#         if n == target:
+#             de_queue.update({n: 999999999})
+#         else:
+#             de_queue.update({n: 0})
+# #    first = target
+# #    last = target
     
-    se_list = deque([target])
-    c_ellipse = math.sqrt(sum([(a - b) ** 2 for a, b in zip(G.nodes[source]['pos'], G.nodes[target]['pos'])]))
-    a_ellipse = 1.1*c_ellipse
+#     se_list = deque([target])
+#     c_ellipse = math.sqrt(sum([(a - b) ** 2 for a, b in zip(G.nodes[source]['pos'], G.nodes[target]['pos'])]))
+#     a_ellipse = 1.1*c_ellipse
     
     
-    #--- the algorithm is running until the SE List is empty, meaning that there are no more node insertions for any time t 
-#    that can give a non-dominated paths \---#
-    while se_list: 
-#        v = first
-#        first = de_queue[v]
-#        de_queue[v] = -1
-        v = se_list.popleft()
-        de_queue[v] = -1
+#     #--- the algorithm is running until the SE List is empty, meaning that there are no more node insertions for any time t 
+# #    that can give a non-dominated paths \---#
+#     while se_list: 
+# #        v = first
+# #        first = de_queue[v]
+# #        de_queue[v] = -1
+#         v = se_list.popleft()
+#         de_queue[v] = -1
         
-        v_n_gr_type = G.nodes[v]['node_graph_type']
+#         v_n_gr_type = G.nodes[v]['node_graph_type']
         
-        for u, e in Gpred[v].items():
-            insert_in_se_list = False
-            # now for each t we first need to identify the total travel time that is required to travel from u to v
-            # this is the case because we need to know which label (path) or set of labels (paths) from node v will be extended
-            # the labels that will be extended will then be the one in labels_bag[v][t+tt_uv(t)]
+#         for u, e in Gpred[v].items():
+#             insert_in_se_list = False
+#             # now for each t we first need to identify the total travel time that is required to travel from u to v
+#             # this is the case because we need to know which label (path) or set of labels (paths) from node v will be extended
+#             # the labels that will be extended will then be the one in labels_bag[v][t+tt_uv(t)]
             
-            if 'pos' in G.nodes[u]:
-                eucl_dist_source_to_u = math.sqrt(sum([(a - b) ** 2 for a, b in zip(G.nodes[source]['pos'], G.nodes[u]['pos'])]))
-                eucl_dist_u_to_target = math.sqrt(sum([(a - b) ** 2 for a, b in zip(G.nodes[u]['pos'], G.nodes[target]['pos'])]))
+#             if 'pos' in G.nodes[u]:
+#                 eucl_dist_source_to_u = math.sqrt(sum([(a - b) ** 2 for a, b in zip(G.nodes[source]['pos'], G.nodes[u]['pos'])]))
+#                 eucl_dist_u_to_target = math.sqrt(sum([(a - b) ** 2 for a, b in zip(G.nodes[u]['pos'], G.nodes[target]['pos'])]))
                 
-#                if u == 'w82':
-#                    print('stop')
+# #                if u == 'w82':
+# #                    print('stop')
             
-                if eucl_dist_source_to_u + eucl_dist_u_to_target > 2*a_ellipse:
-                    continue
+#                 if eucl_dist_source_to_u + eucl_dist_u_to_target > 2*a_ellipse:
+#                     continue
                 
             
-            for t in range(t_0, t_H+1, dt):
+#             for t in range(t_0, t_H+1, dt):
                 
-                t = t%86400
+#                 t = t%86400
                 
-                e_type = e['edge_type']#_data(u, v, e)
+#                 e_type = e['edge_type']#_data(u, v, e)
                 
-#                here we diffferentiate between the cases of public transport and road modes, since time-dependency
-#                is handled differently in each case; specifically waiting is allowed in PT but not in road services
-#                if e_type != 'pt_route_edge':
-                if e_type == 'car_sharing_station_egress_edge' or e_type == 'car_sharing_station_access_edge':
-                    e_tt = 0
-                    e_wait_time = e['wait_time']
-                    e_cost=0
-                    e_distance = 0
-                    e_num_lin_trf = 0
-                    e_num_mode_trf = 0
+# #                here we diffferentiate between the cases of public transport and road modes, since time-dependency
+# #                is handled differently in each case; specifically waiting is allowed in PT but not in road services
+# #                if e_type != 'pt_route_edge':
+#                 if e_type == 'car_sharing_station_egress_edge' or e_type == 'car_sharing_station_access_edge':
+#                     e_tt = 0
+#                     e_wait_time = e['wait_time']
+#                     e_cost=0
+#                     e_distance = 0
+#                     e_num_lin_trf = 0
+#                     e_num_mode_trf = 0
                     
-                if e_type == 'car_sharing_orig_dummy_edge':
-                    e_wait_time = 0
-                    e_tt = 0
-                    e_distance = 0
-                    e_cost = 0
-                    e_num_mode_trf = 0
-                    e_num_lin_trf = 0
+#                 if e_type == 'car_sharing_orig_dummy_edge':
+#                     e_wait_time = 0
+#                     e_tt = 0
+#                     e_distance = 0
+#                     e_cost = 0
+#                     e_num_mode_trf = 0
+#                     e_num_lin_trf = 0
                     
-                if e_type == 'car_sharing_dest_dummy_edge' or e_type == 'car_sharing_dual_edge':
-                    e_wait_time = 0
-#                    tt_d = e['travel_time']#_data(u, v, e)
-#                    if tt_d is None:
-#                      print('Missing in_veh_tt value in edge {}'.format((u, v))) 
-#                      continue
-                    e_tt = e['travel_time'][t]
-#                    e_tt = get_time_dep_taxi_travel_time(t, tt_d) # used this function cause it works the way it should, need to however have some generic function to extract data from different type of dictionaries without being mode-specific
-                    e_distance = e['distance']#_data(u, v, e)
-                    if e_distance is None:
-                      print('Missing distance value in edge {}'.format((u, v)))
-                      continue
-#                    e_cost_data = e['car_sharing_fares']
-                    e_cost = e['car_sharing_fares'][t]
-#                    e_cost = get_time_dep_taxi_cost(t, e_cost_data) # # used this function cause it works the way it should, need to however have some generic function to extract data from different type of dictionaries without being mode-specific
-                    e_num_mode_trf = 0
-                    e_num_lin_trf = 0
+#                 if e_type == 'car_sharing_dest_dummy_edge' or e_type == 'car_sharing_dual_edge':
+#                     e_wait_time = 0
+# #                    tt_d = e['travel_time']#_data(u, v, e)
+# #                    if tt_d is None:
+# #                      print('Missing in_veh_tt value in edge {}'.format((u, v))) 
+# #                      continue
+#                     e_tt = e['travel_time'][t]
+# #                    e_tt = get_time_dep_taxi_travel_time(t, tt_d) # used this function cause it works the way it should, need to however have some generic function to extract data from different type of dictionaries without being mode-specific
+#                     e_distance = e['distance']#_data(u, v, e)
+#                     if e_distance is None:
+#                       print('Missing distance value in edge {}'.format((u, v)))
+#                       continue
+# #                    e_cost_data = e['car_sharing_fares']
+#                     e_cost = e['car_sharing_fares'][t]
+# #                    e_cost = get_time_dep_taxi_cost(t, e_cost_data) # # used this function cause it works the way it should, need to however have some generic function to extract data from different type of dictionaries without being mode-specific
+#                     e_num_mode_trf = 0
+#                     e_num_lin_trf = 0
                     
-                if e_type == 'taxi_edge' or e_type == 'on_demand_single_taxi_edge' or e_type == 'on_demand_shared_taxi_edge':
-                    e_wait_time = e['taxi_wait_time'][t]
-                    e_tt = e['travel_time'][(t+e_wait_time)-((t+e_wait_time)%dt)]
-#                    e_wait_time_data = e['taxi_wait_time']#(u, v, e)
-#                    e_wait_time = get_time_dep_taxi_wait_time(t, e_wait_time_data)
-#                    tt_d = e['travel_time']#_data(u, v, e)
-#                    if tt_d is None:
-#                      print('Missing in_veh_tt value in edge {}'.format((u, v)))
-#                      continue
-#                    e_tt = get_time_dep_taxi_travel_time(t+e_wait_time, tt_d)
-                    e_distance = e['distance']#_data(u, v, e)        # funtion that extracts the edge's distance attribute
-                    if e_distance is None:
-                      print('Missing distance value in edge {}'.format((u, v)))
-                      continue
-                    e_num_mode_trf = 0
-                    e_num_lin_trf = 0
-                    e_cost = e['taxi_fares'][t]
-#                    e_cost_data = e['taxi_fares']#(u, v, e)
-#                    e_cost = get_time_dep_taxi_cost(t, e_cost_data)
+#                 if e_type == 'taxi_edge' or e_type == 'on_demand_single_taxi_edge' or e_type == 'on_demand_shared_taxi_edge':
+#                     e_wait_time = e['taxi_wait_time'][t]
+#                     e_tt = e['travel_time'][(t+e_wait_time)-((t+e_wait_time)%dt)]
+# #                    e_wait_time_data = e['taxi_wait_time']#(u, v, e)
+# #                    e_wait_time = get_time_dep_taxi_wait_time(t, e_wait_time_data)
+# #                    tt_d = e['travel_time']#_data(u, v, e)
+# #                    if tt_d is None:
+# #                      print('Missing in_veh_tt value in edge {}'.format((u, v)))
+# #                      continue
+# #                    e_tt = get_time_dep_taxi_travel_time(t+e_wait_time, tt_d)
+#                     e_distance = e['distance']#_data(u, v, e)        # funtion that extracts the edge's distance attribute
+#                     if e_distance is None:
+#                       print('Missing distance value in edge {}'.format((u, v)))
+#                       continue
+#                     e_num_mode_trf = 0
+#                     e_num_lin_trf = 0
+#                     e_cost = e['taxi_fares'][t]
+# #                    e_cost_data = e['taxi_fares']#(u, v, e)
+# #                    e_cost = get_time_dep_taxi_cost(t, e_cost_data)
                 
-                if e_type == 'walk_edge':
-                    e_tt = e['travel_time']#_data(u, v, e)  # funtion that extracts the edge's in-vehicle travel time attribute
-                    if e_tt is None:
-                      print('Missing in_veh_tt value in edge {}'.format((u, v)))
-                      continue
-                    e_wait_time = 0
-                    e_distance = e['distance']#_data(u, v, e)        # funtion that extracts the edge's distance attribute
-                    if e_distance is None:
-                      print('Missing distance value in edge {}'.format((u, v)))
-                      continue
-                    e_cost = 0
-                    e_num_mode_trf = 0
-                    e_num_lin_trf = 0
+#                 if e_type == 'walk_edge':
+#                     e_tt = e['travel_time']#_data(u, v, e)  # funtion that extracts the edge's in-vehicle travel time attribute
+#                     if e_tt is None:
+#                       print('Missing in_veh_tt value in edge {}'.format((u, v)))
+#                       continue
+#                     e_wait_time = 0
+#                     e_distance = e['distance']#_data(u, v, e)        # funtion that extracts the edge's distance attribute
+#                     if e_distance is None:
+#                       print('Missing distance value in edge {}'.format((u, v)))
+#                       continue
+#                     e_cost = 0
+#                     e_num_mode_trf = 0
+#                     e_num_lin_trf = 0
                     
-                if e_type == 'access_edge':
-                    e_tt = e['travel_time']#_data(u, v, e)  # funtion that extracts the edge's in-vehicle travel time attribute
-                    if e_tt is None:
-                      print('Missing in_veh_tt value in edge {}'.format((u, v)))
-                      continue
-                    e_wait_time = 0
-                    e_distance = e['distance']#_data(u, v, e)        # funtion that extracts the edge's distance attribute
-                    if e_distance is None:
-                      print('Missing distance value in edge {}'.format((u, v)))
-                      continue
-                    e_cost = 0
-                    e_num_mode_trf = 0
-                    e_num_lin_trf = 0
-                    u_n_type = e['up_node_type']
-#                        v_n_type = e['dstr_node_type']
-                    if u_n_type == 'walk_graph_node':
-                        e_num_mode_trf = 1
+#                 if e_type == 'access_edge':
+#                     e_tt = e['travel_time']#_data(u, v, e)  # funtion that extracts the edge's in-vehicle travel time attribute
+#                     if e_tt is None:
+#                       print('Missing in_veh_tt value in edge {}'.format((u, v)))
+#                       continue
+#                     e_wait_time = 0
+#                     e_distance = e['distance']#_data(u, v, e)        # funtion that extracts the edge's distance attribute
+#                     if e_distance is None:
+#                       print('Missing distance value in edge {}'.format((u, v)))
+#                       continue
+#                     e_cost = 0
+#                     e_num_mode_trf = 0
+#                     e_num_lin_trf = 0
+#                     u_n_type = e['up_node_type']
+# #                        v_n_type = e['dstr_node_type']
+#                     if u_n_type == 'walk_graph_node':
+#                         e_num_mode_trf = 1
                     
-                if e_type == 'pt_transfer_edge':
-                    e_tt = e['travel_time']#_data(u, v, e)  # funtion that extracts the edge's in-vehicle travel time attribute
-                    if e_tt is None:
-                      print('Missing in_veh_tt value in edge {}'.format((u, v)))
-                      continue
-                    e_wait_time = 0
-                    e_distance = e['distance']#_data(u, v, e)        # funtion that extracts the edge's distance attribute
-                    if e_distance is None:
-                      print('Missing distance value in edge {}'.format((u, v)))
-                      continue
-                    e_cost = 0
-                    e_num_mode_trf = 0
-                    e_num_lin_trf = 0
-                    u_n_type = e['up_node_type']
-                    v_n_type = e['dstr_node_type']
-                    if (u_n_type == 'stop_node' or u_n_type=='station_node') and v_n_type == 'route_node':
-                        e_num_lin_trf =1
-                if e_type == 'pt_route_edge':
-#                    dep_timetable = timetable_data(u, v, e)  # fuction that extracts the stop's/station's timetable dict
-#                    if dep_timetable is None:
-#                        print('Missing timetable value in edge'.format((u, v)))
-#                        continue
-#                    e_wait_time, pt_vehicle_run_id = calc_plat_wait_time_and_train_id(t, dep_timetable)  # function that extracts waiting time for next pt vehicle and the vehicle_id; the next departing vehicle is being found using a binary search algorithm that operates on a sorted list of the deparure times for this edge (departure times of the downstream stop/station)
-                    e_wait_time = e['wait_time'][t]
-#                    pt_vehicle_run_id = e['wait_time'][t]['veh_id']
-                    if e_wait_time is None:
-                        print('Missing wait_time value in edge'.format((u, v)))
-                        continue
-                    e_tt = e['travel_time'][t]
-#                    tt_d = e['travel_time']#_data(u, v, e)  # fuction that extracts the travel time dict
-#                    if tt_d is None:
-#                        print('Missing in_veh_tt value in edge'.format((u, v)))
-#                        continue
-#                    e_tt = tt_d[pt_vehicle_run_id] #calc_pt_route_edge_in_veh_tt_for_run_id(tt_d, pt_vehicle_run_id)  # fuction that travel time for corresponding pt vehicle run_id
-                    e_distance = e['distance']#_data(u, v, e)  # fuction that extracts the travel time dict
-                    if e_distance is None:
-                        print('Missing distance value in edge'.format((u, v)))
-                        continue
-                    # edge costs for pt depend on the pt fare scheme; if it is additive (distance_based) or zone_to_zone !! consider adding a price cap !!
-#                    if fare_scheme == 'distance_based':
-#                    dist_bas_cost = e['pt_distance_based_cost']#(u, v, e)  # fuction that extracts the time-dependent distance-based cost dict
-#                    if dist_bas_cost is None:
-#                        print('Missing dist_bas_cost value in edge'.format((u, v)))
-#                        continue
-#                    e_cost = calc_time_dep_distance_based_cost(dist_bas_cost, t)  # fuction that extracts the cost based on time-dependent distance-based cost dict and the current time (finds in which time-zone we currently are)
-                    e_cost = e['pt_distance_based_cost'][t]
-                    e_num_lin_trf = 0
-                    e_num_mode_trf = 0
+#                 if e_type == 'pt_transfer_edge':
+#                     e_tt = e['travel_time']#_data(u, v, e)  # funtion that extracts the edge's in-vehicle travel time attribute
+#                     if e_tt is None:
+#                       print('Missing in_veh_tt value in edge {}'.format((u, v)))
+#                       continue
+#                     e_wait_time = 0
+#                     e_distance = e['distance']#_data(u, v, e)        # funtion that extracts the edge's distance attribute
+#                     if e_distance is None:
+#                       print('Missing distance value in edge {}'.format((u, v)))
+#                       continue
+#                     e_cost = 0
+#                     e_num_mode_trf = 0
+#                     e_num_lin_trf = 0
+#                     u_n_type = e['up_node_type']
+#                     v_n_type = e['dstr_node_type']
+#                     if (u_n_type == 'stop_node' or u_n_type=='station_node') and v_n_type == 'route_node':
+#                         e_num_lin_trf =1
+#                 if e_type == 'pt_route_edge':
+# #                    dep_timetable = timetable_data(u, v, e)  # fuction that extracts the stop's/station's timetable dict
+# #                    if dep_timetable is None:
+# #                        print('Missing timetable value in edge'.format((u, v)))
+# #                        continue
+# #                    e_wait_time, pt_vehicle_run_id = calc_plat_wait_time_and_train_id(t, dep_timetable)  # function that extracts waiting time for next pt vehicle and the vehicle_id; the next departing vehicle is being found using a binary search algorithm that operates on a sorted list of the deparure times for this edge (departure times of the downstream stop/station)
+#                     e_wait_time = e['wait_time'][t]
+# #                    pt_vehicle_run_id = e['wait_time'][t]['veh_id']
+#                     if e_wait_time is None:
+#                         print('Missing wait_time value in edge'.format((u, v)))
+#                         continue
+#                     e_tt = e['travel_time'][t]
+# #                    tt_d = e['travel_time']#_data(u, v, e)  # fuction that extracts the travel time dict
+# #                    if tt_d is None:
+# #                        print('Missing in_veh_tt value in edge'.format((u, v)))
+# #                        continue
+# #                    e_tt = tt_d[pt_vehicle_run_id] #calc_pt_route_edge_in_veh_tt_for_run_id(tt_d, pt_vehicle_run_id)  # fuction that travel time for corresponding pt vehicle run_id
+#                     e_distance = e['distance']#_data(u, v, e)  # fuction that extracts the travel time dict
+#                     if e_distance is None:
+#                         print('Missing distance value in edge'.format((u, v)))
+#                         continue
+#                     # edge costs for pt depend on the pt fare scheme; if it is additive (distance_based) or zone_to_zone !! consider adding a price cap !!
+# #                    if fare_scheme == 'distance_based':
+# #                    dist_bas_cost = e['pt_distance_based_cost']#(u, v, e)  # fuction that extracts the time-dependent distance-based cost dict
+# #                    if dist_bas_cost is None:
+# #                        print('Missing dist_bas_cost value in edge'.format((u, v)))
+# #                        continue
+# #                    e_cost = calc_time_dep_distance_based_cost(dist_bas_cost, t)  # fuction that extracts the cost based on time-dependent distance-based cost dict and the current time (finds in which time-zone we currently are)
+#                     e_cost = e['pt_distance_based_cost'][t]
+#                     e_num_lin_trf = 0
+#                     e_num_mode_trf = 0
                     
-                v_arr_time = int(t + e_tt + e_wait_time)
-                mod_v_arr_time = v_arr_time-((v_arr_time-t_0)%dt)
+#                 v_arr_time = int(t + e_tt + e_wait_time)
+#                 mod_v_arr_time = v_arr_time-((v_arr_time-t_0)%dt)
                     
-                if v_arr_time <= t_H:                     
-                    for label_id, info in labels_bag[v][mod_v_arr_time].items():
-                        if u == info['pred_node']:
-                            continue
-#                            if i in info['path']:
-#                                continue
+#                 if v_arr_time <= t_H:                     
+#                     for label_id, info in labels_bag[v][mod_v_arr_time].items():
+#                         if u == info['pred_node']:
+#                             continue
+# #                            if i in info['path']:
+# #                                continue
                             
-#                            zone_at_end_of_pt_trip = info['zone_at_end_of_pt_trip']
-#                            previous_edge_cost = info['previous_edge_cost']
-#                            run_id_till_node_v = info['run_id_till_node_v']
-                        prev_mode = info['prev_mode']
-                        pr_ed_tp = info['prev_edge_type']
-                        pre_dstr_n_gr_tp = info['prev_dstr_node_graph_type']
-#                            pr_md = info['prev_mode']
+# #                            zone_at_end_of_pt_trip = info['zone_at_end_of_pt_trip']
+# #                            previous_edge_cost = info['previous_edge_cost']
+# #                            run_id_till_node_v = info['run_id_till_node_v']
+#                         prev_mode = info['prev_mode']
+#                         pr_ed_tp = info['prev_edge_type']
+#                         pre_dstr_n_gr_tp = info['prev_dstr_node_graph_type']
+# #                            pr_md = info['prev_mode']
                         
-                        # restraint walking before taxi modes
-                        if e_type == 'walk_edge' and pr_ed_tp == 'access_edge' and \
-                        (pre_dstr_n_gr_tp == 'taxi_graph' or pre_dstr_n_gr_tp == 'on_demand_single_taxi_graph' or pre_dstr_n_gr_tp == 'on_demand_shared_taxi_graph'):
-                            continue
+#                         # restraint walking before taxi modes
+#                         if e_type == 'walk_edge' and pr_ed_tp == 'access_edge' and \
+#                         (pre_dstr_n_gr_tp == 'taxi_graph' or pre_dstr_n_gr_tp == 'on_demand_single_taxi_graph' or pre_dstr_n_gr_tp == 'on_demand_shared_taxi_graph'):
+#                             continue
                         
-                        if e_type == 'access_edge':
-                            u_n_type = e['up_node_type']#G.nodes[v]['node_type']
-                            u_n_gr_type = e['up_node_graph_type']#G.nodes[u]['node_graph_type']#node_graph_type_data(u, G.nodes[u])
-                            v_n_type = e['dstr_node_type']#G.nodes[u]['node_type']#node_type_data(u, G.nodes[u])
-#                                penalty = 0
+#                         if e_type == 'access_edge':
+#                             u_n_type = e['up_node_type']#G.nodes[v]['node_type']
+#                             u_n_gr_type = e['up_node_graph_type']#G.nodes[u]['node_graph_type']#node_graph_type_data(u, G.nodes[u])
+#                             v_n_type = e['dstr_node_type']#G.nodes[u]['node_type']#node_type_data(u, G.nodes[u])
+# #                                penalty = 0
                             
-                            if u_n_gr_type == 'Walk':
-                              prev_mode = v_n_gr_type   
-#                               from mode and line transfers we store the previous path mode (not considering walk as a mode) and if a path with a new mode starts then we have a mode transfer, if with the same mode then a line transfer
-#                                if v_n_gr_type == 'Walk':
-#                                  if prev_mode != None and u_n_gr_type != prev_mode:
-#                                    e_num_mode_trf = 1
-#                                    e_num_lin_trf = 0
-#                                  elif (prev_mode =='Train' or prev_mode =='Bus') and u_n_gr_type == prev_mode:
-#                                    e_num_mode_trf = 0
-#                                    e_num_lin_trf = 1
-                #             when we are at an access edge that connects graphs we need to penalize unreasonable connections and path loops; e.g., from walk node to another mode-specific node and back to walk node, from a taxi/carsharing trip to a walk trip and back to taxi/carsharing trip
-                            if (prev_mode == 'taxi_graph' or prev_mode == 'on_demand_single_taxi_graph' or \
-                                prev_mode == 'on_demand_shared_taxi_graph' or prev_mode == 'car_sharing_graph') and \
-                                (u_n_gr_type == 'taxi_graph' or u_n_gr_type == 'on_demand_single_taxi_graph' or \
-                                 u_n_gr_type == 'on_demand_shared_taxi_graph' or u_n_gr_type == 'car_sharing_graph'):
-                                    continue#penalty = 1000000000000000
-                            if pr_ed_tp == 'access_edge':
-                              if (pre_dstr_n_gr_tp == 'Walk' and u_n_gr_type == 'Walk') or (pre_dstr_n_gr_tp == 'Bus' and \
-                                 u_n_gr_type == 'Bus') or (pre_dstr_n_gr_tp == 'Train' and u_n_gr_type == 'Tain'):
-                                  continue#penalty = 1000000000000000
-                            if v_n_type == 'car_sharing_station_node':
-                              if G.nodes[v]['stock_level'] == 0:
-                                  continue#penalty = 1000000000000000
-                            if u_n_type == 'car_sharing_station_node':
-                              if G.nodes[u]['stock_level'] == G.nodes[u]['capacity']:
-                                  continue#penalty = 1000000000000000
-                            # restraint pick up
-                            if v_n_gr_type == 'taxi_graph' or v_n_gr_type == 'on_demand_single_taxi_graph' or v_n_gr_type == 'on_demand_shared_taxi_graph':
-                                if e['up_node_zone'] == G.nodes[source]['zone'] and u != source:
-                                  continue#penalty = 1000000000000000
-#                                if v_n_gr_type == 'Walk' and (u_n_gr_type == 'taxi_graph' or u_n_gr_type == 'on_demand_single_taxi_graph' \
-#                                                              or u_n_gr_type == 'on_demand_shared_taxi_graph'):
-#                                  if e['dstr_node_zone'] == G.nodes[target]['zone'] and v != target:
-#                                    continue#penalty = 1000000000000000
-                            # restraint drop off
-                            if (u_n_gr_type == 'taxi_graph' or u_n_gr_type == 'on_demand_single_taxi_graph' or u_n_gr_type == 'on_demand_shared_taxi_graph') \
-                            and e['dstr_node_zone'] == G.nodes[target]['zone'] and v != target:
-                                continue
-                            # restraint walking after taxi modes
-                            if (u_n_gr_type == 'taxi_graph' or u_n_gr_type == 'on_demand_single_taxi_graph' or u_n_gr_type == 'on_demand_shared_taxi_graph') \
-                            and pr_ed_tp == 'walk_edge':
-                                continue
-#                                if (v_n_gr_type == 'taxi_graph' or v_n_gr_type == 'on_demand_single_taxi_graph' \
-#                                    or v_n_gr_type == 'on_demand_shared_taxi_graph') and u != source:
-#                                    continue
-#                                if u_n_gr_type == 'taxi_graph' or u_n_gr_type == 'on_demand_single_taxi_graph' or u_n_gr_type == 'on_demand_shared_taxi_graph' \
-#                                     or u_n_gr_type == 'car_sharing_graph'pr_ed_tp == 'walk_edge' and G.nodes[info['pred_node']]['is_mode_dupl']:
-#                                    continue
-#                            if e_type == 'pt_transfer_edge':
-#                                v_n_gr_type = e['dstr_node_graph_type']#G.nodes[v]['node_graph_type']#node_graph_type_data(v, G.nodes[v])
-#                    #            v_n_type = e['up_node_type']#G.nodes[v]['node_type']
-#                                u_n_gr_type = e['up_node_graph_type']#G.nodes[u]['node_graph_type']#node_graph_type_data(u, G.nodes[u])
-#                    #            u_n_type = e['dstr_node_type']#G.nodes[u]['node_type']#node_type_data(u, G.nodes[u])
-#                                # for zone_to_zone pt fare scheme we store the zone of the stop/station in which a pt trip started (origin); this zone will be used for the calculcation of the edge cost based on which pt stop the algorithm checks and hence the final stop of the pt trip
-#                                if fare_scheme == 'zone_to_zone':
-#                                  if pr_ed_tp == 'access_edge':
-#                                    if prev_mode != 'Bus' and prev_mode != 'Train':
-#                                      zone_at_end_of_pt_trip = e['dstr_node_zone']#G.nodes[v]['zone']
-#                                      previous_edge_cost = 0
-                            # to compute line transfers in pt we check the previous edge type; if the previous edge type is also a tranfer edge then we have a line transfer; this constraint allows us to avoid adding a line transfer when the algorithm traverses a transfer edge at the start of a pt trip
-#                                if pr_ed_tp == 'pt_transfer_edge':
-#                                  e_num_lin_trf = 1
-#                                else:
-#                                  e_num_lin_trf = 0
+#                             if u_n_gr_type == 'Walk':
+#                               prev_mode = v_n_gr_type   
+# #                               from mode and line transfers we store the previous path mode (not considering walk as a mode) and if a path with a new mode starts then we have a mode transfer, if with the same mode then a line transfer
+# #                                if v_n_gr_type == 'Walk':
+# #                                  if prev_mode != None and u_n_gr_type != prev_mode:
+# #                                    e_num_mode_trf = 1
+# #                                    e_num_lin_trf = 0
+# #                                  elif (prev_mode =='Train' or prev_mode =='Bus') and u_n_gr_type == prev_mode:
+# #                                    e_num_mode_trf = 0
+# #                                    e_num_lin_trf = 1
+#                 #             when we are at an access edge that connects graphs we need to penalize unreasonable connections and path loops; e.g., from walk node to another mode-specific node and back to walk node, from a taxi/carsharing trip to a walk trip and back to taxi/carsharing trip
+#                             if (prev_mode == 'taxi_graph' or prev_mode == 'on_demand_single_taxi_graph' or \
+#                                 prev_mode == 'on_demand_shared_taxi_graph' or prev_mode == 'car_sharing_graph') and \
+#                                 (u_n_gr_type == 'taxi_graph' or u_n_gr_type == 'on_demand_single_taxi_graph' or \
+#                                  u_n_gr_type == 'on_demand_shared_taxi_graph' or u_n_gr_type == 'car_sharing_graph'):
+#                                     continue#penalty = 1000000000000000
+#                             if pr_ed_tp == 'access_edge':
+#                               if (pre_dstr_n_gr_tp == 'Walk' and u_n_gr_type == 'Walk') or (pre_dstr_n_gr_tp == 'Bus' and \
+#                                  u_n_gr_type == 'Bus') or (pre_dstr_n_gr_tp == 'Train' and u_n_gr_type == 'Tain'):
+#                                   continue#penalty = 1000000000000000
+#                             if v_n_type == 'car_sharing_station_node':
+#                               if G.nodes[v]['stock_level'] == 0:
+#                                   continue#penalty = 1000000000000000
+#                             if u_n_type == 'car_sharing_station_node':
+#                               if G.nodes[u]['stock_level'] == G.nodes[u]['capacity']:
+#                                   continue#penalty = 1000000000000000
+#                             # restraint pick up
+#                             if v_n_gr_type == 'taxi_graph' or v_n_gr_type == 'on_demand_single_taxi_graph' or v_n_gr_type == 'on_demand_shared_taxi_graph':
+#                                 if e['up_node_zone'] == G.nodes[source]['zone'] and u != source:
+#                                   continue#penalty = 1000000000000000
+# #                                if v_n_gr_type == 'Walk' and (u_n_gr_type == 'taxi_graph' or u_n_gr_type == 'on_demand_single_taxi_graph' \
+# #                                                              or u_n_gr_type == 'on_demand_shared_taxi_graph'):
+# #                                  if e['dstr_node_zone'] == G.nodes[target]['zone'] and v != target:
+# #                                    continue#penalty = 1000000000000000
+#                             # restraint drop off
+#                             if (u_n_gr_type == 'taxi_graph' or u_n_gr_type == 'on_demand_single_taxi_graph' or u_n_gr_type == 'on_demand_shared_taxi_graph') \
+#                             and e['dstr_node_zone'] == G.nodes[target]['zone'] and v != target:
+#                                 continue
+#                             # restraint walking after taxi modes
+#                             if (u_n_gr_type == 'taxi_graph' or u_n_gr_type == 'on_demand_single_taxi_graph' or u_n_gr_type == 'on_demand_shared_taxi_graph') \
+#                             and pr_ed_tp == 'walk_edge':
+#                                 continue
+# #                                if (v_n_gr_type == 'taxi_graph' or v_n_gr_type == 'on_demand_single_taxi_graph' \
+# #                                    or v_n_gr_type == 'on_demand_shared_taxi_graph') and u != source:
+# #                                    continue
+# #                                if u_n_gr_type == 'taxi_graph' or u_n_gr_type == 'on_demand_single_taxi_graph' or u_n_gr_type == 'on_demand_shared_taxi_graph' \
+# #                                     or u_n_gr_type == 'car_sharing_graph'pr_ed_tp == 'walk_edge' and G.nodes[info['pred_node']]['is_mode_dupl']:
+# #                                    continue
+# #                            if e_type == 'pt_transfer_edge':
+# #                                v_n_gr_type = e['dstr_node_graph_type']#G.nodes[v]['node_graph_type']#node_graph_type_data(v, G.nodes[v])
+# #                    #            v_n_type = e['up_node_type']#G.nodes[v]['node_type']
+# #                                u_n_gr_type = e['up_node_graph_type']#G.nodes[u]['node_graph_type']#node_graph_type_data(u, G.nodes[u])
+# #                    #            u_n_type = e['dstr_node_type']#G.nodes[u]['node_type']#node_type_data(u, G.nodes[u])
+# #                                # for zone_to_zone pt fare scheme we store the zone of the stop/station in which a pt trip started (origin); this zone will be used for the calculcation of the edge cost based on which pt stop the algorithm checks and hence the final stop of the pt trip
+# #                                if fare_scheme == 'zone_to_zone':
+# #                                  if pr_ed_tp == 'access_edge':
+# #                                    if prev_mode != 'Bus' and prev_mode != 'Train':
+# #                                      zone_at_end_of_pt_trip = e['dstr_node_zone']#G.nodes[v]['zone']
+# #                                      previous_edge_cost = 0
+#                             # to compute line transfers in pt we check the previous edge type; if the previous edge type is also a tranfer edge then we have a line transfer; this constraint allows us to avoid adding a line transfer when the algorithm traverses a transfer edge at the start of a pt trip
+# #                                if pr_ed_tp == 'pt_transfer_edge':
+# #                                  e_num_lin_trf = 1
+# #                                else:
+# #                                  e_num_lin_trf = 0
                           
-                        travel_time_till_u = int(e_tt + info['tt'])
-                        wait_time_till_u = int(e_wait_time + info['wt'])
-                        distance_till_u = int(e_distance + info['l'])
-                        cost_till_u = int(e_cost + info['c'])
-                        line_trasnf_num_till_u = int(e_num_lin_trf + info['lt'])
-                        mode_transf_num_till_u = int(e_num_mode_trf + info['mt'])
+#                         travel_time_till_u = int(e_tt + info['tt'])
+#                         wait_time_till_u = int(e_wait_time + info['wt'])
+#                         distance_till_u = int(e_distance + info['l'])
+#                         cost_till_u = int(e_cost + info['c'])
+#                         line_trasnf_num_till_u = int(e_num_lin_trf + info['lt'])
+#                         mode_transf_num_till_u = int(e_num_mode_trf + info['mt'])
                         
-                        curr_cost_label = [travel_time_till_u + wait_time_till_u, cost_till_u, line_trasnf_num_till_u, \
-                                           mode_transf_num_till_u]
-#                        if u == 'SMS_Poolshar5i' and t == 29070:
-#                            for label_id in labels_bag[u][t]:
-#                                if label_id == '76868' and info['pred_label_id'] == '48743':
-#                                    print(labels_bag[u][t][label_id])
-#                        if u == 'SMS_Poolshar8i' and t == 28920:
-#                            for label_id in labels_bag[u][t]:
-#                                if label_id == '76899' and info['pred_label_id'] == '48743':
-#                                    print(labels_bag[u][t][label_id])
+#                         curr_cost_label = [travel_time_till_u + wait_time_till_u, cost_till_u, line_trasnf_num_till_u, \
+#                                            mode_transf_num_till_u]
+# #                        if u == 'SMS_Poolshar5i' and t == 29070:
+# #                            for label_id in labels_bag[u][t]:
+# #                                if label_id == '76868' and info['pred_label_id'] == '48743':
+# #                                    print(labels_bag[u][t][label_id])
+# #                        if u == 'SMS_Poolshar8i' and t == 28920:
+# #                            for label_id in labels_bag[u][t]:
+# #                                if label_id == '76899' and info['pred_label_id'] == '48743':
+# #                                    print(labels_bag[u][t][label_id])
                         
-#                        76868 SMS_Poolshar5i 29070
-#                        76899 SMS_Poolshar8i 28920
+# #                        76868 SMS_Poolshar5i 29070
+# #                        76899 SMS_Poolshar8i 28920
 
-                        def ε_dominance_check(curr_label=[], optimal_label_set={}, label_id=0):
-                            f = False
-                            ε_curr_label = [i*1.2 for i in curr_label]
-                            labels_to_be_deleted = deque([])
-                            if not(optimal_label_set):
-                                non_dominated_label = 1
-                            else:
-                                for label, label_info in optimal_label_set.items():
-                                    if label_id == '209490' and u == 'w33' and t == 29430: #and label_info['pred_label_id'] == '86635'
-                                        print('')
-                                        print(label_info)
-                                    prev_cost_label = label_info['opt_crt_val']
-                                    q_1 = 0
-                                    q_2 = 0
-                                    for i,j in zip(ε_curr_label,prev_cost_label):
-                                        if j <= i:
-                                            q_1 += 1
-                                        if j == i:
-                                            q_2 += 1
-                                    if q_1 == 4 and q_2 != 4:
-                                        non_dominated_label = 0
-                                        return (non_dominated_label,f)
-                                for label, label_info in optimal_label_set.items():
-                                    prev_cost_label = label_info['opt_crt_val']
-                                    ε_prev_cost_label = [1.2*i for i in prev_cost_label]
-                                    q_1 = 0
-                                    q_2 = 0
-                                    for i,j in zip(curr_label,ε_prev_cost_label):
-                                        if i <= j:
-                                            q_1 += 1
-                                        if i == j:
-                                            q_2 += 1
-                                    if q_1 == 4 and q_2 != 4:
-                                        labels_to_be_deleted.append(label)
-                                non_dominated_label = 1
+#                         def ε_dominance_check(curr_label=[], optimal_label_set={}, label_id=0):
+#                             f = False
+#                             ε_curr_label = [i*1.2 for i in curr_label]
+#                             labels_to_be_deleted = deque([])
+#                             if not(optimal_label_set):
+#                                 non_dominated_label = 1
+#                             else:
+#                                 for label, label_info in optimal_label_set.items():
+#                                     if label_id == '209490' and u == 'w33' and t == 29430: #and label_info['pred_label_id'] == '86635'
+#                                         print('')
+#                                         print(label_info)
+#                                     prev_cost_label = label_info['opt_crt_val']
+#                                     q_1 = 0
+#                                     q_2 = 0
+#                                     for i,j in zip(ε_curr_label,prev_cost_label):
+#                                         if j <= i:
+#                                             q_1 += 1
+#                                         if j == i:
+#                                             q_2 += 1
+#                                     if q_1 == 4 and q_2 != 4:
+#                                         non_dominated_label = 0
+#                                         return (non_dominated_label,f)
+#                                 for label, label_info in optimal_label_set.items():
+#                                     prev_cost_label = label_info['opt_crt_val']
+#                                     ε_prev_cost_label = [1.2*i for i in prev_cost_label]
+#                                     q_1 = 0
+#                                     q_2 = 0
+#                                     for i,j in zip(curr_label,ε_prev_cost_label):
+#                                         if i <= j:
+#                                             q_1 += 1
+#                                         if i == j:
+#                                             q_2 += 1
+#                                     if q_1 == 4 and q_2 != 4:
+#                                         labels_to_be_deleted.append(label)
+#                                 non_dominated_label = 1
                           
-                            if non_dominated_label and labels_to_be_deleted:
-                                for labelid in labels_to_be_deleted:
+#                             if non_dominated_label and labels_to_be_deleted:
+#                                 for labelid in labels_to_be_deleted:
                                     
-                                    if labelid == '86635':
-                                        f = True
-#                                        print(u)
-#                                        print(curr_cost_label)
-#                                        print(labels_bag[u][t])
-#                                        print(new_label_id)
+#                                     if labelid == '86635':
+#                                         f = True
+# #                                        print(u)
+# #                                        print(curr_cost_label)
+# #                                        print(labels_bag[u][t])
+# #                                        print(new_label_id)
                                         
-#                                        print(labelid)
-#                                        for pred_l in G.pred[u]:
-##                                            print(pred_l)
-#                                            for tim_itrv, stuff in labels_bag[pred_l].items():
-#                                                for lae_id, stuff_2 in stuff.items():
-#                                                    if stuff_2['pred_label_id'] == '86635':
-#                                                        print(lae_id, pred_l, tim_itrv)
+# #                                        print(labelid)
+# #                                        for pred_l in G.pred[u]:
+# ##                                            print(pred_l)
+# #                                            for tim_itrv, stuff in labels_bag[pred_l].items():
+# #                                                for lae_id, stuff_2 in stuff.items():
+# #                                                    if stuff_2['pred_label_id'] == '86635':
+# #                                                        print(lae_id, pred_l, tim_itrv)
                                         
-                #                  if labelid == '29111':
-                #                      print('done!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
-                #                      print(v,u)
-                #                      print(bag[u][labelid])
-                #                      print(curr_cost_label) 
-                                    del(optimal_label_set[labelid])
+#                 #                  if labelid == '29111':
+#                 #                      print('done!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+#                 #                      print(v,u)
+#                 #                      print(bag[u][labelid])
+#                 #                      print(curr_cost_label) 
+#                                     del(optimal_label_set[labelid])
                             
-                            return (non_dominated_label,f)
+#                             return (non_dominated_label,f)
                         
-                        (non_dom_label, f1) = ε_dominance_check(curr_cost_label, labels_bag[u][t], label_id)
+#                         (non_dom_label, f1) = ε_dominance_check(curr_cost_label, labels_bag[u][t], label_id)
                                       
-                        if non_dom_label:
-                            insert_in_se_list = True
-#                                new_path= list()
-#                                new_path.extend(info['path'])
-#                                new_path.insert(0, u)
-#                                new_path.extend(info['path'])  
-#                                new_path.insert(0, u)       
-                            new_label_id = str(next(c))
-                            if f1:
-                                print(new_label_id)
-#                                if new_label_id == '47840':
-#                                    print(new_label_id)
-#                                if new_label_id == '44095':
-#                                    print(new_label_id)
-#                                for lblid, lblid_info in labels_bag[u][t].items():
-#                                    if lblid_info['path'] == new_path:
-#                                        print(u, v, new_label_id)
-                            labels_bag[u][t].update({new_label_id: {'opt_crt_val' : curr_cost_label, 'pred_node' : v, \
-                                      'pred_time_int': v_arr_time-(v_arr_time%dt), 'pred_label_id' : label_id, 'tt' : travel_time_till_u, \
-                                      'wt' : wait_time_till_u, 'l' : distance_till_u, 'c' : cost_till_u, 'lt' : line_trasnf_num_till_u, \
-                                      'mt' : mode_transf_num_till_u, 'prev_edge_type': e_type, 'prev_dstr_node_graph_type': v_n_gr_type, \
-                                      'prev_mode': prev_mode}}) #, 'path': new_path
+#                         if non_dom_label:
+#                             insert_in_se_list = True
+# #                                new_path= list()
+# #                                new_path.extend(info['path'])
+# #                                new_path.insert(0, u)
+# #                                new_path.extend(info['path'])  
+# #                                new_path.insert(0, u)       
+#                             new_label_id = str(next(c))
+#                             if f1:
+#                                 print(new_label_id)
+# #                                if new_label_id == '47840':
+# #                                    print(new_label_id)
+# #                                if new_label_id == '44095':
+# #                                    print(new_label_id)
+# #                                for lblid, lblid_info in labels_bag[u][t].items():
+# #                                    if lblid_info['path'] == new_path:
+# #                                        print(u, v, new_label_id)
+#                             labels_bag[u][t].update({new_label_id: {'opt_crt_val' : curr_cost_label, 'pred_node' : v, \
+#                                       'pred_time_int': v_arr_time-(v_arr_time%dt), 'pred_label_id' : label_id, 'tt' : travel_time_till_u, \
+#                                       'wt' : wait_time_till_u, 'l' : distance_till_u, 'c' : cost_till_u, 'lt' : line_trasnf_num_till_u, \
+#                                       'mt' : mode_transf_num_till_u, 'prev_edge_type': e_type, 'prev_dstr_node_graph_type': v_n_gr_type, \
+#                                       'prev_mode': prev_mode}}) #, 'path': new_path
                                     
-            if insert_in_se_list:
-                if de_queue[u] == 0:
-                    if se_list:
-                        de_queue[se_list[-1]] = u
-                    de_queue[u] = 999999999
-                    se_list.append(u)
-                elif de_queue[u] == -1:
-                    if se_list:
-                        de_queue[u] = se_list[0]
-                    else:
-                        de_queue[u] = 999999999
-                    se_list.appendleft(u)
-    try:
-        return labels_bag
-    except KeyError:
-        raise nx.NetworkXNoPath("Node %s not reachable from %s" % (target, source))
+#             if insert_in_se_list:
+#                 if de_queue[u] == 0:
+#                     if se_list:
+#                         de_queue[se_list[-1]] = u
+#                     de_queue[u] = 999999999
+#                     se_list.append(u)
+#                 elif de_queue[u] == -1:
+#                     if se_list:
+#                         de_queue[u] = se_list[0]
+#                     else:
+#                         de_queue[u] = 999999999
+#                     se_list.appendleft(u)
+#     try:
+#         return labels_bag
+#     except KeyError:
+#         raise nx.NetworkXNoPath("Node %s not reachable from %s" % (target, source))
         
         
-def pareto_paths_with_attrs_backwards_fnl(G, source, target, req_time, t_0, t_H, dt, travel_time='travel_time', distance='distance', \
-                                      pt_additive_cost='pt_distance_based_cost', pt_non_additive_cost='pt_zone_to_zone_cost', \
-                                      taxi_fares='taxi_fares', taxi_wait_time='taxi_wait_time', timetable='departure_time', \
-                                      edge_type='edge_type', node_type='node_type', node_graph_type='node_graph_type', \
-                                      fare_scheme='distance_based', init_travel_time = 0, init_wait_time = 0, init_distance = 0, \
-                                      init_cost = 0, init_num_line_trfs = 0, init_num_mode_trfs = 0, last_edge_type=None, \
-                                      last_upstr_node_graph_type=None, last_pt_veh_run_id=None, last_edge_cost=0, \
-                                      pt_trip_dest_zone=None, previous_edge_mode=None):
+# def pareto_paths_with_attrs_backwards_fnl(G, source, target, req_time, t_0, t_H, dt, travel_time='travel_time', distance='distance', \
+#                                       pt_additive_cost='pt_distance_based_cost', pt_non_additive_cost='pt_zone_to_zone_cost', \
+#                                       taxi_fares='taxi_fares', taxi_wait_time='taxi_wait_time', timetable='departure_time', \
+#                                       edge_type='edge_type', node_type='node_type', node_graph_type='node_graph_type', \
+#                                       fare_scheme='distance_based', init_travel_time = 0, init_wait_time = 0, init_distance = 0, \
+#                                       init_cost = 0, init_num_line_trfs = 0, init_num_mode_trfs = 0, last_edge_type=None, \
+#                                       last_upstr_node_graph_type=None, last_pt_veh_run_id=None, last_edge_cost=0, \
+#                                       pt_trip_dest_zone=None, previous_edge_mode=None):
 
-  if source not in G:
-    raise nx.NodeNotFound("Source {} not in G".format(source))
-  if target not in G:
-    raise nx.NodeNotFound("Target {} not in G".format(target))
-  if source == target:
-    return 0, [target]
+#   if source not in G:
+#     raise nx.NodeNotFound("Source {} not in G".format(source))
+#   if target not in G:
+#     raise nx.NodeNotFound("Target {} not in G".format(target))
+#   if source == target:
+#     return 0, [target]
 
-  travel_time = _get_travel_time_function(G, travel_time)
-  distance = _get_distance_function(G, distance)
-  pt_additive_cost = _get_pt_additive_cost(G, pt_additive_cost)
-  pt_non_additive_cost = _get_pt_non_additive_cost(G, pt_non_additive_cost)
-  timetable = _get_timetable(G, timetable)
-  edge_type = _get_edge_type(G, edge_type)
-  node_type = _get_node_type(G, node_type)
-  node_graph_type = _get_dwnstr_graph_type_data(G, node_graph_type)
-  taxi_fares = _get_taxi_fares(G, taxi_fares)
-  taxi_wait_time = _get_taxi_wait_time(G, taxi_wait_time)
+#   travel_time = _get_travel_time_function(G, travel_time)
+#   distance = _get_distance_function(G, distance)
+#   pt_additive_cost = _get_pt_additive_cost(G, pt_additive_cost)
+#   pt_non_additive_cost = _get_pt_non_additive_cost(G, pt_non_additive_cost)
+#   timetable = _get_timetable(G, timetable)
+#   edge_type = _get_edge_type(G, edge_type)
+#   node_type = _get_node_type(G, node_type)
+#   node_graph_type = _get_dwnstr_graph_type_data(G, node_graph_type)
+#   taxi_fares = _get_taxi_fares(G, taxi_fares)
+#   taxi_wait_time = _get_taxi_wait_time(G, taxi_wait_time)
 
 
-  pareto_bag = mltcrtr_lbl_set_alg_bwds_fnl(G, source, target, t_0, t_H, dt, travel_time, distance, pt_additive_cost, pt_non_additive_cost, \
-                                        taxi_fares, taxi_wait_time, timetable, edge_type, node_type, node_graph_type, fare_scheme, \
-                                        init_travel_time, init_wait_time, init_distance, init_cost, init_num_line_trfs, init_num_mode_trfs,\
-                                        last_edge_type, last_upstr_node_graph_type, last_pt_veh_run_id, last_edge_cost, pt_trip_dest_zone, \
-                                        previous_edge_mode)
+#   pareto_bag = mltcrtr_lbl_set_alg_bwds_fnl(G, source, target, t_0, t_H, dt, travel_time, distance, pt_additive_cost, pt_non_additive_cost, \
+#                                         taxi_fares, taxi_wait_time, timetable, edge_type, node_type, node_graph_type, fare_scheme, \
+#                                         init_travel_time, init_wait_time, init_distance, init_cost, init_num_line_trfs, init_num_mode_trfs,\
+#                                         last_edge_type, last_upstr_node_graph_type, last_pt_veh_run_id, last_edge_cost, pt_trip_dest_zone, \
+#                                         previous_edge_mode)
   
-  i = count()
-  paths_with_attrs = {}
-  for label_id, attrs in pareto_bag[source][req_time].items():
+#   i = count()
+#   paths_with_attrs = {}
+#   for label_id, attrs in pareto_bag[source][req_time].items():
       
-      path = []
-      path.append(source)
-      next_node = attrs['pred_node']
-      next_time_intrv = attrs['pred_time_int']
-      next_label_id = attrs['pred_label_id']
+#       path = []
+#       path.append(source)
+#       next_node = attrs['pred_node']
+#       next_time_intrv = attrs['pred_time_int']
+#       next_label_id = attrs['pred_label_id']
       
-      while next_node != None and next_time_intrv != None and next_label_id != None:
-#          if next_label_id == '68585':
-##              print(next_node)
-##              print(next_time_intrv)
-##              print(path)
-#              print(pareto_bag['w56'][30720])
-#              print(pareto_bag['w17'][31230])
-          path.append(next_node)
-          new_node = pareto_bag[next_node][next_time_intrv][next_label_id]['pred_node']
-          new_time_intrv = pareto_bag[next_node][next_time_intrv][next_label_id]['pred_time_int']
-          new_label_id = pareto_bag[next_node][next_time_intrv][next_label_id]['pred_label_id']
-          next_node = new_node
-          next_time_intrv = new_time_intrv
-          next_label_id = new_label_id
+#       while next_node != None and next_time_intrv != None and next_label_id != None:
+# #          if next_label_id == '68585':
+# ##              print(next_node)
+# ##              print(next_time_intrv)
+# ##              print(path)
+# #              print(pareto_bag['w56'][30720])
+# #              print(pareto_bag['w17'][31230])
+#           path.append(next_node)
+#           new_node = pareto_bag[next_node][next_time_intrv][next_label_id]['pred_node']
+#           new_time_intrv = pareto_bag[next_node][next_time_intrv][next_label_id]['pred_time_int']
+#           new_label_id = pareto_bag[next_node][next_time_intrv][next_label_id]['pred_label_id']
+#           next_node = new_node
+#           next_time_intrv = new_time_intrv
+#           next_label_id = new_label_id
       
-      paths_with_attrs.update({str(next(i)): {'fnl_path' : path, 'optimal_crt_values' : attrs['opt_crt_val'], 'travel_time' : attrs['tt'], \
-                              'waiting_time' : attrs['wt'], 'distance' : attrs['l'], 'cost' : attrs['c'], 'line_transfers' : attrs['lt'], \
-                              'mode_transfers' : attrs['mt'], 'walking_time': attrs['wkt']}})
+#       paths_with_attrs.update({str(next(i)): {'fnl_path' : path, 'optimal_crt_values' : attrs['opt_crt_val'], 'travel_time' : attrs['tt'], \
+#                               'waiting_time' : attrs['wt'], 'distance' : attrs['l'], 'cost' : attrs['c'], 'line_transfers' : attrs['lt'], \
+#                               'mode_transfers' : attrs['mt'], 'walking_time': attrs['wkt']}})
   
-  return paths_with_attrs
+#   return paths_with_attrs
 
 
-# the origin and destination inputs to the algorithm need to always be nodes of the walk network.
-def mltcrtr_lbl_set_alg_bwds_fnl(G, source, target, t_0, t_H, dt, travel_time_data, distance_data, pt_additive_cost_data, pt_non_additive_cost_data, \
-                                taxi_fares, taxi_wait_time, timetable_data, edge_type_data, node_type_data, node_graph_type_data, fare_scheme, \
-                                init_travel_time, init_wait_time, init_distance, init_cost, init_num_line_trfs, init_num_mode_trfs, \
-                                last_edge_type, last_dstr_node_graph_type, last_pt_veh_run_id, last_edge_cost, pt_trip_dest_zone, \
-                                previous_edge_mode):
-    Gpred = G._pred
+# # the origin and destination inputs to the algorithm need to always be nodes of the walk network.
+# def mltcrtr_lbl_set_alg_bwds_fnl(G, source, target, t_0, t_H, dt, travel_time_data, distance_data, pt_additive_cost_data, pt_non_additive_cost_data, \
+#                                 taxi_fares, taxi_wait_time, timetable_data, edge_type_data, node_type_data, node_graph_type_data, fare_scheme, \
+#                                 init_travel_time, init_wait_time, init_distance, init_cost, init_num_line_trfs, init_num_mode_trfs, \
+#                                 last_edge_type, last_dstr_node_graph_type, last_pt_veh_run_id, last_edge_cost, pt_trip_dest_zone, \
+#                                 previous_edge_mode):
+#     Gpred = G._pred
     
-    #--- initialization of the data structure that holds all the non-dominated multi-dimnesional labels and its label's required pointers
-    #--- for all nodes and all times within a time_horizon (t_0 <= t <= t_H)
-    c = count()
-    labels_bag = {}  
-    for n in G:
-        labels_bag.update({n: {}})
-        for t in range(t_0, t_H+1, dt):
-            t = t%86400
-            if n == target:
-                label_id = str(next(c))
-                labels_bag[n].update({t: {label_id: {'opt_crt_val':(init_travel_time, init_cost, init_num_line_trfs + init_num_mode_trfs), \
-                   'pred_node': None, 'pred_time_int': None, 'pred_label_id': None, 'tt': init_travel_time, 'wt': init_wait_time, \
-                   'l': init_distance, 'c': init_cost, 'lt': init_num_line_trfs, 'mt': init_num_mode_trfs, 'wkt': 0, 'prev_edge_type': None, \
-                   'prev_dstr_node_graph_type': None , 'prev_mode': None}}}) #'path': path
-            else:
-                labels_bag[n].update({t: {}})
+#     #--- initialization of the data structure that holds all the non-dominated multi-dimnesional labels and its label's required pointers
+#     #--- for all nodes and all times within a time_horizon (t_0 <= t <= t_H)
+#     c = count()
+#     labels_bag = {}  
+#     for n in G:
+#         labels_bag.update({n: {}})
+#         for t in range(t_0, t_H+1, dt):
+#             t = t%86400
+#             if n == target:
+#                 label_id = str(next(c))
+#                 labels_bag[n].update({t: {label_id: {'opt_crt_val':(init_travel_time, init_cost, init_num_line_trfs + init_num_mode_trfs), \
+#                    'pred_node': None, 'pred_time_int': None, 'pred_label_id': None, 'tt': init_travel_time, 'wt': init_wait_time, \
+#                    'l': init_distance, 'c': init_cost, 'lt': init_num_line_trfs, 'mt': init_num_mode_trfs, 'wkt': 0, 'prev_edge_type': None, \
+#                    'prev_dstr_node_graph_type': None , 'prev_mode': None}}}) #'path': path
+#             else:
+#                 labels_bag[n].update({t: {}})
 
-    #--- initialization of the SE list used for scanning nodes in each iteration ---#
-    #--- it opertes as a double ended queue (deque) as in Ziliaskopoulos and Mahmassani (1993) ---#
-#    se_list = deque([target])
-    de_queue = {}
-    for n in G:
-        if n == target:
-            de_queue.update({n: 999999999})
-        else:
-            de_queue.update({n: 0})
-#    first = target
-#    last = target
+#     #--- initialization of the SE list used for scanning nodes in each iteration ---#
+#     #--- it opertes as a double ended queue (deque) as in Ziliaskopoulos and Mahmassani (1993) ---#
+# #    se_list = deque([target])
+#     de_queue = {}
+#     for n in G:
+#         if n == target:
+#             de_queue.update({n: 999999999})
+#         else:
+#             de_queue.update({n: 0})
+# #    first = target
+# #    last = target
     
-    se_list = deque([target])
+#     se_list = deque([target])
     
-    #--- the algorithm is running until the SE List is empty, meaning that there are no more node insertions for any time t 
-#    that can give a non-dominated paths \---#
-#    t_count = 0
-    while se_list: 
-        v = se_list.popleft()
-        de_queue[v] = -1
-        v_n_gr_type = G.nodes[v]['node_graph_type']
+#     #--- the algorithm is running until the SE List is empty, meaning that there are no more node insertions for any time t 
+# #    that can give a non-dominated paths \---#
+# #    t_count = 0
+#     while se_list: 
+#         v = se_list.popleft()
+#         de_queue[v] = -1
+#         v_n_gr_type = G.nodes[v]['node_graph_type']
         
-        for u, e in Gpred[v].items():
-            insert_in_se_list = False
-            e_type = e['edge_type']
+#         for u, e in Gpred[v].items():
+#             insert_in_se_list = False
+#             e_type = e['edge_type']
             
-            for time, labels in labels_bag[v].items():
-                for label, label_attrs in labels.items():
-                    if u == label_attrs['pred_node']:
-                        continue
+#             for time, labels in labels_bag[v].items():
+#                 for label, label_attrs in labels.items():
+#                     if u == label_attrs['pred_node']:
+#                         continue
                     
-                    prev_mode = label_attrs['prev_mode']
-                    pr_ed_tp = label_attrs['prev_edge_type']
-                    pre_dstr_n_gr_tp = label_attrs['prev_dstr_node_graph_type']
+#                     prev_mode = label_attrs['prev_mode']
+#                     pr_ed_tp = label_attrs['prev_edge_type']
+#                     pre_dstr_n_gr_tp = label_attrs['prev_dstr_node_graph_type']
                     
-                    # restraint walking before taxi modes - active
-                    if e_type == 'walk_edge' and pr_ed_tp == 'access_edge' and \
-                    (pre_dstr_n_gr_tp == 'taxi_graph' or pre_dstr_n_gr_tp == 'on_demand_single_taxi_graph' or pre_dstr_n_gr_tp == 'on_demand_shared_taxi_graph'):
-                        continue
+#                     # restraint walking before taxi modes - active
+#                     if e_type == 'walk_edge' and pr_ed_tp == 'access_edge' and \
+#                     (pre_dstr_n_gr_tp == 'taxi_graph' or pre_dstr_n_gr_tp == 'on_demand_single_taxi_graph' or pre_dstr_n_gr_tp == 'on_demand_shared_taxi_graph'):
+#                         continue
                     
-                    if e_type == 'access_edge':
-                        u_n_type = e['up_node_type']
-                        u_n_gr_type = e['up_node_graph_type']
-                        v_n_type = e['dstr_node_type']
+#                     if e_type == 'access_edge':
+#                         u_n_type = e['up_node_type']
+#                         u_n_gr_type = e['up_node_graph_type']
+#                         v_n_type = e['dstr_node_type']
                         
-                        if u_n_gr_type == 'Walk':
-                          prev_mode = v_n_gr_type   
-#                           when we are at an access edge that connects graphs we need to penalize unreasonable connections and path loops; 
-#                           e.g., from walk node to another mode-specific node and back to walk node, from a taxi/carsharing trip to a walk trip 
-#                           and back to taxi/carsharing trip
-#                            if pr_ed_tp == 'access_edge': #active
-#                              if (pre_dstr_n_gr_tp == 'Walk' and u_n_gr_type == 'Walk') or (pre_dstr_n_gr_tp == 'Bus' and \
-#                                 u_n_gr_type == 'Bus') or (pre_dstr_n_gr_tp == 'Train' and u_n_gr_type == 'Train'):
-#                                  continue#penalty = 1000000000000000
+#                         if u_n_gr_type == 'Walk':
+#                           prev_mode = v_n_gr_type   
+# #                           when we are at an access edge that connects graphs we need to penalize unreasonable connections and path loops; 
+# #                           e.g., from walk node to another mode-specific node and back to walk node, from a taxi/carsharing trip to a walk trip 
+# #                           and back to taxi/carsharing trip
+# #                            if pr_ed_tp == 'access_edge': #active
+# #                              if (pre_dstr_n_gr_tp == 'Walk' and u_n_gr_type == 'Walk') or (pre_dstr_n_gr_tp == 'Bus' and \
+# #                                 u_n_gr_type == 'Bus') or (pre_dstr_n_gr_tp == 'Train' and u_n_gr_type == 'Train'):
+# #                                  continue#penalty = 1000000000000000
                          
-#                           avoid paths that include two consecutive taxis or carsharign legs in one trip
-                        if (prev_mode == 'taxi_graph' or prev_mode == 'on_demand_single_taxi_graph' or \
-                            prev_mode == 'on_demand_shared_taxi_graph' or prev_mode == 'car_sharing_graph') and \
-                            (u_n_gr_type == 'taxi_graph' or u_n_gr_type == 'on_demand_single_taxi_graph' or \
-                             u_n_gr_type == 'on_demand_shared_taxi_graph' or u_n_gr_type == 'car_sharing_graph'):
-                                continue#penalty = 1000000000000000 active
-#
-                        if v_n_type == 'car_sharing_station_node':
-                          if G.nodes[v]['stock_level'] == 0:
-                              continue#penalty = 1000000000000000
+# #                           avoid paths that include two consecutive taxis or carsharign legs in one trip
+#                         if (prev_mode == 'taxi_graph' or prev_mode == 'on_demand_single_taxi_graph' or \
+#                             prev_mode == 'on_demand_shared_taxi_graph' or prev_mode == 'car_sharing_graph') and \
+#                             (u_n_gr_type == 'taxi_graph' or u_n_gr_type == 'on_demand_single_taxi_graph' or \
+#                              u_n_gr_type == 'on_demand_shared_taxi_graph' or u_n_gr_type == 'car_sharing_graph'):
+#                                 continue#penalty = 1000000000000000 active
+# #
+#                         if v_n_type == 'car_sharing_station_node':
+#                           if G.nodes[v]['stock_level'] == 0:
+#                               continue#penalty = 1000000000000000
                           
-                        if u_n_type == 'car_sharing_station_node':
-                          if G.nodes[u]['stock_level'] == G.nodes[u]['capacity']:
-                              continue#penalty = 1000000000000000
-#                          
-#                        # restraint pick up -active
-                        if v_n_gr_type == 'taxi_graph' or v_n_gr_type == 'on_demand_single_taxi_graph' or v_n_gr_type == 'on_demand_shared_taxi_graph':
-                            if e['up_node_zone'] == G.nodes[source]['zone'] and u != source:
-                              continue#penalty = 1000000000000000
-#                          
-#                        # restraint drop off - active
-                        if (u_n_gr_type == 'taxi_graph' or u_n_gr_type == 'on_demand_single_taxi_graph' or u_n_gr_type == 'on_demand_shared_taxi_graph') \
-                        and e['dstr_node_zone'] == G.nodes[target]['zone'] and v != target:
-                            continue
-#                        
-#                        # restraint walking after taxi modes - active
-                        if (u_n_gr_type == 'taxi_graph' or u_n_gr_type == 'on_demand_single_taxi_graph' or u_n_gr_type == 'on_demand_shared_taxi_graph') \
-                        and pr_ed_tp == 'walk_edge':
-                            continue
+#                         if u_n_type == 'car_sharing_station_node':
+#                           if G.nodes[u]['stock_level'] == G.nodes[u]['capacity']:
+#                               continue#penalty = 1000000000000000
+# #                          
+# #                        # restraint pick up -active
+#                         if v_n_gr_type == 'taxi_graph' or v_n_gr_type == 'on_demand_single_taxi_graph' or v_n_gr_type == 'on_demand_shared_taxi_graph':
+#                             if e['up_node_zone'] == G.nodes[source]['zone'] and u != source:
+#                               continue#penalty = 1000000000000000
+# #                          
+# #                        # restraint drop off - active
+#                         if (u_n_gr_type == 'taxi_graph' or u_n_gr_type == 'on_demand_single_taxi_graph' or u_n_gr_type == 'on_demand_shared_taxi_graph') \
+#                         and e['dstr_node_zone'] == G.nodes[target]['zone'] and v != target:
+#                             continue
+# #                        
+# #                        # restraint walking after taxi modes - active
+#                         if (u_n_gr_type == 'taxi_graph' or u_n_gr_type == 'on_demand_single_taxi_graph' or u_n_gr_type == 'on_demand_shared_taxi_graph') \
+#                         and pr_ed_tp == 'walk_edge':
+#                             continue
                     
-#                    exit_t_loop = False
-                    for t in range(t_0, t_H+1, dt):
+# #                    exit_t_loop = False
+#                     for t in range(t_0, t_H+1, dt):
                         
-#                        if exit_t_loop:
-#                            break
+# #                        if exit_t_loop:
+# #                            break
                         
-                        t = t%86400
-                        if t > time:
-                            break
+#                         t = t%86400
+#                         if t > time:
+#                             break
                         
-                        if e_type == 'car_sharing_station_egress_edge' or e_type == 'car_sharing_station_access_edge':
-                            e_tt = 0
-                            e_wait_time = e['wait_time']
+#                         if e_type == 'car_sharing_station_egress_edge' or e_type == 'car_sharing_station_access_edge':
+#                             e_tt = 0
+#                             e_wait_time = e['wait_time']
                             
-                        if e_type == 'car_sharing_orig_dummy_edge':
-                            e_wait_time = 0
-                            e_tt = 0
+#                         if e_type == 'car_sharing_orig_dummy_edge':
+#                             e_wait_time = 0
+#                             e_tt = 0
                             
-                        if e_type == 'car_sharing_dest_dummy_edge' or e_type == 'car_sharing_dual_edge':
-                            e_wait_time = 0
-                            e_tt = e['travel_time'][t]
+#                         if e_type == 'car_sharing_dest_dummy_edge' or e_type == 'car_sharing_dual_edge':
+#                             e_wait_time = 0
+#                             e_tt = e['travel_time'][t]
                             
-                        if e_type == 'taxi_edge' or e_type == 'on_demand_single_taxi_edge' or e_type == 'on_demand_shared_taxi_edge':
-                            e_wait_time = e['taxi_wait_time'][t]
-                            e_tt = e['travel_time'][(t+e_wait_time)-((t+e_wait_time)%dt)]
+#                         if e_type == 'taxi_edge' or e_type == 'on_demand_single_taxi_edge' or e_type == 'on_demand_shared_taxi_edge':
+#                             e_wait_time = e['taxi_wait_time'][t]
+#                             e_tt = e['travel_time'][(t+e_wait_time)-((t+e_wait_time)%dt)]
                         
-                        if e_type == 'walk_edge':
-                            e_tt = e['travel_time']#_data(u, v, e)  # funtion that extracts the edge's in-vehicle travel time attribute
-                            e_wait_time = 0
+#                         if e_type == 'walk_edge':
+#                             e_tt = e['travel_time']#_data(u, v, e)  # funtion that extracts the edge's in-vehicle travel time attribute
+#                             e_wait_time = 0
                             
-                        if e_type == 'access_edge':
-                            e_tt = e['travel_time']#_data(u, v, e)  # funtion that extracts the edge's in-vehicle travel time attribute
-                            e_wait_time = 0
+#                         if e_type == 'access_edge':
+#                             e_tt = e['travel_time']#_data(u, v, e)  # funtion that extracts the edge's in-vehicle travel time attribute
+#                             e_wait_time = 0
                             
-                        if e_type == 'pt_transfer_edge':
-                            e_tt = e['travel_time']#_data(u, v, e)  # funtion that extracts the edge's in-vehicle travel time attribute
-                            e_wait_time = 0
+#                         if e_type == 'pt_transfer_edge':
+#                             e_tt = e['travel_time']#_data(u, v, e)  # funtion that extracts the edge's in-vehicle travel time attribute
+#                             e_wait_time = 0
                             
-                        if e_type == 'pt_route_edge':
-                            e_wait_time = e['wait_time'][t]
-                            e_tt = e['travel_time'][t]
+#                         if e_type == 'pt_route_edge':
+#                             e_wait_time = e['wait_time'][t]
+#                             e_tt = e['travel_time'][t]
                             
-                        v_arr_time = t + e_tt + e_wait_time
-                        mod_v_arr_time = v_arr_time-((v_arr_time-t_0)%dt)
+#                         v_arr_time = t + e_tt + e_wait_time
+#                         mod_v_arr_time = v_arr_time-((v_arr_time-t_0)%dt)
                         
-                        if mod_v_arr_time == time:
+#                         if mod_v_arr_time == time:
                             
-                            if e_type == 'car_sharing_station_egress_edge' or e_type == 'car_sharing_station_access_edge':
-                                e_cost=0
-                                e_distance = 0
-                                e_num_lin_trf = 0
-                                e_num_mode_trf = 0
-                                e_walk_time = 0
+#                             if e_type == 'car_sharing_station_egress_edge' or e_type == 'car_sharing_station_access_edge':
+#                                 e_cost=0
+#                                 e_distance = 0
+#                                 e_num_lin_trf = 0
+#                                 e_num_mode_trf = 0
+#                                 e_walk_time = 0
                                 
-                            if e_type == 'car_sharing_orig_dummy_edge':
-                                e_distance = 0
-                                e_cost = 0
-                                e_num_mode_trf = 0
-                                e_num_lin_trf = 0
-                                e_walk_time = 0
+#                             if e_type == 'car_sharing_orig_dummy_edge':
+#                                 e_distance = 0
+#                                 e_cost = 0
+#                                 e_num_mode_trf = 0
+#                                 e_num_lin_trf = 0
+#                                 e_walk_time = 0
                             
-                            if e_type == 'car_sharing_dest_dummy_edge' or e_type == 'car_sharing_dual_edge':
-                                e_distance = e['distance']#_data(u, v, e)
-                                e_cost = e['car_sharing_fares'][t]
-                                e_num_mode_trf = 0
-                                e_num_lin_trf = 0
-                                e_walk_time = 0
+#                             if e_type == 'car_sharing_dest_dummy_edge' or e_type == 'car_sharing_dual_edge':
+#                                 e_distance = e['distance']#_data(u, v, e)
+#                                 e_cost = e['car_sharing_fares'][t]
+#                                 e_num_mode_trf = 0
+#                                 e_num_lin_trf = 0
+#                                 e_walk_time = 0
                             
-                            if e_type == 'taxi_edge' or e_type == 'on_demand_single_taxi_edge' or e_type == 'on_demand_shared_taxi_edge':
-                                e_distance = e['distance']#_data(u, v, e)        # funtion that extracts the edge's distance attribute
-                                e_num_mode_trf = 0
-                                e_num_lin_trf = 0
-                                e_cost = e['taxi_fares'][t]
-                                e_walk_time = 0
+#                             if e_type == 'taxi_edge' or e_type == 'on_demand_single_taxi_edge' or e_type == 'on_demand_shared_taxi_edge':
+#                                 e_distance = e['distance']#_data(u, v, e)        # funtion that extracts the edge's distance attribute
+#                                 e_num_mode_trf = 0
+#                                 e_num_lin_trf = 0
+#                                 e_cost = e['taxi_fares'][t]
+#                                 e_walk_time = 0
                             
-                            if e_type == 'walk_edge':
-                                e_distance = e['distance']#_data(u, v, e)        # funtion that extracts the edge's distance attribute                                
-                                e_cost = 0
-                                e_num_mode_trf = 0
-                                e_num_lin_trf = 0
-                                e_walk_time = e['travel_time']
+#                             if e_type == 'walk_edge':
+#                                 e_distance = e['distance']#_data(u, v, e)        # funtion that extracts the edge's distance attribute                                
+#                                 e_cost = 0
+#                                 e_num_mode_trf = 0
+#                                 e_num_lin_trf = 0
+#                                 e_walk_time = e['travel_time']
                             
-                            if e_type == 'access_edge':
-                                e_distance = e['distance']#_data(u, v, e)        # funtion that extracts the edge's distance attribute
-                                e_cost = 0
-                                e_num_mode_trf = 0
-                                e_num_lin_trf = 0
-                                u_n_type = e['up_node_type']
-            #                        v_n_type = e['dstr_node_type']
-                                if u_n_type == 'walk_graph_node':
-                                    e_num_mode_trf = 1
-                                e_walk_time = e['travel_time']
+#                             if e_type == 'access_edge':
+#                                 e_distance = e['distance']#_data(u, v, e)        # funtion that extracts the edge's distance attribute
+#                                 e_cost = 0
+#                                 e_num_mode_trf = 0
+#                                 e_num_lin_trf = 0
+#                                 u_n_type = e['up_node_type']
+#             #                        v_n_type = e['dstr_node_type']
+#                                 if u_n_type == 'walk_graph_node':
+#                                     e_num_mode_trf = 1
+#                                 e_walk_time = e['travel_time']
                             
-                            if e_type == 'pt_transfer_edge':        
-                                e_distance = e['distance']#_data(u, v, e)        # funtion that extracts the edge's distance attribute
-                                e_cost = 0
-                                e_num_mode_trf = 0
-                                e_num_lin_trf = 0
-                                u_n_type = e['up_node_type']
-                                v_n_type = e['dstr_node_type']
-                                if (u_n_type == 'stop_node' or u_n_type=='station_node') and v_n_type == 'route_node':
-                                    e_num_lin_trf =1
-                                e_walk_time = e['travel_time']
+#                             if e_type == 'pt_transfer_edge':        
+#                                 e_distance = e['distance']#_data(u, v, e)        # funtion that extracts the edge's distance attribute
+#                                 e_cost = 0
+#                                 e_num_mode_trf = 0
+#                                 e_num_lin_trf = 0
+#                                 u_n_type = e['up_node_type']
+#                                 v_n_type = e['dstr_node_type']
+#                                 if (u_n_type == 'stop_node' or u_n_type=='station_node') and v_n_type == 'route_node':
+#                                     e_num_lin_trf =1
+#                                 e_walk_time = e['travel_time']
                                 
-                            if e_type == 'pt_route_edge':
-                                e_distance = e['distance']#_data(u, v, e)  # fuction that extracts the travel time dict
-                                e_cost = e['pt_distance_based_cost'][t]
-                                e_num_lin_trf = 0
-                                e_num_mode_trf = 0
-                                e_walk_time = 0
+#                             if e_type == 'pt_route_edge':
+#                                 e_distance = e['distance']#_data(u, v, e)  # fuction that extracts the travel time dict
+#                                 e_cost = e['pt_distance_based_cost'][t]
+#                                 e_num_lin_trf = 0
+#                                 e_num_mode_trf = 0
+#                                 e_walk_time = 0
                             
-                            travel_time_till_u = e_tt + label_attrs['tt']
-                            wait_time_till_u = e_wait_time + label_attrs['wt']
-                            distance_till_u = e_distance + label_attrs['l']
-                            cost_till_u = e_cost + label_attrs['c']
-                            line_trasnf_num_till_u = e_num_lin_trf + label_attrs['lt']
-                            mode_transf_num_till_u = e_num_mode_trf + label_attrs['mt']
-                            walk_time_till_u = e_walk_time + label_attrs['wkt']
+#                             travel_time_till_u = e_tt + label_attrs['tt']
+#                             wait_time_till_u = e_wait_time + label_attrs['wt']
+#                             distance_till_u = e_distance + label_attrs['l']
+#                             cost_till_u = e_cost + label_attrs['c']
+#                             line_trasnf_num_till_u = e_num_lin_trf + label_attrs['lt']
+#                             mode_transf_num_till_u = e_num_mode_trf + label_attrs['mt']
+#                             walk_time_till_u = e_walk_time + label_attrs['wkt']
                             
-                            new_cost_label = [travel_time_till_u + wait_time_till_u, cost_till_u, line_trasnf_num_till_u + mode_transf_num_till_u]
-                            crtr_num = len(new_cost_label)
+#                             new_cost_label = [travel_time_till_u + wait_time_till_u, cost_till_u, line_trasnf_num_till_u + mode_transf_num_till_u]
+#                             crtr_num = len(new_cost_label)
                             
-                            labels_to_be_deleted = deque([])
-                            extend_next_path_from_v = False
-                            h_count = 0
+#                             labels_to_be_deleted = deque([])
+#                             extend_next_path_from_v = False
+#                             h_count = 0
                             
-                            for tm, lbls in labels_bag[u].items():
-                                if extend_next_path_from_v:
-#                                    exit_t_loop = True
-                                    break
-#                                labels_to_be_deleted.update({tm: []})
-                                if not(lbls):
-                                    h_count += 1
-                                else:
-                                    for lbl, lbl_attrs in lbls.items():
-                                        curr_pareto_cost_label = lbl_attrs['opt_crt_val']
-                                        if new_cost_label == curr_pareto_cost_label:
-                                            if lbl_attrs['pred_label_id'] == label:
-                                                non_dominated_label = 0
-                                                extend_next_path_from_v = True
-                                                break
-                                            non_dominated_label = 1   
-                                            extend_next_path_from_v = True
-                                            break
-                                        q_1 = 0 
-                                        for i,j in zip(new_cost_label,curr_pareto_cost_label):
-                                            if i>=j:
-                                                q_1 = q_1+1
-                                        if q_1 == crtr_num:
-                                            non_dominated_label = 0
-                                            extend_next_path_from_v = True
-                                            break
-                                        q_2 = 0
-                                        for i,j in zip(new_cost_label,curr_pareto_cost_label):
-                                            if i<=j:
-                                                q_2 = q_2+1
-                                        if q_2 == crtr_num:
-                                            labels_to_be_deleted.append((tm,lbl))
-#                                            labels_to_be_deleted[tm].append(lbl)
-                                        non_dominated_label = 1
+#                             for tm, lbls in labels_bag[u].items():
+#                                 if extend_next_path_from_v:
+# #                                    exit_t_loop = True
+#                                     break
+# #                                labels_to_be_deleted.update({tm: []})
+#                                 if not(lbls):
+#                                     h_count += 1
+#                                 else:
+#                                     for lbl, lbl_attrs in lbls.items():
+#                                         curr_pareto_cost_label = lbl_attrs['opt_crt_val']
+#                                         if new_cost_label == curr_pareto_cost_label:
+#                                             if lbl_attrs['pred_label_id'] == label:
+#                                                 non_dominated_label = 0
+#                                                 extend_next_path_from_v = True
+#                                                 break
+#                                             non_dominated_label = 1   
+#                                             extend_next_path_from_v = True
+#                                             break
+#                                         q_1 = 0 
+#                                         for i,j in zip(new_cost_label,curr_pareto_cost_label):
+#                                             if i>=j:
+#                                                 q_1 = q_1+1
+#                                         if q_1 == crtr_num:
+#                                             non_dominated_label = 0
+#                                             extend_next_path_from_v = True
+#                                             break
+#                                         q_2 = 0
+#                                         for i,j in zip(new_cost_label,curr_pareto_cost_label):
+#                                             if i<=j:
+#                                                 q_2 = q_2+1
+#                                         if q_2 == crtr_num:
+#                                             labels_to_be_deleted.append((tm,lbl))
+# #                                            labels_to_be_deleted[tm].append(lbl)
+#                                         non_dominated_label = 1
                             
-                            if h_count == ((t_H-t_0)/dt)+1:
-                                non_dominated_label = 1
+#                             if h_count == ((t_H-t_0)/dt)+1:
+#                                 non_dominated_label = 1
                             
-                            if non_dominated_label:
-                                insert_in_se_list = True     
-                                if labels_to_be_deleted:
-                                    for t_and_lbl in labels_to_be_deleted:
-                                        del(labels_bag[u][t_and_lbl[0]][t_and_lbl[1]])
-                                new_label_id = str(next(c))
-                                labels_bag[u][t].update({new_label_id: {'opt_crt_val' : new_cost_label, 'pred_node' : v, \
-                                          'pred_time_int': time, 'pred_label_id' : label, 'tt' : travel_time_till_u, \
-                                          'wt' : wait_time_till_u, 'l' : distance_till_u, 'c' : cost_till_u, 'lt' : line_trasnf_num_till_u, \
-                                          'mt' : mode_transf_num_till_u, 'wkt': walk_time_till_u, 'prev_edge_type': e_type, 'prev_dstr_node_graph_type': v_n_gr_type, \
-                                          'prev_mode': prev_mode}})
+#                             if non_dominated_label:
+#                                 insert_in_se_list = True     
+#                                 if labels_to_be_deleted:
+#                                     for t_and_lbl in labels_to_be_deleted:
+#                                         del(labels_bag[u][t_and_lbl[0]][t_and_lbl[1]])
+#                                 new_label_id = str(next(c))
+#                                 labels_bag[u][t].update({new_label_id: {'opt_crt_val' : new_cost_label, 'pred_node' : v, \
+#                                           'pred_time_int': time, 'pred_label_id' : label, 'tt' : travel_time_till_u, \
+#                                           'wt' : wait_time_till_u, 'l' : distance_till_u, 'c' : cost_till_u, 'lt' : line_trasnf_num_till_u, \
+#                                           'mt' : mode_transf_num_till_u, 'wkt': walk_time_till_u, 'prev_edge_type': e_type, 'prev_dstr_node_graph_type': v_n_gr_type, \
+#                                           'prev_mode': prev_mode}})
                             
-            if insert_in_se_list:
-                if de_queue[u] == 0:
-                    if se_list:
-                        de_queue[se_list[-1]] = u
-                    de_queue[u] = 999999999
-                    se_list.append(u)
-                elif de_queue[u] == -1:
-                    if se_list:
-                        de_queue[u] = se_list[0]
-                    else:
-                        de_queue[u] = 999999999
-                    se_list.appendleft(u)
-    try:
-        return labels_bag
-    except KeyError:
-        raise nx.NetworkXNoPath("Node %s not reachable from %s" % (target, source))
+#             if insert_in_se_list:
+#                 if de_queue[u] == 0:
+#                     if se_list:
+#                         de_queue[se_list[-1]] = u
+#                     de_queue[u] = 999999999
+#                     se_list.append(u)
+#                 elif de_queue[u] == -1:
+#                     if se_list:
+#                         de_queue[u] = se_list[0]
+#                     else:
+#                         de_queue[u] = 999999999
+#                     se_list.appendleft(u)
+#     try:
+#         return labels_bag
+#     except KeyError:
+#         raise nx.NetworkXNoPath("Node %s not reachable from %s" % (target, source))
         
-def test_pareto_paths_with_attrs_backwards_fnl(G, source, target, req_time, t_0, t_H, dt):
+# def test_pareto_paths_with_attrs_backwards_fnl(G, source, target, req_time, t_0, t_H, dt):
 
-  if source not in G:
-    raise nx.NodeNotFound("Source {} not in G".format(source))
-  if target not in G:
-    raise nx.NodeNotFound("Target {} not in G".format(target))
-  if source == target:
-    return 0, [target]
+#   if source not in G:
+#     raise nx.NodeNotFound("Source {} not in G".format(source))
+#   if target not in G:
+#     raise nx.NodeNotFound("Target {} not in G".format(target))
+#   if source == target:
+#     return 0, [target]
 
 
-  pareto_bag = test_mltcrtr_lbl_set_alg_bwds_fnl(G, source, target, t_0, t_H, dt)
+#   pareto_bag = test_mltcrtr_lbl_set_alg_bwds_fnl(G, source, target, t_0, t_H, dt)
   
-  i = count()
-  paths_with_attrs = {}
-  for label, attrs in pareto_bag[source][req_time].items():
-#      paths_with_attrs.update({time: {}})
-#      for label, attrs2 in attrs.items():
+#   i = count()
+#   paths_with_attrs = {}
+#   for label, attrs in pareto_bag[source][req_time].items():
+# #      paths_with_attrs.update({time: {}})
+# #      for label, attrs2 in attrs.items():
       
-      path = []
-      path.append(source)
-      next_node = attrs['pred_node']
-      next_time_intrv = attrs['pred_time_int']
-      next_label_id = attrs['pred_label_id']
+#       path = []
+#       path.append(source)
+#       next_node = attrs['pred_node']
+#       next_time_intrv = attrs['pred_time_int']
+#       next_label_id = attrs['pred_label_id']
       
-      while next_node != None and next_time_intrv != None and next_label_id != None:
-          path.append(next_node)
-          new_node = pareto_bag[next_node][next_time_intrv][next_label_id]['pred_node']
-          new_time_intrv = pareto_bag[next_node][next_time_intrv][next_label_id]['pred_time_int']
-          new_label_id = pareto_bag[next_node][next_time_intrv][next_label_id]['pred_label_id']
-          next_node = new_node
-          next_time_intrv = new_time_intrv
-          next_label_id = new_label_id
+#       while next_node != None and next_time_intrv != None and next_label_id != None:
+#           path.append(next_node)
+#           new_node = pareto_bag[next_node][next_time_intrv][next_label_id]['pred_node']
+#           new_time_intrv = pareto_bag[next_node][next_time_intrv][next_label_id]['pred_time_int']
+#           new_label_id = pareto_bag[next_node][next_time_intrv][next_label_id]['pred_label_id']
+#           next_node = new_node
+#           next_time_intrv = new_time_intrv
+#           next_label_id = new_label_id
 
-      paths_with_attrs.update({str(next(i)): {'fnl_path' : path, 'optimal_crt_values' : attrs['opt_crt_val'], 'x' : attrs['x'], \
-                                  'y' : attrs['y'], 'z' : attrs['z'], 'k' : attrs['k']}})
+#       paths_with_attrs.update({str(next(i)): {'fnl_path' : path, 'optimal_crt_values' : attrs['opt_crt_val'], 'x' : attrs['x'], \
+#                                   'y' : attrs['y'], 'z' : attrs['z'], 'k' : attrs['k']}})
   
-  return paths_with_attrs
+#   return paths_with_attrs
 
 
-# the origin and destination inputs to the algorithm need to always be nodes of the walk network.
-def test_mltcrtr_lbl_set_alg_bwds_fnl(G, source, target, t_0, t_H, dt):
-    Gpred = G._pred
+# # the origin and destination inputs to the algorithm need to always be nodes of the walk network.
+# def test_mltcrtr_lbl_set_alg_bwds_fnl(G, source, target, t_0, t_H, dt):
+#     Gpred = G._pred
     
-    #--- initialization of the data structure that holds all the non-dominated multi-dimnesional labels and its label's required pointers
-    #--- for all nodes and all times within a time_horizon (t_0 <= t <= t_H)
-    c = count()
-    labels_bag = {}  
-    for n in G:
-        labels_bag.update({n: {}})
-        for t in range(t_0, t_H+1, dt):
-            t = t%86400
-            if n == target:
-                label_id = str(next(c))
-                labels_bag[n].update({t: {label_id: {'opt_crt_val':(0, 0, 0, 0), \
-                   'pred_node': None, 'pred_time_int': None, 'pred_label_id': None, 'x': 0, 'y': 0, \
-                   'z': 0, 'k': 0}}}) #'path': path
-            else:
-                labels_bag[n].update({t: {}})
+#     #--- initialization of the data structure that holds all the non-dominated multi-dimnesional labels and its label's required pointers
+#     #--- for all nodes and all times within a time_horizon (t_0 <= t <= t_H)
+#     c = count()
+#     labels_bag = {}  
+#     for n in G:
+#         labels_bag.update({n: {}})
+#         for t in range(t_0, t_H+1, dt):
+#             t = t%86400
+#             if n == target:
+#                 label_id = str(next(c))
+#                 labels_bag[n].update({t: {label_id: {'opt_crt_val':(0, 0, 0, 0), \
+#                    'pred_node': None, 'pred_time_int': None, 'pred_label_id': None, 'x': 0, 'y': 0, \
+#                    'z': 0, 'k': 0}}}) #'path': path
+#             else:
+#                 labels_bag[n].update({t: {}})
 
-    #--- initialization of the SE list used for scanning nodes in each iteration ---#
-    #--- it opertes as a double ended queue (deque) as in Ziliaskopoulos and Mahmassani (1993) ---#
-#    se_list = deque([target])
-    de_queue = {}
-    for n in G:
-        if n == target:
-            de_queue.update({n: 999999999})
-        else:
-            de_queue.update({n: 0})
-#    first = target
-#    last = target
+#     #--- initialization of the SE list used for scanning nodes in each iteration ---#
+#     #--- it opertes as a double ended queue (deque) as in Ziliaskopoulos and Mahmassani (1993) ---#
+# #    se_list = deque([target])
+#     de_queue = {}
+#     for n in G:
+#         if n == target:
+#             de_queue.update({n: 999999999})
+#         else:
+#             de_queue.update({n: 0})
+# #    first = target
+# #    last = target
     
-    se_list = deque([target])
+#     se_list = deque([target])
     
-    #--- the algorithm is running until the SE List is empty, meaning that there are no more node insertions for any time t 
-#    that can give a non-dominated paths \---#
-#    t_count = 0
-    while se_list: 
-        v = se_list.popleft()
-        de_queue[v] = -1
+#     #--- the algorithm is running until the SE List is empty, meaning that there are no more node insertions for any time t 
+# #    that can give a non-dominated paths \---#
+# #    t_count = 0
+#     while se_list: 
+#         v = se_list.popleft()
+#         de_queue[v] = -1
         
-        for u, e in Gpred[v].items():
-            insert_in_se_list = False
+#         for u, e in Gpred[v].items():
+#             insert_in_se_list = False
             
-            for time, labels in labels_bag[v].items():
-                for label, label_attrs in labels.items():
-                    if u == label_attrs['pred_node']:
-                        continue
+#             for time, labels in labels_bag[v].items():
+#                 for label, label_attrs in labels.items():
+#                     if u == label_attrs['pred_node']:
+#                         continue
                     
-#                    exit_t_loop = False
-                    for t in range(t_0, t_H+1, dt):
+# #                    exit_t_loop = False
+#                     for t in range(t_0, t_H+1, dt):
                         
-#                        if exit_t_loop:
-#                            break
+# #                        if exit_t_loop:
+# #                            break
                         
-                        t = t%86400
-                        if t > time:
-                            break
+#                         t = t%86400
+#                         if t > time:
+#                             break
                         
-                        e_x = e['x'][t]
+#                         e_x = e['x'][t]
                             
-                        v_arr_time = t + e_x
-                        mod_v_arr_time = v_arr_time-((v_arr_time-t_0)%dt)
+#                         v_arr_time = t + e_x
+#                         mod_v_arr_time = v_arr_time-((v_arr_time-t_0)%dt)
                         
-                        if mod_v_arr_time == time:
-                            e_y = e['y'][t]
-                            e_z = e['z'][t]
-                            e_k = e['k'][t]
+#                         if mod_v_arr_time == time:
+#                             e_y = e['y'][t]
+#                             e_z = e['z'][t]
+#                             e_k = e['k'][t]
                             
-                            x_u = e_x + label_attrs['x']
-                            y_u = e_y + label_attrs['y']
-                            z_u = e_z + label_attrs['z']
-                            k_u = e_k + label_attrs['k']
+#                             x_u = e_x + label_attrs['x']
+#                             y_u = e_y + label_attrs['y']
+#                             z_u = e_z + label_attrs['z']
+#                             k_u = e_k + label_attrs['k']
                             
-                            new_cost_label = [x_u, y_u, z_u, k_u]
-                            crtr_num = len(new_cost_label)
+#                             new_cost_label = [x_u, y_u, z_u, k_u]
+#                             crtr_num = len(new_cost_label)
                             
-                            labels_to_be_deleted = deque([])
-                            extend_next_path_from_v = False
-                            h_count = 0
+#                             labels_to_be_deleted = deque([])
+#                             extend_next_path_from_v = False
+#                             h_count = 0
                             
-                            for tm, lbls in labels_bag[u].items():
-                                if extend_next_path_from_v:
-#                                    exit_t_loop = True
-                                    break
-#                                labels_to_be_deleted.update({tm: []})
-                                if not(lbls):
-                                    h_count += 1
-                                else:
-                                    for lbl, lbl_attrs in lbls.items():
-                                        curr_pareto_cost_label = lbl_attrs['opt_crt_val']
-                                        if new_cost_label == curr_pareto_cost_label:
-                                            if lbl_attrs['pred_label_id'] == label:
-                                                non_dominated_label = 0
-                                                extend_next_path_from_v = True
-                                                break
-                                            non_dominated_label = 1   
-                                            extend_next_path_from_v = True
-                                            break
-                                        q_1 = 0 
-                                        for i,j in zip(new_cost_label,curr_pareto_cost_label):
-                                            if i>=j:
-                                                q_1 = q_1+1
-                                        if q_1 == crtr_num:
-                                            non_dominated_label = 0
-                                            extend_next_path_from_v = True
-                                            break
-                                        q_2 = 0
-                                        for i,j in zip(new_cost_label,curr_pareto_cost_label):
-                                            if i<=j:
-                                                q_2 = q_2+1
-                                        if q_2 == crtr_num:
-                                            labels_to_be_deleted.append((tm,lbl))
-#                                            labels_to_be_deleted[tm].append(lbl)
-                                        non_dominated_label = 1
+#                             for tm, lbls in labels_bag[u].items():
+#                                 if extend_next_path_from_v:
+# #                                    exit_t_loop = True
+#                                     break
+# #                                labels_to_be_deleted.update({tm: []})
+#                                 if not(lbls):
+#                                     h_count += 1
+#                                 else:
+#                                     for lbl, lbl_attrs in lbls.items():
+#                                         curr_pareto_cost_label = lbl_attrs['opt_crt_val']
+#                                         if new_cost_label == curr_pareto_cost_label:
+#                                             if lbl_attrs['pred_label_id'] == label:
+#                                                 non_dominated_label = 0
+#                                                 extend_next_path_from_v = True
+#                                                 break
+#                                             non_dominated_label = 1   
+#                                             extend_next_path_from_v = True
+#                                             break
+#                                         q_1 = 0 
+#                                         for i,j in zip(new_cost_label,curr_pareto_cost_label):
+#                                             if i>=j:
+#                                                 q_1 = q_1+1
+#                                         if q_1 == crtr_num:
+#                                             non_dominated_label = 0
+#                                             extend_next_path_from_v = True
+#                                             break
+#                                         q_2 = 0
+#                                         for i,j in zip(new_cost_label,curr_pareto_cost_label):
+#                                             if i<=j:
+#                                                 q_2 = q_2+1
+#                                         if q_2 == crtr_num:
+#                                             labels_to_be_deleted.append((tm,lbl))
+# #                                            labels_to_be_deleted[tm].append(lbl)
+#                                         non_dominated_label = 1
                             
-                            if h_count == ((t_H-t_0)/dt)+1:
-                                non_dominated_label = 1
+#                             if h_count == ((t_H-t_0)/dt)+1:
+#                                 non_dominated_label = 1
                             
-                            if non_dominated_label:
-                                insert_in_se_list = True     
-                                if labels_to_be_deleted:
-                                    for t_and_lbl in labels_to_be_deleted:
-                                        del(labels_bag[u][t_and_lbl[0]][t_and_lbl[1]])
-                                new_label_id = str(next(c))
-                                labels_bag[u][t].update({new_label_id: {'opt_crt_val' : new_cost_label, 'pred_node' : v, \
-                                          'pred_time_int': time, 'pred_label_id' : label, 'x' : x_u, \
-                                          'y' : y_u, 'z' : z_u, 'k' : k_u}})
+#                             if non_dominated_label:
+#                                 insert_in_se_list = True     
+#                                 if labels_to_be_deleted:
+#                                     for t_and_lbl in labels_to_be_deleted:
+#                                         del(labels_bag[u][t_and_lbl[0]][t_and_lbl[1]])
+#                                 new_label_id = str(next(c))
+#                                 labels_bag[u][t].update({new_label_id: {'opt_crt_val' : new_cost_label, 'pred_node' : v, \
+#                                           'pred_time_int': time, 'pred_label_id' : label, 'x' : x_u, \
+#                                           'y' : y_u, 'z' : z_u, 'k' : k_u}})
                             
-            if insert_in_se_list:
-                if de_queue[u] == 0:
-                    if se_list:
-                        de_queue[se_list[-1]] = u
-                    de_queue[u] = 999999999
-                    se_list.append(u)
-                elif de_queue[u] == -1:
-                    if se_list:
-                        de_queue[u] = se_list[0]
-                    else:
-                        de_queue[u] = 999999999
-                    se_list.appendleft(u)
-    try:
-        return labels_bag
-    except KeyError:
-        raise nx.NetworkXNoPath("Node %s not reachable from %s" % (target, source))
+#             if insert_in_se_list:
+#                 if de_queue[u] == 0:
+#                     if se_list:
+#                         de_queue[se_list[-1]] = u
+#                     de_queue[u] = 999999999
+#                     se_list.append(u)
+#                 elif de_queue[u] == -1:
+#                     if se_list:
+#                         de_queue[u] = se_list[0]
+#                     else:
+#                         de_queue[u] = 999999999
+#                     se_list.appendleft(u)
+#     try:
+#         return labels_bag
+#     except KeyError:
+#         raise nx.NetworkXNoPath("Node %s not reachable from %s" % (target, source))
         
-def pareto_paths_with_attrs_backwards_miller_approach(G, source, target, req_time, t_0, t_H, dt, travel_time='travel_time', distance='distance', \
-                                      pt_additive_cost='pt_distance_based_cost', pt_non_additive_cost='pt_zone_to_zone_cost', \
-                                      taxi_fares='taxi_fares', taxi_wait_time='taxi_wait_time', timetable='departure_time', \
-                                      edge_type='edge_type', node_type='node_type', node_graph_type='node_graph_type', \
-                                      fare_scheme='distance_based', init_travel_time = 0, init_wait_time = 0, init_distance = 0, \
-                                      init_cost = 0, init_num_line_trfs = 0, init_num_mode_trfs = 0, last_edge_type=None, \
-                                      last_upstr_node_graph_type=None, last_pt_veh_run_id=None, last_edge_cost=0, \
-                                      pt_trip_dest_zone=None, previous_edge_mode=None):
+# def pareto_paths_with_attrs_backwards_miller_approach(G, source, target, req_time, t_0, t_H, dt, travel_time='travel_time', distance='distance', \
+#                                       pt_additive_cost='pt_distance_based_cost', pt_non_additive_cost='pt_zone_to_zone_cost', \
+#                                       taxi_fares='taxi_fares', taxi_wait_time='taxi_wait_time', timetable='departure_time', \
+#                                       edge_type='edge_type', node_type='node_type', node_graph_type='node_graph_type', \
+#                                       fare_scheme='distance_based', init_travel_time = 0, init_wait_time = 0, init_distance = 0, \
+#                                       init_cost = 0, init_num_line_trfs = 0, init_num_mode_trfs = 0, last_edge_type=None, \
+#                                       last_upstr_node_graph_type=None, last_pt_veh_run_id=None, last_edge_cost=0, \
+#                                       pt_trip_dest_zone=None, previous_edge_mode=None):
+
+#   if source not in G:
+#     raise nx.NodeNotFound("Source {} not in G".format(source))
+#   if target not in G:
+#     raise nx.NodeNotFound("Target {} not in G".format(target))
+#   if source == target:
+#     return 0, [target]
+
+#   travel_time = _get_travel_time_function(G, travel_time)
+#   distance = _get_distance_function(G, distance)
+#   pt_additive_cost = _get_pt_additive_cost(G, pt_additive_cost)
+#   pt_non_additive_cost = _get_pt_non_additive_cost(G, pt_non_additive_cost)
+#   timetable = _get_timetable(G, timetable)
+#   edge_type = _get_edge_type(G, edge_type)
+#   node_type = _get_node_type(G, node_type)
+#   node_graph_type = _get_dwnstr_graph_type_data(G, node_graph_type)
+#   taxi_fares = _get_taxi_fares(G, taxi_fares)
+#   taxi_wait_time = _get_taxi_wait_time(G, taxi_wait_time)
+
+
+#   pareto_bag = mltcrtr_lbl_set_alg_bwds_miller_approach(G, source, target, t_0, t_H, dt, travel_time, distance, pt_additive_cost, pt_non_additive_cost, \
+#                                         taxi_fares, taxi_wait_time, timetable, edge_type, node_type, node_graph_type, fare_scheme, \
+#                                         init_travel_time, init_wait_time, init_distance, init_cost, init_num_line_trfs, init_num_mode_trfs,\
+#                                         last_edge_type, last_upstr_node_graph_type, last_pt_veh_run_id, last_edge_cost, pt_trip_dest_zone, \
+#                                         previous_edge_mode)
+  
+#   i = count()
+#   paths_with_attrs = {}
+#   for label_id, attrs in pareto_bag[source][req_time].items():
+      
+#       path = []
+#       path.append(source)
+#       next_node = attrs['pred_node']
+#       next_time_intrv = attrs['pred_time_int']
+#       next_label_id = attrs['pred_label_id']
+      
+#       while next_node != None and next_time_intrv != None and next_label_id != None:
+# #          if next_label_id == '68585':
+# ##              print(next_node)
+# ##              print(next_time_intrv)
+# ##              print(path)
+# #              print(pareto_bag['w56'][30720])
+# #              print(pareto_bag['w17'][31230])
+#           path.append(next_node)
+#           new_node = pareto_bag[next_node][next_time_intrv][next_label_id]['pred_node']
+#           new_time_intrv = pareto_bag[next_node][next_time_intrv][next_label_id]['pred_time_int']
+#           new_label_id = pareto_bag[next_node][next_time_intrv][next_label_id]['pred_label_id']
+#           next_node = new_node
+#           next_time_intrv = new_time_intrv
+#           next_label_id = new_label_id
+      
+#       paths_with_attrs.update({str(next(i)): {'fnl_path' : path, 'optimal_crt_values' : attrs['opt_crt_val'], 'travel_time' : attrs['tt'], \
+#                               'waiting_time' : attrs['wt'], 'distance' : attrs['l'], 'cost' : attrs['c'], 'line_transfers' : attrs['lt'], \
+#                               'mode_transfers' : attrs['mt'], 'walking_time': attrs['wkt']}})
+  
+#   return paths_with_attrs
+
+
+# # the origin and destination inputs to the algorithm need to always be nodes of the walk network.
+# def mltcrtr_lbl_set_alg_bwds_miller_approach(G, source, target, t_0, t_H, dt, travel_time_data, distance_data, pt_additive_cost_data, pt_non_additive_cost_data, \
+#                                 taxi_fares, taxi_wait_time, timetable_data, edge_type_data, node_type_data, node_graph_type_data, fare_scheme, \
+#                                 init_travel_time, init_wait_time, init_distance, init_cost, init_num_line_trfs, init_num_mode_trfs, \
+#                                 last_edge_type, last_dstr_node_graph_type, last_pt_veh_run_id, last_edge_cost, pt_trip_dest_zone, \
+#                                 previous_edge_mode):
+#     Gpred = G._pred
+    
+#     #--- initialization of the data structure that holds all the non-dominated multi-dimnesional labels and its label's required pointers
+#     #--- for all nodes and all times within a time_horizon (t_0 <= t <= t_H)
+#     c = count()
+#     labels_bag = {}  
+#     for n in G:
+#         labels_bag.update({n: {}})
+#         for t in range(t_0, t_H+1, dt):
+#             t = t%86400
+#             if n == target:
+#                 label_id = str(next(c))
+#                 labels_bag[n].update({t: {label_id: {'opt_crt_val':(init_travel_time, init_cost, init_num_line_trfs + init_num_mode_trfs), \
+#                    'pred_node': None, 'pred_time_int': None, 'pred_label_id': None, 'tt': init_travel_time, 'wt': init_wait_time, \
+#                    'l': init_distance, 'c': init_cost, 'lt': init_num_line_trfs, 'mt': init_num_mode_trfs, 'wkt': 0, 'prev_edge_type': None, \
+#                    'prev_dstr_node_graph_type': None , 'prev_mode': None}}}) #'path': path
+#             else:
+#                 labels_bag[n].update({t: {}})
+
+#     #--- initialization of the SE list used for scanning nodes in each iteration ---#
+#     #--- it opertes as a double ended queue (deque) as in Ziliaskopoulos and Mahmassani (1993) ---#
+# #    se_list = deque([target])
+#     de_queue = {}
+#     for n in G:
+#         if n == target:
+#             de_queue.update({n: 999999999})
+#         else:
+#             de_queue.update({n: 0})
+# #    first = target
+# #    last = target
+    
+#     se_list = deque([target])
+    
+#     #--- the algorithm is running until the SE List is empty, meaning that there are no more node insertions for any time t 
+# #    that can give a non-dominated paths \---#
+# #    t_count = 0
+#     while se_list: 
+# #        v = first
+# #        first = de_queue[v]
+# #        de_queue[v] = -1
+#         v = se_list.popleft()
+#         de_queue[v] = -1
+# #        if v == 'w17':
+# #            t_count += 1
+#         v_n_gr_type = G.nodes[v]['node_graph_type']
+        
+#         for u, e in Gpred[v].items():
+#             insert_in_se_list = False
+#             # now for each t we first need to identify the total travel time that is required to travel from u to v
+#             # this is the case because we need to know which label (path) or set of labels (paths) from node v will be extended
+#             # the labels that will be extended will then be the one in labels_bag[v][t+tt_uv(t)]
+#             for t in range(t_0, t_H+1, dt):
+#                 t = t%86400
+#                 e_type = e['edge_type']#_data(u, v, e)
+                
+# #                here we diffferentiate between the cases of public transport and road modes, since time-dependency
+# #                is handled differently in each case; specifically waiting is allowed in PT but not in road services
+# #                if e_type != 'pt_route_edge':
+#                 if e_type == 'car_sharing_station_egress_edge' or e_type == 'car_sharing_station_access_edge':
+#                     e_tt = 0
+#                     e_wait_time = e['wait_time']
+#                     e_cost=0
+#                     e_distance = 0
+#                     e_num_lin_trf = 0
+#                     e_num_mode_trf = 0
+#                     e_walk_time = 0
+                    
+#                 if e_type == 'car_sharing_orig_dummy_edge':
+#                     e_wait_time = 0
+#                     e_tt = 0
+#                     e_distance = 0
+#                     e_cost = 0
+#                     e_num_mode_trf = 0
+#                     e_num_lin_trf = 0
+#                     e_walk_time = 0
+                    
+#                 if e_type == 'car_sharing_dest_dummy_edge' or e_type == 'car_sharing_dual_edge':
+#                     e_wait_time = 0
+# #                    tt_d = e['travel_time']#_data(u, v, e)
+# #                    if tt_d is None:
+# #                      print('Missing in_veh_tt value in edge {}'.format((u, v))) 
+# #                      continue
+#                     e_tt = e['travel_time'][t]
+# #                    e_tt = get_time_dep_taxi_travel_time(t, tt_d) # used this function cause it works the way it should, need to however have some generic function to extract data from different type of dictionaries without being mode-specific
+#                     e_distance = e['distance']#_data(u, v, e)
+#                     if e_distance is None:
+#                       print('Missing distance value in edge {}'.format((u, v)))
+#                       continue
+# #                    e_cost_data = e['car_sharing_fares']
+#                     e_cost = e['car_sharing_fares'][t]
+# #                    e_cost = get_time_dep_taxi_cost(t, e_cost_data) # # used this function cause it works the way it should, need to however have some generic function to extract data from different type of dictionaries without being mode-specific
+#                     e_num_mode_trf = 0
+#                     e_num_lin_trf = 0
+#                     e_walk_time = 0
+                    
+#                 if e_type == 'taxi_edge' or e_type == 'on_demand_single_taxi_edge' or e_type == 'on_demand_shared_taxi_edge':
+#                     e_wait_time = e['taxi_wait_time'][t]
+#                     e_tt = e['travel_time'][(t+e_wait_time)-((t+e_wait_time)%dt)]
+# #                    e_wait_time_data = e['taxi_wait_time']#(u, v, e)
+# #                    e_wait_time = get_time_dep_taxi_wait_time(t, e_wait_time_data)
+# #                    tt_d = e['travel_time']#_data(u, v, e)
+# #                    if tt_d is None:
+# #                      print('Missing in_veh_tt value in edge {}'.format((u, v)))
+# #                      continue
+# #                    e_tt = get_time_dep_taxi_travel_time(t+e_wait_time, tt_d)
+#                     e_distance = e['distance']#_data(u, v, e)        # funtion that extracts the edge's distance attribute
+#                     if e_distance is None:
+#                       print('Missing distance value in edge {}'.format((u, v)))
+#                       continue
+#                     e_num_mode_trf = 0
+#                     e_num_lin_trf = 0
+#                     e_cost = e['taxi_fares'][t]
+#                     e_walk_time = 0
+# #                    e_cost_data = e['taxi_fares']#(u, v, e)
+# #                    e_cost = get_time_dep_taxi_cost(t, e_cost_data)
+                
+#                 if e_type == 'walk_edge':
+#                     e_tt = e['travel_time']#_data(u, v, e)  # funtion that extracts the edge's in-vehicle travel time attribute
+#                     if e_tt is None:
+#                       print('Missing in_veh_tt value in edge {}'.format((u, v)))
+#                       continue
+#                     e_wait_time = 0
+#                     e_distance = e['distance']#_data(u, v, e)        # funtion that extracts the edge's distance attribute
+#                     if e_distance is None:
+#                       print('Missing distance value in edge {}'.format((u, v)))
+#                       continue
+#                     e_cost = 0
+#                     e_num_mode_trf = 0
+#                     e_num_lin_trf = 0
+#                     e_walk_time = e['travel_time']
+                    
+#                 if e_type == 'access_edge':
+#                     e_tt = e['travel_time']#_data(u, v, e)  # funtion that extracts the edge's in-vehicle travel time attribute
+#                     if e_tt is None:
+#                       print('Missing in_veh_tt value in edge {}'.format((u, v)))
+#                       continue
+#                     e_wait_time = 0
+#                     e_distance = e['distance']#_data(u, v, e)        # funtion that extracts the edge's distance attribute
+#                     if e_distance is None:
+#                       print('Missing distance value in edge {}'.format((u, v)))
+#                       continue
+#                     e_cost = 0
+#                     e_num_mode_trf = 0
+#                     e_num_lin_trf = 0
+#                     u_n_type = e['up_node_type']
+# #                        v_n_type = e['dstr_node_type']
+#                     if u_n_type == 'walk_graph_node':
+#                         e_num_mode_trf = 1
+#                     e_walk_time = e['travel_time']
+                    
+#                 if e_type == 'pt_transfer_edge':
+#                     e_tt = e['travel_time']#_data(u, v, e)  # funtion that extracts the edge's in-vehicle travel time attribute
+#                     if e_tt is None:
+#                       print('Missing in_veh_tt value in edge {}'.format((u, v)))
+#                       continue
+#                     e_wait_time = 0
+#                     e_distance = e['distance']#_data(u, v, e)        # funtion that extracts the edge's distance attribute
+#                     if e_distance is None:
+#                       print('Missing distance value in edge {}'.format((u, v)))
+#                       continue
+#                     e_cost = 0
+#                     e_num_mode_trf = 0
+#                     e_num_lin_trf = 0
+#                     u_n_type = e['up_node_type']
+#                     v_n_type = e['dstr_node_type']
+#                     if (u_n_type == 'stop_node' or u_n_type=='station_node') and v_n_type == 'route_node':
+#                         e_num_lin_trf =1
+#                     e_walk_time = e['travel_time']
+                    
+#                 if e_type == 'pt_route_edge':
+# #                    dep_timetable = timetable_data(u, v, e)  # fuction that extracts the stop's/station's timetable dict
+# #                    if dep_timetable is None:
+# #                        print('Missing timetable value in edge'.format((u, v)))
+# #                        continue
+# #                    e_wait_time, pt_vehicle_run_id = calc_plat_wait_time_and_train_id(t, dep_timetable)  # function that extracts waiting time for next pt vehicle and the vehicle_id; the next departing vehicle is being found using a binary search algorithm that operates on a sorted list of the deparure times for this edge (departure times of the downstream stop/station)
+#                     e_wait_time = e['wait_time'][t]
+# #                    pt_vehicle_run_id = e['wait_time'][t]['veh_id']
+#                     if e_wait_time is None:
+#                         print('Missing wait_time value in edge'.format((u, v)))
+#                         continue
+#                     e_tt = e['travel_time'][t]
+# #                    tt_d = e['travel_time']#_data(u, v, e)  # fuction that extracts the travel time dict
+# #                    if tt_d is None:
+# #                        print('Missing in_veh_tt value in edge'.format((u, v)))
+# #                        continue
+# #                    e_tt = tt_d[pt_vehicle_run_id] #calc_pt_route_edge_in_veh_tt_for_run_id(tt_d, pt_vehicle_run_id)  # fuction that travel time for corresponding pt vehicle run_id
+#                     e_distance = e['distance']#_data(u, v, e)  # fuction that extracts the travel time dict
+#                     if e_distance is None:
+#                         print('Missing distance value in edge'.format((u, v)))
+#                         continue
+#                     # edge costs for pt depend on the pt fare scheme; if it is additive (distance_based) or zone_to_zone !! consider adding a price cap !!
+# #                    if fare_scheme == 'distance_based':
+# #                    dist_bas_cost = e['pt_distance_based_cost']#(u, v, e)  # fuction that extracts the time-dependent distance-based cost dict
+# #                    if dist_bas_cost is None:
+# #                        print('Missing dist_bas_cost value in edge'.format((u, v)))
+# #                        continue
+# #                    e_cost = calc_time_dep_distance_based_cost(dist_bas_cost, t)  # fuction that extracts the cost based on time-dependent distance-based cost dict and the current time (finds in which time-zone we currently are)
+#                     e_cost = e['pt_distance_based_cost'][t]
+#                     e_num_lin_trf = 0
+#                     e_num_mode_trf = 0
+#                     e_walk_time = 0
+                    
+#                 v_arr_time = t + e_tt + e_wait_time
+#                 mod_v_arr_time = v_arr_time-((v_arr_time-t_0)%dt)
+# #                if u == 'w56' and v == 'w17' and (t_count == 7 or t_count == 8):
+# #                    print(e_tt, v_arr_time, mod_v_arr_time)
+                    
+#                 if v_arr_time <= t_H:                     
+#                     for label_id, info in labels_bag[v][mod_v_arr_time].items():
+#                         if u == info['pred_node']:
+#                             continue
+#                         prev_mode = info['prev_mode']
+#                         pr_ed_tp = info['prev_edge_type']
+#                         pre_dstr_n_gr_tp = info['prev_dstr_node_graph_type']
+                        
+#                         # restraint walking before taxi modes - active
+#                         if e_type == 'walk_edge' and pr_ed_tp == 'access_edge' and \
+#                         (pre_dstr_n_gr_tp == 'taxi_graph' or pre_dstr_n_gr_tp == 'on_demand_single_taxi_graph' or pre_dstr_n_gr_tp == 'on_demand_shared_taxi_graph'):
+#                             continue
+                        
+#                         if e_type == 'access_edge':
+#                             u_n_type = e['up_node_type']#G.nodes[v]['node_type']
+#                             u_n_gr_type = e['up_node_graph_type']#G.nodes[u]['node_graph_type']#node_graph_type_data(u, G.nodes[u])
+#                             v_n_type = e['dstr_node_type']#G.nodes[u]['node_type']#node_type_data(u, G.nodes[u])
+# #                                penalty = 0
+                            
+#                             if u_n_gr_type == 'Walk':
+#                               prev_mode = v_n_gr_type   
+# #                           when we are at an access edge that connects graphs we need to penalize unreasonable connections and path loops; 
+# #                           e.g., from walk node to another mode-specific node and back to walk node, from a taxi/carsharing trip to a walk trip 
+# #                           and back to taxi/carsharing trip
+# #                            if pr_ed_tp == 'access_edge': #active
+# #                              if (pre_dstr_n_gr_tp == 'Walk' and u_n_gr_type == 'Walk') or (pre_dstr_n_gr_tp == 'Bus' and \
+# #                                 u_n_gr_type == 'Bus') or (pre_dstr_n_gr_tp == 'Train' and u_n_gr_type == 'Train'):
+# #                                  continue#penalty = 1000000000000000
+                             
+# #                           avoid paths that include two consecutive taxis or carsharign legs in one trip
+#                             if (prev_mode == 'taxi_graph' or prev_mode == 'on_demand_single_taxi_graph' or \
+#                                 prev_mode == 'on_demand_shared_taxi_graph' or prev_mode == 'car_sharing_graph') and \
+#                                 (u_n_gr_type == 'taxi_graph' or u_n_gr_type == 'on_demand_single_taxi_graph' or \
+#                                  u_n_gr_type == 'on_demand_shared_taxi_graph' or u_n_gr_type == 'car_sharing_graph'):
+#                                     continue#penalty = 1000000000000000 active
+
+#                             if v_n_type == 'car_sharing_station_node':
+#                               if G.nodes[v]['stock_level'] == 0:
+#                                   continue#penalty = 1000000000000000
+#                             if u_n_type == 'car_sharing_station_node':
+#                               if G.nodes[u]['stock_level'] == G.nodes[u]['capacity']:
+#                                   continue#penalty = 1000000000000000
+#                             # restraint pick up -active
+#                             if v_n_gr_type == 'taxi_graph' or v_n_gr_type == 'on_demand_single_taxi_graph' or v_n_gr_type == 'on_demand_shared_taxi_graph':
+#                                 if e['up_node_zone'] == G.nodes[source]['zone'] and u != source:
+#                                   continue#penalty = 1000000000000000
+                              
+#                             # restraint drop off - active
+#                             if (u_n_gr_type == 'taxi_graph' or u_n_gr_type == 'on_demand_single_taxi_graph' or u_n_gr_type == 'on_demand_shared_taxi_graph') \
+#                             and e['dstr_node_zone'] == G.nodes[target]['zone'] and v != target:
+#                                 continue
+                            
+#                             # restraint walking after taxi modes - active
+#                             if (u_n_gr_type == 'taxi_graph' or u_n_gr_type == 'on_demand_single_taxi_graph' or u_n_gr_type == 'on_demand_shared_taxi_graph') \
+#                             and pr_ed_tp == 'walk_edge':
+#                                 continue
+                            
+# #                                if (v_n_gr_type == 'taxi_graph' or v_n_gr_type == 'on_demand_single_taxi_graph' \
+# #                                    or v_n_gr_type == 'on_demand_shared_taxi_graph') and u != source:
+# #                                    continue
+# #                                if u_n_gr_type == 'taxi_graph' or u_n_gr_type == 'on_demand_single_taxi_graph' or u_n_gr_type == 'on_demand_shared_taxi_graph' \
+# #                                     or u_n_gr_type == 'car_sharing_graph'pr_ed_tp == 'walk_edge' and G.nodes[info['pred_node']]['is_mode_dupl']:
+# #                                    continue
+                          
+#                         travel_time_till_u = e_tt + info['tt']
+#                         wait_time_till_u = e_wait_time + info['wt']
+#                         distance_till_u = e_distance + info['l']
+#                         cost_till_u = e_cost + info['c']
+#                         line_trasnf_num_till_u = e_num_lin_trf + info['lt']
+#                         mode_transf_num_till_u = e_num_mode_trf + info['mt']
+#                         walk_time_till_u = e_walk_time + info['wkt']
+                        
+#                         curr_cost_label = [travel_time_till_u + wait_time_till_u, cost_till_u, line_trasnf_num_till_u \
+#                                            + mode_transf_num_till_u]
+#                         crtr_num = len(curr_cost_label)
+
+#                         labels_to_be_deleted = deque([])
+#                         extend_next_path_from_v = False
+#                         h_count = 0
+                        
+#                         for tm, lbls in labels_bag[u].items():
+#                             if extend_next_path_from_v:
+#                                 break
+# #                                labels_to_be_deleted.update({tm: []})
+#                             if not(lbls):
+#                                 h_count += 1
+#                             else:
+#                                 for lbl, lbl_attrs in lbls.items():
+#                                     curr_pareto_cost_label = lbl_attrs['opt_crt_val']
+#                                     if curr_cost_label == curr_pareto_cost_label:
+#                                         if lbl_attrs['pred_label_id'] == label_id:
+#                                             non_dominated_label = 0
+#                                             extend_next_path_from_v = True
+#                                             break
+#                                         non_dominated_label = 1   
+#                                         extend_next_path_from_v = True
+#                                         break
+#                                     q_1 = 0 
+#                                     for i,j in zip(curr_cost_label,curr_pareto_cost_label):
+#                                         if i>=j:
+#                                             q_1 = q_1+1
+#                                     if q_1 == crtr_num:
+#                                         non_dominated_label = 0
+#                                         extend_next_path_from_v = True
+#                                         break
+#                                     q_2 = 0
+#                                     for i,j in zip(curr_cost_label,curr_pareto_cost_label):
+#                                         if i<=j:
+#                                             q_2 = q_2+1
+#                                     if q_2 == crtr_num:
+#                                         labels_to_be_deleted.append((tm,lbl))
+# #                                            labels_to_be_deleted[tm].append(lbl)
+#                                     non_dominated_label = 1
+                        
+#                         if h_count == ((t_H-t_0)/dt)+1:
+#                             non_dominated_label = 1
+                        
+#                         if non_dominated_label:
+#                             insert_in_se_list = True     
+#                             if labels_to_be_deleted:
+#                                 for t_and_lbl in labels_to_be_deleted:
+#                                     del(labels_bag[u][t_and_lbl[0]][t_and_lbl[1]])
+#                             new_label_id = str(next(c))
+#                             labels_bag[u][t].update({new_label_id: {'opt_crt_val' : curr_cost_label, 'pred_node' : v, \
+#                                           'pred_time_int': time, 'pred_label_id' : label, 'tt' : travel_time_till_u, \
+#                                           'wt' : wait_time_till_u, 'l' : distance_till_u, 'c' : cost_till_u, 'lt' : line_trasnf_num_till_u, \
+#                                           'mt' : mode_transf_num_till_u, 'wkt': walk_time_till_u, 'prev_edge_type': e_type, 'prev_dstr_node_graph_type': v_n_gr_type, \
+#                                           'prev_mode': prev_mode}})
+                                    
+#             if insert_in_se_list:
+#                 if de_queue[u] == 0:
+#                     if se_list:
+#                         de_queue[se_list[-1]] = u
+#                     de_queue[u] = 999999999
+#                     se_list.append(u)
+#                 elif de_queue[u] == -1:
+#                     if se_list:
+#                         de_queue[u] = se_list[0]
+#                     else:
+#                         de_queue[u] = 999999999
+#                     se_list.appendleft(u)
+#     try:
+# #        print(t_count)
+#         return labels_bag
+#     except KeyError:
+#         raise nx.NetworkXNoPath("Node %s not reachable from %s" % (target, source))
+        
+        
+# def test_pareto_paths_with_attrs_backwards_miller_approach(G, source, target, req_time, t_0, t_H, dt):
+
+#   if source not in G:
+#     raise nx.NodeNotFound("Source {} not in G".format(source))
+#   if target not in G:
+#     raise nx.NodeNotFound("Target {} not in G".format(target))
+#   if source == target:
+#     return 0, [target]
+
+
+#   pareto_bag = test_mltcrtr_lbl_set_alg_bwds_miller_approach(G, source, target, t_0, t_H, dt)
+  
+#   i = count()
+#   paths_with_attrs = {}
+#   for label_id, attrs in pareto_bag[source][req_time].items():
+      
+#       path = []
+#       path.append(source)
+#       next_node = attrs['pred_node']
+#       next_time_intrv = attrs['pred_time_int']
+#       next_label_id = attrs['pred_label_id']
+      
+#       while next_node != None and next_time_intrv != None and next_label_id != None:
+# #          if next_label_id == '168':
+# #              print(next_node)
+# #              print(next_time_intrv)
+# #              print(path)
+# #              print(pareto_bag['w56'][30720])
+# #              print(pareto_bag['w17'][31230])
+#           path.append(next_node)
+#           new_node = pareto_bag[next_node][next_time_intrv][next_label_id]['pred_node']
+#           new_time_intrv = pareto_bag[next_node][next_time_intrv][next_label_id]['pred_time_int']
+#           new_label_id = pareto_bag[next_node][next_time_intrv][next_label_id]['pred_label_id']
+#           next_node = new_node
+#           next_time_intrv = new_time_intrv
+#           next_label_id = new_label_id
+      
+#       paths_with_attrs.update({str(next(i)): {'fnl_path' : path, 'optimal_crt_values' : attrs['opt_crt_val'], 'x' : attrs['x'], \
+#                               'y' : attrs['y'], 'z' : attrs['z'], 'k' : attrs['k']}})
+  
+#   return paths_with_attrs
+
+
+# # the origin and destination inputs to the algorithm need to always be nodes of the walk network.
+# def test_mltcrtr_lbl_set_alg_bwds_miller_approach(G, source, target, t_0, t_H, dt):
+#     Gpred = G._pred
+    
+#     #--- initialization of the data structure that holds all the non-dominated multi-dimnesional labels and its label's required pointers
+#     #--- for all nodes and all times within a time_horizon (t_0 <= t <= t_H)
+#     c = count()
+#     labels_bag = {}  
+#     for n in G:
+#         labels_bag.update({n: {}})
+#         for t in range(t_0, t_H+1, dt):
+#             t = t%86400
+#             if n == target:
+#                 label_id = str(next(c))
+#                 labels_bag[n].update({t: {label_id: {'opt_crt_val':(0, 0, 0, 0), \
+#                    'pred_node': None, 'pred_time_int': None, 'pred_label_id': None, 'x': 0, 'y': 0, \
+#                    'z': 0, 'k': 0}}}) #'path': path
+#             else:
+#                 labels_bag[n].update({t: {}})
+
+#     #--- initialization of the SE list used for scanning nodes in each iteration ---#
+#     #--- it opertes as a double ended queue (deque) as in Ziliaskopoulos and Mahmassani (1993) ---#
+# #    se_list = deque([target])
+#     de_queue = {}
+#     for n in G:
+#         if n == target:
+#             de_queue.update({n: 999999999})
+#         else:
+#             de_queue.update({n: 0})
+# #    first = target
+# #    last = target
+    
+#     se_list = deque([target])
+    
+#     #--- the algorithm is running until the SE List is empty, meaning that there are no more node insertions for any time t 
+# #    that can give a non-dominated paths \---#
+# #    t_count = 0
+#     while se_list: 
+# #        v = first
+# #        first = de_queue[v]
+# #        de_queue[v] = -1
+#         v = se_list.popleft()
+#         de_queue[v] = -1
+# #        if v == 'w17':
+# #            t_count += 1
+        
+#         for u, e in Gpred[v].items():
+#             insert_in_se_list = False
+#             # now for each t we first need to identify the total travel time that is required to travel from u to v
+#             # this is the case because we need to know which label (path) or set of labels (paths) from node v will be extended
+#             # the labels that will be extended will then be the one in labels_bag[v][t+tt_uv(t)]
+#             for t in range(t_0, t_H+1, dt):
+#                 t = t%86400
+#                 e_x = e['x'][t]
+#                 e_y = e['y'][t]
+#                 e_z = e['z'][t]
+#                 e_k = e['k'][t]
+                    
+#                 v_arr_time = t + e_x
+#                 mod_v_arr_time = v_arr_time-((v_arr_time-t_0)%dt)                    
+#                 if v_arr_time <= t_H:                     
+#                     for label_id, info in labels_bag[v][mod_v_arr_time].items():
+#                         if u == info['pred_node']:
+#                             continue
+                          
+#                         x_u = e_x + info['x']
+#                         y_u = e_y + info['y']
+#                         z_u = e_z + info['z']
+#                         k_u = e_k + info['k']
+                        
+#                         curr_cost_label = [x_u, y_u, z_u, k_u]
+#                         crtr_num = len(curr_cost_label)
+# #                        if curr_cost_label == [77, 125, 31, 43]:
+# #                            print('oops')
+
+#                         labels_to_be_deleted = deque([])
+#                         extend_next_path_from_v = False
+#                         h_count = 0
+                        
+#                         for tm, lbls in labels_bag[u].items():
+#                             if extend_next_path_from_v:
+#                                 break
+# #                                labels_to_be_deleted.update({tm: []})
+#                             if not(lbls):
+#                                 h_count += 1
+#                             else:
+#                                 for lbl, lbl_attrs in lbls.items():
+#                                     curr_pareto_cost_label = lbl_attrs['opt_crt_val']
+#                                     if curr_cost_label == curr_pareto_cost_label:
+#                                         if lbl_attrs['pred_label_id'] == label_id:
+#                                             non_dominated_label = 0
+#                                             extend_next_path_from_v = True
+#                                             break
+#                                         non_dominated_label = 1   
+#                                         extend_next_path_from_v = True
+#                                         break
+#                                     q_1 = 0 
+#                                     for i,j in zip(curr_cost_label,curr_pareto_cost_label):
+#                                         if i>=j:
+#                                             q_1 = q_1+1
+#                                     if q_1 == crtr_num:
+#                                         non_dominated_label = 0
+#                                         extend_next_path_from_v = True
+#                                         break
+#                                     q_2 = 0
+#                                     for i,j in zip(curr_cost_label,curr_pareto_cost_label):
+#                                         if i<=j:
+#                                             q_2 = q_2+1
+#                                     if q_2 == crtr_num:
+#                                         labels_to_be_deleted.append((tm,lbl))
+# #                                            labels_to_be_deleted[tm].append(lbl)
+#                                     non_dominated_label = 1
+                        
+#                         if h_count == ((t_H-t_0)/dt)+1:
+#                             non_dominated_label = 1
+                        
+#                         if non_dominated_label:
+#                             insert_in_se_list = True     
+#                             if labels_to_be_deleted:
+#                                 for t_and_lbl in labels_to_be_deleted:
+# #                                    if t_and_lbl == (0,'168'):
+# #                                        print(v)
+# #                                        print(u)
+# ##                                        print(curr_cost_label)
+# ##                                        print(labels_bag[u][t])
+# ##                                        print(new_label_id)
+# #                                        for pred_l in G.pred[u]:
+# ##                                            print(pred_l)
+# #                                            for tim_itrv, stuff in labels_bag[pred_l].items():
+# #                                                for lae_id, stuff_2 in stuff.items():
+# #                                                    if stuff_2['pred_label_id'] == '168':
+# #                                                        print(lae_id, pred_l, tim_itrv)
+                                        
+#                                     del(labels_bag[u][t_and_lbl[0]][t_and_lbl[1]])
+#                             new_label_id = str(next(c))
+#                             labels_bag[u][t].update({new_label_id: {'opt_crt_val' : curr_cost_label, 'pred_node' : v, \
+#                                           'pred_time_int': mod_v_arr_time, 'pred_label_id' : label_id, 'x' : x_u, \
+#                                           'y' : y_u, 'z' : z_u, 'k' : k_u}})
+                                    
+#             if insert_in_se_list:
+#                 if de_queue[u] == 0:
+#                     if se_list:
+#                         de_queue[se_list[-1]] = u
+#                     de_queue[u] = 999999999
+#                     se_list.append(u)
+#                 elif de_queue[u] == -1:
+#                     if se_list:
+#                         de_queue[u] = se_list[0]
+#                     else:
+#                         de_queue[u] = 999999999
+#                     se_list.appendleft(u)
+#     try:
+# #        print(t_count)
+#         return labels_bag
+#     except KeyError:
+#         raise nx.NetworkXNoPath("Node %s not reachable from %s" % (target, source))
+        
+        
+        
+# def pareto_paths_with_attrs_backwards_FNL(G, source, target, req_time, t_0, t_H, dt):
+
+#   if source not in G:
+#     raise nx.NodeNotFound("Source {} not in G".format(source))
+#   if target not in G:
+#     raise nx.NodeNotFound("Target {} not in G".format(target))
+#   if source == target:
+#     return 0, [target]
+
+#   pareto_bag = mltcrtr_lbl_set_alg_bwds_FNL(G, source, target, t_0, t_H, dt)
+  
+#   i = count()
+#   paths_with_attrs = {}
+#   for label_id, attrs in pareto_bag[source][req_time].items():
+      
+#       path = []
+#       path.append(source)
+#       next_node = attrs['pred_node']
+#       next_time_intrv = attrs['pred_time_int']
+#       next_label_id = attrs['pred_label_id']
+      
+#       while next_node != None and next_time_intrv != None and next_label_id != None:
+#           path.append(next_node)
+#           new_node = pareto_bag[next_node][next_time_intrv][next_label_id]['pred_node']
+#           new_time_intrv = pareto_bag[next_node][next_time_intrv][next_label_id]['pred_time_int']
+#           new_label_id = pareto_bag[next_node][next_time_intrv][next_label_id]['pred_label_id']
+#           next_node = new_node
+#           next_time_intrv = new_time_intrv
+#           next_label_id = new_label_id
+      
+#       paths_with_attrs.update({str(next(i)): {'fnl_path' : path, 'optimal_crt_values' : attrs['opt_crt_val'], 'travel_time' : attrs['tt'], \
+#                               'waiting_time' : attrs['wt'], 'distance' : attrs['l'], 'cost' : attrs['c'], 'line_transfers' : attrs['lt'], \
+#                               'mode_transfers' : attrs['mt'], 'walking_time': attrs['wkt']}})
+  
+#   return paths_with_attrs
+
+
+# # the origin and destination inputs to the algorithm need to always be nodes of the walk network.
+# def mltcrtr_lbl_set_alg_bwds_FNL(G, source, target, t_0, t_H, dt):
+#     Gpred = G._pred
+    
+#     #--- initialization of the data structure that holds all the non-dominated multi-dimnesional labels and its label's required pointers
+#     #--- for all nodes and all times within a time_horizon (t_0 <= t <= t_H)
+#     c = count()
+#     labels_bag = {}  
+#     for n in G:
+#         labels_bag.update({n: {}})
+#         for t in range(t_0, t_H+1, dt):
+#             t = t%86400
+#             if n == target:
+#                 label_id = str(next(c))
+#                 labels_bag[n].update({t: {label_id: {'opt_crt_val': (0, 0, 0), 'pred_node': None, 'pred_time_int': None, \
+#                           'pred_label_id': None, 'tt': 0, 'wt': 0, 'l': 0, 'c': 0, 'lt': 0, 'mt': 0, 'wkt': 0, \
+#                           'prev_edge_type': None, 'prev_dstr_node_graph_type': None , 'prev_mode': None}}})
+#             else:
+#                 labels_bag[n].update({t: {}})
+
+#     #--- initialization of the SE list used for scanning nodes in each iteration ---#
+#     #--- it opertes as a double ended queue (deque) as in Ziliaskopoulos and Mahmassani (1993) ---#
+# #    se_list = deque([target])
+#     de_queue = {}
+#     for n in G:
+#         if n == target:
+#             de_queue.update({n: 999999999})
+#         else:
+#             de_queue.update({n: 0})
+    
+#     se_list = deque([target])
+    
+#     #--- the algorithm is running until the SE List is empty, meaning that there are no more node insertions for any time t 
+# #    that can give a non-dominated paths \---#
+#     while se_list: 
+#         v = se_list.popleft()
+#         de_queue[v] = -1
+#         v_n_gr_type = G.nodes[v]['node_graph_type']
+        
+#         for u, e in Gpred[v].items():
+#             if u == 'w95':
+#                 print('oops')
+#             insert_in_se_list = False
+#             # now for each t we first need to identify the total travel time that is required to travel from u to v
+#             # this is the case because we need to know which label (path) or set of labels (paths) from node v will be extended
+#             # the labels that will be extended will then be the one in labels_bag[v][t+tt_uv(t)]
+#             for t in range(t_0, t_H+1, dt):
+                
+#                 t = t%86400
+#                 e_type = e['edge_type']#_data(u, v, e)
+
+#                 if e_type == 'car_sharing_station_egress_edge' or e_type == 'car_sharing_station_access_edge':
+#                     e_tt = 0
+#                     e_wait_time = e['wait_time']
+#                     e_cost=0
+#                     e_distance = 0
+#                     e_num_lin_trf = 0
+#                     e_num_mode_trf = 0
+#                     e_walk_time = 0
+                    
+#                 if e_type == 'car_sharing_orig_dummy_edge':
+#                     e_wait_time = 0
+#                     e_tt = 0
+#                     e_distance = 0
+#                     e_cost = 0
+#                     e_num_mode_trf = 0
+#                     e_num_lin_trf = 0
+#                     e_walk_time = 0
+                    
+#                 if e_type == 'car_sharing_dest_dummy_edge' or e_type == 'car_sharing_dual_edge':
+#                     e_wait_time = 0
+#                     e_tt = e['travel_time'][t]
+#                     e_distance = e['distance']#_data(u, v, e)
+#                     e_cost = e['car_sharing_fares'][t]
+#                     e_num_mode_trf = 0
+#                     e_num_lin_trf = 0
+#                     e_walk_time = 0
+                    
+#                 if e_type == 'taxi_edge' or e_type == 'on_demand_single_taxi_edge' or e_type == 'on_demand_shared_taxi_edge':
+#                     e_wait_time = e['taxi_wait_time'][t]
+#                     e_tt = e['travel_time'][(t+e_wait_time)-((t+e_wait_time)%dt)]
+#                     e_distance = e['distance']#_data(u, v, e)        # funtion that extracts the edge's distance attribute
+#                     e_num_mode_trf = 0
+#                     e_num_lin_trf = 0
+#                     e_cost = e['taxi_fares'][t]
+#                     e_walk_time = 0
+                
+#                 if e_type == 'walk_edge':
+#                     e_tt = e['travel_time']#_data(u, v, e)  # funtion that extracts the edge's in-vehicle travel time attribute
+#                     e_wait_time = 0
+#                     e_distance = e['distance']#_data(u, v, e)        # funtion that extracts the edge's distance attribute
+#                     e_cost = 0
+#                     e_num_mode_trf = 0
+#                     e_num_lin_trf = 0
+#                     e_walk_time = e['travel_time']
+                    
+#                 if e_type == 'access_edge':
+#                     e_tt = e['travel_time']#_data(u, v, e)  # funtion that extracts the edge's in-vehicle travel time attribute
+#                     e_wait_time = 0
+#                     e_distance = e['distance']#_data(u, v, e)        # funtion that extracts the edge's distance attribute
+#                     e_cost = 0
+#                     e_num_mode_trf = 0
+#                     e_num_lin_trf = 0
+#                     u_n_type = e['up_node_type']
+#                     if u_n_type == 'walk_graph_node':
+#                         e_num_mode_trf = 1
+#                     e_walk_time = e['travel_time']
+                    
+#                 if e_type == 'pt_transfer_edge':
+#                     e_tt = e['travel_time']#_data(u, v, e)  # funtion that extracts the edge's in-vehicle travel time attribute
+#                     e_wait_time = 0
+#                     e_distance = e['distance']#_data(u, v, e)        # funtion that extracts the edge's distance attribute
+#                     e_cost = 0
+#                     e_num_mode_trf = 0
+#                     e_num_lin_trf = 0
+#                     u_n_type = e['up_node_type']
+#                     v_n_type = e['dstr_node_type']
+#                     if (u_n_type == 'stop_node' or u_n_type=='station_node') and v_n_type == 'route_node':
+#                         e_num_lin_trf =1
+#                     e_walk_time = e['travel_time']
+                    
+#                 if e_type == 'pt_route_edge':
+#                     e_wait_time = e['wait_time'][t]
+#                     e_tt = e['travel_time'][t]
+#                     e_distance = e['distance']#_data(u, v, e)  # fuction that extracts the travel time dict
+#                     e_cost = e['pt_distance_based_cost'][t]
+#                     e_num_lin_trf = 0
+#                     e_num_mode_trf = 0
+#                     e_walk_time = 0
+                    
+#                 v_arr_time = t + e_tt + e_wait_time
+#                 mod_v_arr_time = v_arr_time-((v_arr_time-t_0)%dt)
+                    
+#                 if mod_v_arr_time <= t_H:                     
+#                     for label_id, info in labels_bag[v][mod_v_arr_time].items():
+#                         if u == info['pred_node']:
+#                             continue
+#                         prev_mode = info['prev_mode']
+#                         pr_ed_tp = info['prev_edge_type']
+#                         pre_dstr_n_gr_tp = info['prev_dstr_node_graph_type']
+                        
+#                         # restraint walking before taxi modes - active
+#                         if e_type == 'walk_edge' and pr_ed_tp == 'access_edge' and \
+#                         (pre_dstr_n_gr_tp == 'taxi_graph' or pre_dstr_n_gr_tp == 'on_demand_single_taxi_graph' or pre_dstr_n_gr_tp == 'on_demand_shared_taxi_graph'):
+#                             continue
+                        
+#                         if e_type == 'access_edge':
+#                             u_n_type = e['up_node_type']
+#                             u_n_gr_type = e['up_node_graph_type']
+#                             v_n_type = e['dstr_node_type']
+                            
+#                             if u_n_gr_type == 'Walk':
+#                               prev_mode = v_n_gr_type   
+# #                           when we are at an access edge that connects graphs we need to penalize unreasonable connections and path loops; 
+# #                           e.g., from walk node to another mode-specific node and back to walk node, from a taxi/carsharing trip to a walk trip 
+# #                           and back to taxi/carsharing trip
+#                             if pr_ed_tp == 'access_edge': #active
+#                               if (pre_dstr_n_gr_tp == 'Walk' and u_n_gr_type == 'Walk') or (pre_dstr_n_gr_tp == 'Bus' and \
+#                                  u_n_gr_type == 'Bus') or (pre_dstr_n_gr_tp == 'Train' and u_n_gr_type == 'Train'):
+#                                   continue#penalty = 1000000000000000
+                             
+# #                           avoid paths that include two consecutive taxis or carsharign legs in one trip
+#                             if (prev_mode == 'taxi_graph' or prev_mode == 'on_demand_single_taxi_graph' or \
+#                                 prev_mode == 'on_demand_shared_taxi_graph' or prev_mode == 'car_sharing_graph') and \
+#                                 (u_n_gr_type == 'taxi_graph' or u_n_gr_type == 'on_demand_single_taxi_graph' or \
+#                                  u_n_gr_type == 'on_demand_shared_taxi_graph' or u_n_gr_type == 'car_sharing_graph'):
+#                                     continue#penalty = 1000000000000000 active
+
+#                             if v_n_type == 'car_sharing_station_node':
+#                               if G.nodes[v]['stock_level'] == 0:
+#                                   continue#penalty = 1000000000000000
+#                             if u_n_type == 'car_sharing_station_node':
+#                               if G.nodes[u]['stock_level'] == G.nodes[u]['capacity']:
+#                                   continue#penalty = 1000000000000000
+#                             # restraint pick up -active
+#                             if v_n_gr_type == 'taxi_graph' or v_n_gr_type == 'on_demand_single_taxi_graph' or v_n_gr_type == 'on_demand_shared_taxi_graph':
+#                                 if e['up_node_zone'] == G.nodes[source]['zone'] and u != source:
+#                                   continue#penalty = 1000000000000000
+                              
+#                             # restraint drop off - active
+#                             if (u_n_gr_type == 'taxi_graph' or u_n_gr_type == 'on_demand_single_taxi_graph' or u_n_gr_type == 'on_demand_shared_taxi_graph') \
+#                             and e['dstr_node_zone'] == G.nodes[target]['zone'] and v != target:
+#                                 continue
+                            
+#                             # restraint walking after taxi modes - active
+#                             if (u_n_gr_type == 'taxi_graph' or u_n_gr_type == 'on_demand_single_taxi_graph' or u_n_gr_type == 'on_demand_shared_taxi_graph') \
+#                             and pr_ed_tp == 'walk_edge':
+#                                 continue
+                            
+# #                                if (v_n_gr_type == 'taxi_graph' or v_n_gr_type == 'on_demand_single_taxi_graph' \
+# #                                    or v_n_gr_type == 'on_demand_shared_taxi_graph') and u != source:
+# #                                    continue
+# #                                if u_n_gr_type == 'taxi_graph' or u_n_gr_type == 'on_demand_single_taxi_graph' or u_n_gr_type == 'on_demand_shared_taxi_graph' \
+# #                                     or u_n_gr_type == 'car_sharing_graph'pr_ed_tp == 'walk_edge' and G.nodes[info['pred_node']]['is_mode_dupl']:
+# #                                    continue
+                          
+#                         travel_time_till_u = e_tt + info['tt']
+#                         wait_time_till_u = e_wait_time + info['wt']
+#                         distance_till_u = e_distance + info['l']
+#                         cost_till_u = e_cost + info['c']
+#                         line_trasnf_num_till_u = e_num_lin_trf + info['lt']
+#                         mode_transf_num_till_u = e_num_mode_trf + info['mt']
+#                         walk_time_till_u = e_walk_time + info['wkt']
+                        
+#                         new_cost_label = [travel_time_till_u + wait_time_till_u, cost_till_u, line_trasnf_num_till_u, mode_transf_num_till_u]
+#                         num_crtr = len(new_cost_label)
+# #                        back_val_curr_cost_label = [(travel_time_till_u + wait_time_till_u) - ((travel_time_till_u + wait_time_till_u)%60), \
+# #                                           cost_till_u - (cost_till_u%8), line_trasnf_num_till_u + mode_transf_num_till_u]
+# #                        curr_cost_label = [travel_time_till_u + wait_time_till_u, cost_till_u, line_trasnf_num_till_u, \
+# #                                           mode_transf_num_till_u]
+#                         labels_to_be_deleted = deque([])
+#                         if not(labels_bag[u][t]):
+#                             non_dominated_label = 1
+#                         else:
+#                             for label, label_info in labels_bag[u][t].items():
+# #                                if len(labels_bag[u][t]) > 3:
+# #                                    print('oops')
+#                                 curr_pareto_cost_label = label_info['opt_crt_val']
+# #                                back_val_prev_cost_label = [label_info['opt_crt_val'][0] - (label_info['opt_crt_val'][0]%60), label_info['opt_crt_val'][1] - \
+# #                                                            (label_info['opt_crt_val'][1]%8), label_info['opt_crt_val'][2], label_info['opt_crt_val'][2]]
+#                                 if new_cost_label == curr_pareto_cost_label:
+#                                     if label_info['pred_label_id'] == label_id:
+#                                         non_dominated_label = 0
+#                                         break
+#                                     non_dominated_label = 1   
+#                                     break
+#                                 q_1 = 0 
+#                                 for i,j in zip(new_cost_label,curr_pareto_cost_label):
+#                                     if i>=j:
+#                                         q_1 = q_1+1
+#                                 if q_1 == num_crtr:
+#                                     non_dominated_label = 0
+#                                     break
+#                                 q_2 = 0
+#                                 for i,j in zip(new_cost_label,curr_pareto_cost_label):
+#                                     if i<=j:
+#                                         q_2 = q_2+1
+#                                 if q_2 == num_crtr:
+#                                     labels_to_be_deleted.append(label)
+#                                 non_dominated_label = 1
+                        
+#                         if labels_to_be_deleted:
+#                             for labelid in labels_to_be_deleted:
+#                                 del(labels_bag[u][t][labelid])
+                      
+#                         if non_dominated_label:
+#                             insert_in_se_list = True     
+# #                            if labels_to_be_deleted:
+# #                                for labelid in labels_to_be_deleted:
+# #                                    del(labels_bag[u][t][labelid])
+#                             new_label_id = str(next(c))
+#                             labels_bag[u][t].update({new_label_id: {'opt_crt_val' : new_cost_label, 'pred_node' : v, \
+#                                       'pred_time_int': mod_v_arr_time, 'pred_label_id' : label_id, 'tt' : travel_time_till_u, \
+#                                       'wt' : wait_time_till_u, 'l' : distance_till_u, 'c' : cost_till_u, 'lt' : line_trasnf_num_till_u, \
+#                                       'mt' : mode_transf_num_till_u, 'wkt': walk_time_till_u, 'prev_edge_type': e_type, 'prev_dstr_node_graph_type': v_n_gr_type, \
+#                                       'prev_mode': prev_mode}})
+                                    
+#             if insert_in_se_list:
+#                 if de_queue[u] == 0:
+#                     if se_list:
+#                         de_queue[se_list[-1]] = u
+#                     de_queue[u] = 999999999
+#                     se_list.append(u)
+#                 elif de_queue[u] == -1:
+#                     if se_list:
+#                         de_queue[u] = se_list[0]
+#                     else:
+#                         de_queue[u] = 999999999
+#                     se_list.appendleft(u)
+#     try:
+#         return labels_bag
+#     except KeyError:
+#         raise nx.NetworkXNoPath("Node %s not reachable from %s" % (target, source))
+        
+def get_full_pareto_set(G, source, target, req_time, t_0, t_H, dt):
 
   if source not in G:
     raise nx.NodeNotFound("Source {} not in G".format(source))
@@ -7584,107 +8068,81 @@ def pareto_paths_with_attrs_backwards_miller_approach(G, source, target, req_tim
     raise nx.NodeNotFound("Target {} not in G".format(target))
   if source == target:
     return 0, [target]
-
-  travel_time = _get_travel_time_function(G, travel_time)
-  distance = _get_distance_function(G, distance)
-  pt_additive_cost = _get_pt_additive_cost(G, pt_additive_cost)
-  pt_non_additive_cost = _get_pt_non_additive_cost(G, pt_non_additive_cost)
-  timetable = _get_timetable(G, timetable)
-  edge_type = _get_edge_type(G, edge_type)
-  node_type = _get_node_type(G, node_type)
-  node_graph_type = _get_dwnstr_graph_type_data(G, node_graph_type)
-  taxi_fares = _get_taxi_fares(G, taxi_fares)
-  taxi_wait_time = _get_taxi_wait_time(G, taxi_wait_time)
-
-
-  pareto_bag = mltcrtr_lbl_set_alg_bwds_miller_approach(G, source, target, t_0, t_H, dt, travel_time, distance, pt_additive_cost, pt_non_additive_cost, \
-                                        taxi_fares, taxi_wait_time, timetable, edge_type, node_type, node_graph_type, fare_scheme, \
-                                        init_travel_time, init_wait_time, init_distance, init_cost, init_num_line_trfs, init_num_mode_trfs,\
-                                        last_edge_type, last_upstr_node_graph_type, last_pt_veh_run_id, last_edge_cost, pt_trip_dest_zone, \
-                                        previous_edge_mode)
   
-  i = count()
-  paths_with_attrs = {}
-  for label_id, attrs in pareto_bag[source][req_time].items():
-      
-      path = []
-      path.append(source)
+  discrete_request_time = req_time + (dt -(req_time%dt))
+  discrete_t_0 = t_0 + (dt -(t_0%dt))
+  discrete_t_H = t_H + (dt -(t_H%dt))
+  full_pareto_bag = mltcrtr_lbl_set_alg_bwds(G, source, target, discrete_t_0, discrete_t_H, dt)
+  
+  path_id = count()
+  pareto_set = dict()
+  missed_paths = 0
+  
+  for label_id, attrs in full_pareto_bag[source][discrete_request_time].items():
+      path = deque([source])
       next_node = attrs['pred_node']
       next_time_intrv = attrs['pred_time_int']
       next_label_id = attrs['pred_label_id']
-      
+      update_path_dict = True
       while next_node != None and next_time_intrv != None and next_label_id != None:
-#          if next_label_id == '68585':
-##              print(next_node)
-##              print(next_time_intrv)
-##              print(path)
-#              print(pareto_bag['w56'][30720])
-#              print(pareto_bag['w17'][31230])
+          if next_label_id not in full_pareto_bag[next_node][next_time_intrv]:
+              missed_paths += 1
+              update_path_dict = False
+              break
           path.append(next_node)
-          new_node = pareto_bag[next_node][next_time_intrv][next_label_id]['pred_node']
-          new_time_intrv = pareto_bag[next_node][next_time_intrv][next_label_id]['pred_time_int']
-          new_label_id = pareto_bag[next_node][next_time_intrv][next_label_id]['pred_label_id']
+          new_node = full_pareto_bag[next_node][next_time_intrv][next_label_id]['pred_node']
+          new_time_intrv = full_pareto_bag[next_node][next_time_intrv][next_label_id]['pred_time_int']
+          new_label_id = full_pareto_bag[next_node][next_time_intrv][next_label_id]['pred_label_id']
           next_node = new_node
           next_time_intrv = new_time_intrv
           next_label_id = new_label_id
-      
-      paths_with_attrs.update({str(next(i)): {'fnl_path' : path, 'optimal_crt_values' : attrs['opt_crt_val'], 'travel_time' : attrs['tt'], \
-                              'waiting_time' : attrs['wt'], 'distance' : attrs['l'], 'cost' : attrs['c'], 'line_transfers' : attrs['lt'], \
-                              'mode_transfers' : attrs['mt'], 'walking_time': attrs['wkt']}})
+      if update_path_dict:
+          pareto_set.update({str(next(path_id)): {'path' : path, 'label' : attrs['opt_crt_val']}})
   
-  return paths_with_attrs
+  return (pareto_set, missed_paths)
 
 
 # the origin and destination inputs to the algorithm need to always be nodes of the walk network.
-def mltcrtr_lbl_set_alg_bwds_miller_approach(G, source, target, t_0, t_H, dt, travel_time_data, distance_data, pt_additive_cost_data, pt_non_additive_cost_data, \
-                                taxi_fares, taxi_wait_time, timetable_data, edge_type_data, node_type_data, node_graph_type_data, fare_scheme, \
-                                init_travel_time, init_wait_time, init_distance, init_cost, init_num_line_trfs, init_num_mode_trfs, \
-                                last_edge_type, last_dstr_node_graph_type, last_pt_veh_run_id, last_edge_cost, pt_trip_dest_zone, \
-                                previous_edge_mode):
+def mltcrtr_lbl_set_alg_bwds(G, source, target, t_0, t_H, dt):
     Gpred = G._pred
     
     #--- initialization of the data structure that holds all the non-dominated multi-dimnesional labels and its label's required pointers
     #--- for all nodes and all times within a time_horizon (t_0 <= t <= t_H)
     c = count()
-    labels_bag = {}  
+    labels_bag = dict()
+    labels_to_extend = dict()
     for n in G:
-        labels_bag.update({n: {}})
-        for t in range(t_0, t_H+1, dt):
-            t = t%86400
+        labels_bag.update({n: dict()})
+        labels_to_extend.update({n: dict()})
+        for t in range(t_0, t_H+dt, dt):
+            # t = t%86400
             if n == target:
                 label_id = str(next(c))
-                labels_bag[n].update({t: {label_id: {'opt_crt_val':(init_travel_time, init_cost, init_num_line_trfs + init_num_mode_trfs), \
-                   'pred_node': None, 'pred_time_int': None, 'pred_label_id': None, 'tt': init_travel_time, 'wt': init_wait_time, \
-                   'l': init_distance, 'c': init_cost, 'lt': init_num_line_trfs, 'mt': init_num_mode_trfs, 'wkt': 0, 'prev_edge_type': None, \
-                   'prev_dstr_node_graph_type': None , 'prev_mode': None}}}) #'path': path
+                labels_bag[n].update({t: {label_id: {'opt_crt_val': (0,0,0,0), 'pred_node': None, \
+                                                     'pred_time_int': None, 'pred_label_id': None, 'prev_edge_type': None, \
+                                                         'prev_dstr_node_graph_type': None , 'prev_mode': None}}})
+                labels_to_extend[n].update({t: {label_id}})
             else:
-                labels_bag[n].update({t: {}})
+                labels_bag[n].update({t: dict()})
+                labels_to_extend[n].update({t: set()})
 
     #--- initialization of the SE list used for scanning nodes in each iteration ---#
     #--- it opertes as a double ended queue (deque) as in Ziliaskopoulos and Mahmassani (1993) ---#
 #    se_list = deque([target])
-    de_queue = {}
+    de_queue = dict()
     for n in G:
         if n == target:
             de_queue.update({n: 999999999})
         else:
             de_queue.update({n: 0})
-#    first = target
-#    last = target
     
     se_list = deque([target])
     
     #--- the algorithm is running until the SE List is empty, meaning that there are no more node insertions for any time t 
 #    that can give a non-dominated paths \---#
-#    t_count = 0
     while se_list: 
-#        v = first
-#        first = de_queue[v]
-#        de_queue[v] = -1
         v = se_list.popleft()
         de_queue[v] = -1
-#        if v == 'w17':
-#            t_count += 1
         v_n_gr_type = G.nodes[v]['node_graph_type']
         
         for u, e in Gpred[v].items():
@@ -7692,164 +8150,100 @@ def mltcrtr_lbl_set_alg_bwds_miller_approach(G, source, target, t_0, t_H, dt, tr
             # now for each t we first need to identify the total travel time that is required to travel from u to v
             # this is the case because we need to know which label (path) or set of labels (paths) from node v will be extended
             # the labels that will be extended will then be the one in labels_bag[v][t+tt_uv(t)]
-            for t in range(t_0, t_H+1, dt):
-                t = t%86400
-                e_type = e['edge_type']#_data(u, v, e)
-                
+            for t in range(t_0, t_H+dt, dt):
+                # t = t%86400
+                e_type = e['edge_type']
 #                here we diffferentiate between the cases of public transport and road modes, since time-dependency
 #                is handled differently in each case; specifically waiting is allowed in PT but not in road services
 #                if e_type != 'pt_route_edge':
                 if e_type == 'car_sharing_station_egress_edge' or e_type == 'car_sharing_station_access_edge':
-                    e_tt = 0
+                    e_tt = e['travel_time'][t]
                     e_wait_time = e['wait_time']
                     e_cost=0
-                    e_distance = 0
-                    e_num_lin_trf = 0
-                    e_num_mode_trf = 0
-                    e_walk_time = 0
+                    # e_distance = 0
+                    e_boarding_num = 0
+                    e_trip_num = 0
+                    # e_walk_time = 0
                     
                 if e_type == 'car_sharing_orig_dummy_edge':
-                    e_wait_time = 0
                     e_tt = 0
-                    e_distance = 0
+                    e_wait_time = 0
+                    # e_distance = 0
                     e_cost = 0
-                    e_num_mode_trf = 0
-                    e_num_lin_trf = 0
-                    e_walk_time = 0
+                    e_boarding_num = 0
+                    e_trip_num = 0
+                    # e_walk_time = 0
                     
                 if e_type == 'car_sharing_dest_dummy_edge' or e_type == 'car_sharing_dual_edge':
-                    e_wait_time = 0
-#                    tt_d = e['travel_time']#_data(u, v, e)
-#                    if tt_d is None:
-#                      print('Missing in_veh_tt value in edge {}'.format((u, v))) 
-#                      continue
                     e_tt = e['travel_time'][t]
-#                    e_tt = get_time_dep_taxi_travel_time(t, tt_d) # used this function cause it works the way it should, need to however have some generic function to extract data from different type of dictionaries without being mode-specific
-                    e_distance = e['distance']#_data(u, v, e)
-                    if e_distance is None:
-                      print('Missing distance value in edge {}'.format((u, v)))
-                      continue
-#                    e_cost_data = e['car_sharing_fares']
+                    e_wait_time = 0
+                    # e_distance = e['distance']
                     e_cost = e['car_sharing_fares'][t]
-#                    e_cost = get_time_dep_taxi_cost(t, e_cost_data) # # used this function cause it works the way it should, need to however have some generic function to extract data from different type of dictionaries without being mode-specific
-                    e_num_mode_trf = 0
-                    e_num_lin_trf = 0
-                    e_walk_time = 0
+                    e_boarding_num = 0
+                    e_trip_num = 0
+                    # e_walk_time = 0
                     
                 if e_type == 'taxi_edge' or e_type == 'on_demand_single_taxi_edge' or e_type == 'on_demand_shared_taxi_edge':
                     e_wait_time = e['taxi_wait_time'][t]
                     e_tt = e['travel_time'][(t+e_wait_time)-((t+e_wait_time)%dt)]
-#                    e_wait_time_data = e['taxi_wait_time']#(u, v, e)
-#                    e_wait_time = get_time_dep_taxi_wait_time(t, e_wait_time_data)
-#                    tt_d = e['travel_time']#_data(u, v, e)
-#                    if tt_d is None:
-#                      print('Missing in_veh_tt value in edge {}'.format((u, v)))
-#                      continue
-#                    e_tt = get_time_dep_taxi_travel_time(t+e_wait_time, tt_d)
-                    e_distance = e['distance']#_data(u, v, e)        # funtion that extracts the edge's distance attribute
-                    if e_distance is None:
-                      print('Missing distance value in edge {}'.format((u, v)))
-                      continue
-                    e_num_mode_trf = 0
-                    e_num_lin_trf = 0
                     e_cost = e['taxi_fares'][t]
-                    e_walk_time = 0
-#                    e_cost_data = e['taxi_fares']#(u, v, e)
-#                    e_cost = get_time_dep_taxi_cost(t, e_cost_data)
+                    # e_distance = e['distance']
+                    e_boarding_num = 0
+                    e_trip_num = 0
+                    # e_walk_time = 0
                 
                 if e_type == 'walk_edge':
-                    e_tt = e['travel_time']#_data(u, v, e)  # funtion that extracts the edge's in-vehicle travel time attribute
-                    if e_tt is None:
-                      print('Missing in_veh_tt value in edge {}'.format((u, v)))
-                      continue
+                    e_tt = e['travel_time']
                     e_wait_time = 0
-                    e_distance = e['distance']#_data(u, v, e)        # funtion that extracts the edge's distance attribute
-                    if e_distance is None:
-                      print('Missing distance value in edge {}'.format((u, v)))
-                      continue
+                    # e_distance = e['distance']
                     e_cost = 0
-                    e_num_mode_trf = 0
-                    e_num_lin_trf = 0
-                    e_walk_time = e['travel_time']
+                    e_boarding_num = 0
+                    e_trip_num = 0
+                    # e_walk_time = e['travel_time']
                     
                 if e_type == 'access_edge':
-                    e_tt = e['travel_time']#_data(u, v, e)  # funtion that extracts the edge's in-vehicle travel time attribute
-                    if e_tt is None:
-                      print('Missing in_veh_tt value in edge {}'.format((u, v)))
-                      continue
+                    e_tt = e['travel_time']
                     e_wait_time = 0
-                    e_distance = e['distance']#_data(u, v, e)        # funtion that extracts the edge's distance attribute
-                    if e_distance is None:
-                      print('Missing distance value in edge {}'.format((u, v)))
-                      continue
+                    # e_distance = e['distance']
                     e_cost = 0
-                    e_num_mode_trf = 0
-                    e_num_lin_trf = 0
+                    e_boarding_num = 0
                     u_n_type = e['up_node_type']
-#                        v_n_type = e['dstr_node_type']
                     if u_n_type == 'walk_graph_node':
-                        e_num_mode_trf = 1
-                    e_walk_time = e['travel_time']
+                        e_trip_num = 1
+                    else:
+                        e_trip_num = 0
+                    # e_walk_time = e['travel_time']
                     
                 if e_type == 'pt_transfer_edge':
-                    e_tt = e['travel_time']#_data(u, v, e)  # funtion that extracts the edge's in-vehicle travel time attribute
-                    if e_tt is None:
-                      print('Missing in_veh_tt value in edge {}'.format((u, v)))
-                      continue
+                    e_tt = e['travel_time']
                     e_wait_time = 0
-                    e_distance = e['distance']#_data(u, v, e)        # funtion that extracts the edge's distance attribute
-                    if e_distance is None:
-                      print('Missing distance value in edge {}'.format((u, v)))
-                      continue
+                    # e_distance = e['distance']
                     e_cost = 0
-                    e_num_mode_trf = 0
-                    e_num_lin_trf = 0
                     u_n_type = e['up_node_type']
                     v_n_type = e['dstr_node_type']
                     if (u_n_type == 'stop_node' or u_n_type=='station_node') and v_n_type == 'route_node':
-                        e_num_lin_trf =1
-                    e_walk_time = e['travel_time']
+                        e_boarding_num = 1
+                    else:
+                        e_boarding_num = 0
+                    e_trip_num = 0
+                    # e_walk_time = e['travel_time']
                     
                 if e_type == 'pt_route_edge':
-#                    dep_timetable = timetable_data(u, v, e)  # fuction that extracts the stop's/station's timetable dict
-#                    if dep_timetable is None:
-#                        print('Missing timetable value in edge'.format((u, v)))
-#                        continue
-#                    e_wait_time, pt_vehicle_run_id = calc_plat_wait_time_and_train_id(t, dep_timetable)  # function that extracts waiting time for next pt vehicle and the vehicle_id; the next departing vehicle is being found using a binary search algorithm that operates on a sorted list of the deparure times for this edge (departure times of the downstream stop/station)
-                    e_wait_time = e['wait_time'][t]
-#                    pt_vehicle_run_id = e['wait_time'][t]['veh_id']
-                    if e_wait_time is None:
-                        print('Missing wait_time value in edge'.format((u, v)))
-                        continue
                     e_tt = e['travel_time'][t]
-#                    tt_d = e['travel_time']#_data(u, v, e)  # fuction that extracts the travel time dict
-#                    if tt_d is None:
-#                        print('Missing in_veh_tt value in edge'.format((u, v)))
-#                        continue
-#                    e_tt = tt_d[pt_vehicle_run_id] #calc_pt_route_edge_in_veh_tt_for_run_id(tt_d, pt_vehicle_run_id)  # fuction that travel time for corresponding pt vehicle run_id
-                    e_distance = e['distance']#_data(u, v, e)  # fuction that extracts the travel time dict
-                    if e_distance is None:
-                        print('Missing distance value in edge'.format((u, v)))
-                        continue
-                    # edge costs for pt depend on the pt fare scheme; if it is additive (distance_based) or zone_to_zone !! consider adding a price cap !!
-#                    if fare_scheme == 'distance_based':
-#                    dist_bas_cost = e['pt_distance_based_cost']#(u, v, e)  # fuction that extracts the time-dependent distance-based cost dict
-#                    if dist_bas_cost is None:
-#                        print('Missing dist_bas_cost value in edge'.format((u, v)))
-#                        continue
-#                    e_cost = calc_time_dep_distance_based_cost(dist_bas_cost, t)  # fuction that extracts the cost based on time-dependent distance-based cost dict and the current time (finds in which time-zone we currently are)
-                    e_cost = e['pt_distance_based_cost'][t]
-                    e_num_lin_trf = 0
-                    e_num_mode_trf = 0
-                    e_walk_time = 0
+                    e_wait_time = e['wait_time'][t]['discr_value']
+                    # e_distance = e['distance']
+                    e_cost = e['pt_cost'][t]
+                    e_boarding_num = 0
+                    e_trip_num = 0
+                    # e_walk_time = 0
                     
                 v_arr_time = t + e_tt + e_wait_time
-                mod_v_arr_time = v_arr_time-((v_arr_time-t_0)%dt)
-#                if u == 'w56' and v == 'w17' and (t_count == 7 or t_count == 8):
-#                    print(e_tt, v_arr_time, mod_v_arr_time)
+                # mod_v_arr_time = v_arr_time-((v_arr_time-t_0)%dt)
                     
                 if v_arr_time <= t_H:                     
-                    for label_id, info in labels_bag[v][mod_v_arr_time].items():
+                    for label_id, info in labels_bag[v][v_arr_time].items():
+                        if label_id not in labels_to_extend[v][v_arr_time]:
+                            continue
                         if u == info['pred_node']:
                             continue
                         prev_mode = info['prev_mode']
@@ -7864,527 +8258,24 @@ def mltcrtr_lbl_set_alg_bwds_miller_approach(G, source, target, t_0, t_H, dt, tr
                         if e_type == 'access_edge':
                             u_n_type = e['up_node_type']#G.nodes[v]['node_type']
                             u_n_gr_type = e['up_node_graph_type']#G.nodes[u]['node_graph_type']#node_graph_type_data(u, G.nodes[u])
-                            v_n_type = e['dstr_node_type']#G.nodes[u]['node_type']#node_type_data(u, G.nodes[u])
-#                                penalty = 0
-                            
-                            if u_n_gr_type == 'Walk':
-                              prev_mode = v_n_gr_type   
-#                           when we are at an access edge that connects graphs we need to penalize unreasonable connections and path loops; 
-#                           e.g., from walk node to another mode-specific node and back to walk node, from a taxi/carsharing trip to a walk trip 
-#                           and back to taxi/carsharing trip
-#                            if pr_ed_tp == 'access_edge': #active
-#                              if (pre_dstr_n_gr_tp == 'Walk' and u_n_gr_type == 'Walk') or (pre_dstr_n_gr_tp == 'Bus' and \
-#                                 u_n_gr_type == 'Bus') or (pre_dstr_n_gr_tp == 'Train' and u_n_gr_type == 'Train'):
-#                                  continue#penalty = 1000000000000000
-                             
-#                           avoid paths that include two consecutive taxis or carsharign legs in one trip
-                            if (prev_mode == 'taxi_graph' or prev_mode == 'on_demand_single_taxi_graph' or \
-                                prev_mode == 'on_demand_shared_taxi_graph' or prev_mode == 'car_sharing_graph') and \
-                                (u_n_gr_type == 'taxi_graph' or u_n_gr_type == 'on_demand_single_taxi_graph' or \
-                                 u_n_gr_type == 'on_demand_shared_taxi_graph' or u_n_gr_type == 'car_sharing_graph'):
-                                    continue#penalty = 1000000000000000 active
-
-                            if v_n_type == 'car_sharing_station_node':
-                              if G.nodes[v]['stock_level'] == 0:
-                                  continue#penalty = 1000000000000000
-                            if u_n_type == 'car_sharing_station_node':
-                              if G.nodes[u]['stock_level'] == G.nodes[u]['capacity']:
-                                  continue#penalty = 1000000000000000
-                            # restraint pick up -active
-                            if v_n_gr_type == 'taxi_graph' or v_n_gr_type == 'on_demand_single_taxi_graph' or v_n_gr_type == 'on_demand_shared_taxi_graph':
-                                if e['up_node_zone'] == G.nodes[source]['zone'] and u != source:
-                                  continue#penalty = 1000000000000000
-                              
-                            # restraint drop off - active
-                            if (u_n_gr_type == 'taxi_graph' or u_n_gr_type == 'on_demand_single_taxi_graph' or u_n_gr_type == 'on_demand_shared_taxi_graph') \
-                            and e['dstr_node_zone'] == G.nodes[target]['zone'] and v != target:
-                                continue
-                            
-                            # restraint walking after taxi modes - active
-                            if (u_n_gr_type == 'taxi_graph' or u_n_gr_type == 'on_demand_single_taxi_graph' or u_n_gr_type == 'on_demand_shared_taxi_graph') \
-                            and pr_ed_tp == 'walk_edge':
-                                continue
-                            
-#                                if (v_n_gr_type == 'taxi_graph' or v_n_gr_type == 'on_demand_single_taxi_graph' \
-#                                    or v_n_gr_type == 'on_demand_shared_taxi_graph') and u != source:
-#                                    continue
-#                                if u_n_gr_type == 'taxi_graph' or u_n_gr_type == 'on_demand_single_taxi_graph' or u_n_gr_type == 'on_demand_shared_taxi_graph' \
-#                                     or u_n_gr_type == 'car_sharing_graph'pr_ed_tp == 'walk_edge' and G.nodes[info['pred_node']]['is_mode_dupl']:
-#                                    continue
-                          
-                        travel_time_till_u = e_tt + info['tt']
-                        wait_time_till_u = e_wait_time + info['wt']
-                        distance_till_u = e_distance + info['l']
-                        cost_till_u = e_cost + info['c']
-                        line_trasnf_num_till_u = e_num_lin_trf + info['lt']
-                        mode_transf_num_till_u = e_num_mode_trf + info['mt']
-                        walk_time_till_u = e_walk_time + info['wkt']
-                        
-                        curr_cost_label = [travel_time_till_u + wait_time_till_u, cost_till_u, line_trasnf_num_till_u \
-                                           + mode_transf_num_till_u]
-                        crtr_num = len(curr_cost_label)
-
-                        labels_to_be_deleted = deque([])
-                        extend_next_path_from_v = False
-                        h_count = 0
-                        
-                        for tm, lbls in labels_bag[u].items():
-                            if extend_next_path_from_v:
-                                break
-#                                labels_to_be_deleted.update({tm: []})
-                            if not(lbls):
-                                h_count += 1
-                            else:
-                                for lbl, lbl_attrs in lbls.items():
-                                    curr_pareto_cost_label = lbl_attrs['opt_crt_val']
-                                    if curr_cost_label == curr_pareto_cost_label:
-                                        if lbl_attrs['pred_label_id'] == label_id:
-                                            non_dominated_label = 0
-                                            extend_next_path_from_v = True
-                                            break
-                                        non_dominated_label = 1   
-                                        extend_next_path_from_v = True
-                                        break
-                                    q_1 = 0 
-                                    for i,j in zip(curr_cost_label,curr_pareto_cost_label):
-                                        if i>=j:
-                                            q_1 = q_1+1
-                                    if q_1 == crtr_num:
-                                        non_dominated_label = 0
-                                        extend_next_path_from_v = True
-                                        break
-                                    q_2 = 0
-                                    for i,j in zip(curr_cost_label,curr_pareto_cost_label):
-                                        if i<=j:
-                                            q_2 = q_2+1
-                                    if q_2 == crtr_num:
-                                        labels_to_be_deleted.append((tm,lbl))
-#                                            labels_to_be_deleted[tm].append(lbl)
-                                    non_dominated_label = 1
-                        
-                        if h_count == ((t_H-t_0)/dt)+1:
-                            non_dominated_label = 1
-                        
-                        if non_dominated_label:
-                            insert_in_se_list = True     
-                            if labels_to_be_deleted:
-                                for t_and_lbl in labels_to_be_deleted:
-                                    del(labels_bag[u][t_and_lbl[0]][t_and_lbl[1]])
-                            new_label_id = str(next(c))
-                            labels_bag[u][t].update({new_label_id: {'opt_crt_val' : curr_cost_label, 'pred_node' : v, \
-                                          'pred_time_int': time, 'pred_label_id' : label, 'tt' : travel_time_till_u, \
-                                          'wt' : wait_time_till_u, 'l' : distance_till_u, 'c' : cost_till_u, 'lt' : line_trasnf_num_till_u, \
-                                          'mt' : mode_transf_num_till_u, 'wkt': walk_time_till_u, 'prev_edge_type': e_type, 'prev_dstr_node_graph_type': v_n_gr_type, \
-                                          'prev_mode': prev_mode}})
-                                    
-            if insert_in_se_list:
-                if de_queue[u] == 0:
-                    if se_list:
-                        de_queue[se_list[-1]] = u
-                    de_queue[u] = 999999999
-                    se_list.append(u)
-                elif de_queue[u] == -1:
-                    if se_list:
-                        de_queue[u] = se_list[0]
-                    else:
-                        de_queue[u] = 999999999
-                    se_list.appendleft(u)
-    try:
-#        print(t_count)
-        return labels_bag
-    except KeyError:
-        raise nx.NetworkXNoPath("Node %s not reachable from %s" % (target, source))
-        
-        
-def test_pareto_paths_with_attrs_backwards_miller_approach(G, source, target, req_time, t_0, t_H, dt):
-
-  if source not in G:
-    raise nx.NodeNotFound("Source {} not in G".format(source))
-  if target not in G:
-    raise nx.NodeNotFound("Target {} not in G".format(target))
-  if source == target:
-    return 0, [target]
-
-
-  pareto_bag = test_mltcrtr_lbl_set_alg_bwds_miller_approach(G, source, target, t_0, t_H, dt)
-  
-  i = count()
-  paths_with_attrs = {}
-  for label_id, attrs in pareto_bag[source][req_time].items():
-      
-      path = []
-      path.append(source)
-      next_node = attrs['pred_node']
-      next_time_intrv = attrs['pred_time_int']
-      next_label_id = attrs['pred_label_id']
-      
-      while next_node != None and next_time_intrv != None and next_label_id != None:
-#          if next_label_id == '168':
-#              print(next_node)
-#              print(next_time_intrv)
-#              print(path)
-#              print(pareto_bag['w56'][30720])
-#              print(pareto_bag['w17'][31230])
-          path.append(next_node)
-          new_node = pareto_bag[next_node][next_time_intrv][next_label_id]['pred_node']
-          new_time_intrv = pareto_bag[next_node][next_time_intrv][next_label_id]['pred_time_int']
-          new_label_id = pareto_bag[next_node][next_time_intrv][next_label_id]['pred_label_id']
-          next_node = new_node
-          next_time_intrv = new_time_intrv
-          next_label_id = new_label_id
-      
-      paths_with_attrs.update({str(next(i)): {'fnl_path' : path, 'optimal_crt_values' : attrs['opt_crt_val'], 'x' : attrs['x'], \
-                              'y' : attrs['y'], 'z' : attrs['z'], 'k' : attrs['k']}})
-  
-  return paths_with_attrs
-
-
-# the origin and destination inputs to the algorithm need to always be nodes of the walk network.
-def test_mltcrtr_lbl_set_alg_bwds_miller_approach(G, source, target, t_0, t_H, dt):
-    Gpred = G._pred
-    
-    #--- initialization of the data structure that holds all the non-dominated multi-dimnesional labels and its label's required pointers
-    #--- for all nodes and all times within a time_horizon (t_0 <= t <= t_H)
-    c = count()
-    labels_bag = {}  
-    for n in G:
-        labels_bag.update({n: {}})
-        for t in range(t_0, t_H+1, dt):
-            t = t%86400
-            if n == target:
-                label_id = str(next(c))
-                labels_bag[n].update({t: {label_id: {'opt_crt_val':(0, 0, 0, 0), \
-                   'pred_node': None, 'pred_time_int': None, 'pred_label_id': None, 'x': 0, 'y': 0, \
-                   'z': 0, 'k': 0}}}) #'path': path
-            else:
-                labels_bag[n].update({t: {}})
-
-    #--- initialization of the SE list used for scanning nodes in each iteration ---#
-    #--- it opertes as a double ended queue (deque) as in Ziliaskopoulos and Mahmassani (1993) ---#
-#    se_list = deque([target])
-    de_queue = {}
-    for n in G:
-        if n == target:
-            de_queue.update({n: 999999999})
-        else:
-            de_queue.update({n: 0})
-#    first = target
-#    last = target
-    
-    se_list = deque([target])
-    
-    #--- the algorithm is running until the SE List is empty, meaning that there are no more node insertions for any time t 
-#    that can give a non-dominated paths \---#
-#    t_count = 0
-    while se_list: 
-#        v = first
-#        first = de_queue[v]
-#        de_queue[v] = -1
-        v = se_list.popleft()
-        de_queue[v] = -1
-#        if v == 'w17':
-#            t_count += 1
-        
-        for u, e in Gpred[v].items():
-            insert_in_se_list = False
-            # now for each t we first need to identify the total travel time that is required to travel from u to v
-            # this is the case because we need to know which label (path) or set of labels (paths) from node v will be extended
-            # the labels that will be extended will then be the one in labels_bag[v][t+tt_uv(t)]
-            for t in range(t_0, t_H+1, dt):
-                t = t%86400
-                e_x = e['x'][t]
-                e_y = e['y'][t]
-                e_z = e['z'][t]
-                e_k = e['k'][t]
-                    
-                v_arr_time = t + e_x
-                mod_v_arr_time = v_arr_time-((v_arr_time-t_0)%dt)                    
-                if v_arr_time <= t_H:                     
-                    for label_id, info in labels_bag[v][mod_v_arr_time].items():
-                        if u == info['pred_node']:
-                            continue
-                          
-                        x_u = e_x + info['x']
-                        y_u = e_y + info['y']
-                        z_u = e_z + info['z']
-                        k_u = e_k + info['k']
-                        
-                        curr_cost_label = [x_u, y_u, z_u, k_u]
-                        crtr_num = len(curr_cost_label)
-#                        if curr_cost_label == [77, 125, 31, 43]:
-#                            print('oops')
-
-                        labels_to_be_deleted = deque([])
-                        extend_next_path_from_v = False
-                        h_count = 0
-                        
-                        for tm, lbls in labels_bag[u].items():
-                            if extend_next_path_from_v:
-                                break
-#                                labels_to_be_deleted.update({tm: []})
-                            if not(lbls):
-                                h_count += 1
-                            else:
-                                for lbl, lbl_attrs in lbls.items():
-                                    curr_pareto_cost_label = lbl_attrs['opt_crt_val']
-                                    if curr_cost_label == curr_pareto_cost_label:
-                                        if lbl_attrs['pred_label_id'] == label_id:
-                                            non_dominated_label = 0
-                                            extend_next_path_from_v = True
-                                            break
-                                        non_dominated_label = 1   
-                                        extend_next_path_from_v = True
-                                        break
-                                    q_1 = 0 
-                                    for i,j in zip(curr_cost_label,curr_pareto_cost_label):
-                                        if i>=j:
-                                            q_1 = q_1+1
-                                    if q_1 == crtr_num:
-                                        non_dominated_label = 0
-                                        extend_next_path_from_v = True
-                                        break
-                                    q_2 = 0
-                                    for i,j in zip(curr_cost_label,curr_pareto_cost_label):
-                                        if i<=j:
-                                            q_2 = q_2+1
-                                    if q_2 == crtr_num:
-                                        labels_to_be_deleted.append((tm,lbl))
-#                                            labels_to_be_deleted[tm].append(lbl)
-                                    non_dominated_label = 1
-                        
-                        if h_count == ((t_H-t_0)/dt)+1:
-                            non_dominated_label = 1
-                        
-                        if non_dominated_label:
-                            insert_in_se_list = True     
-                            if labels_to_be_deleted:
-                                for t_and_lbl in labels_to_be_deleted:
-#                                    if t_and_lbl == (0,'168'):
-#                                        print(v)
-#                                        print(u)
-##                                        print(curr_cost_label)
-##                                        print(labels_bag[u][t])
-##                                        print(new_label_id)
-#                                        for pred_l in G.pred[u]:
-##                                            print(pred_l)
-#                                            for tim_itrv, stuff in labels_bag[pred_l].items():
-#                                                for lae_id, stuff_2 in stuff.items():
-#                                                    if stuff_2['pred_label_id'] == '168':
-#                                                        print(lae_id, pred_l, tim_itrv)
-                                        
-                                    del(labels_bag[u][t_and_lbl[0]][t_and_lbl[1]])
-                            new_label_id = str(next(c))
-                            labels_bag[u][t].update({new_label_id: {'opt_crt_val' : curr_cost_label, 'pred_node' : v, \
-                                          'pred_time_int': mod_v_arr_time, 'pred_label_id' : label_id, 'x' : x_u, \
-                                          'y' : y_u, 'z' : z_u, 'k' : k_u}})
-                                    
-            if insert_in_se_list:
-                if de_queue[u] == 0:
-                    if se_list:
-                        de_queue[se_list[-1]] = u
-                    de_queue[u] = 999999999
-                    se_list.append(u)
-                elif de_queue[u] == -1:
-                    if se_list:
-                        de_queue[u] = se_list[0]
-                    else:
-                        de_queue[u] = 999999999
-                    se_list.appendleft(u)
-    try:
-#        print(t_count)
-        return labels_bag
-    except KeyError:
-        raise nx.NetworkXNoPath("Node %s not reachable from %s" % (target, source))
-        
-        
-        
-def pareto_paths_with_attrs_backwards_FNL(G, source, target, req_time, t_0, t_H, dt):
-
-  if source not in G:
-    raise nx.NodeNotFound("Source {} not in G".format(source))
-  if target not in G:
-    raise nx.NodeNotFound("Target {} not in G".format(target))
-  if source == target:
-    return 0, [target]
-
-  pareto_bag = mltcrtr_lbl_set_alg_bwds_FNL(G, source, target, t_0, t_H, dt)
-  
-  i = count()
-  paths_with_attrs = {}
-  for label_id, attrs in pareto_bag[source][req_time].items():
-      
-      path = []
-      path.append(source)
-      next_node = attrs['pred_node']
-      next_time_intrv = attrs['pred_time_int']
-      next_label_id = attrs['pred_label_id']
-      
-      while next_node != None and next_time_intrv != None and next_label_id != None:
-          path.append(next_node)
-          new_node = pareto_bag[next_node][next_time_intrv][next_label_id]['pred_node']
-          new_time_intrv = pareto_bag[next_node][next_time_intrv][next_label_id]['pred_time_int']
-          new_label_id = pareto_bag[next_node][next_time_intrv][next_label_id]['pred_label_id']
-          next_node = new_node
-          next_time_intrv = new_time_intrv
-          next_label_id = new_label_id
-      
-      paths_with_attrs.update({str(next(i)): {'fnl_path' : path, 'optimal_crt_values' : attrs['opt_crt_val'], 'travel_time' : attrs['tt'], \
-                              'waiting_time' : attrs['wt'], 'distance' : attrs['l'], 'cost' : attrs['c'], 'line_transfers' : attrs['lt'], \
-                              'mode_transfers' : attrs['mt'], 'walking_time': attrs['wkt']}})
-  
-  return paths_with_attrs
-
-
-# the origin and destination inputs to the algorithm need to always be nodes of the walk network.
-def mltcrtr_lbl_set_alg_bwds_FNL(G, source, target, t_0, t_H, dt):
-    Gpred = G._pred
-    
-    #--- initialization of the data structure that holds all the non-dominated multi-dimnesional labels and its label's required pointers
-    #--- for all nodes and all times within a time_horizon (t_0 <= t <= t_H)
-    c = count()
-    labels_bag = {}  
-    for n in G:
-        labels_bag.update({n: {}})
-        for t in range(t_0, t_H+1, dt):
-            t = t%86400
-            if n == target:
-                label_id = str(next(c))
-                labels_bag[n].update({t: {label_id: {'opt_crt_val': (0, 0, 0), 'pred_node': None, 'pred_time_int': None, \
-                          'pred_label_id': None, 'tt': 0, 'wt': 0, 'l': 0, 'c': 0, 'lt': 0, 'mt': 0, 'wkt': 0, \
-                          'prev_edge_type': None, 'prev_dstr_node_graph_type': None , 'prev_mode': None}}})
-            else:
-                labels_bag[n].update({t: {}})
-
-    #--- initialization of the SE list used for scanning nodes in each iteration ---#
-    #--- it opertes as a double ended queue (deque) as in Ziliaskopoulos and Mahmassani (1993) ---#
-#    se_list = deque([target])
-    de_queue = {}
-    for n in G:
-        if n == target:
-            de_queue.update({n: 999999999})
-        else:
-            de_queue.update({n: 0})
-    
-    se_list = deque([target])
-    
-    #--- the algorithm is running until the SE List is empty, meaning that there are no more node insertions for any time t 
-#    that can give a non-dominated paths \---#
-    while se_list: 
-        v = se_list.popleft()
-        de_queue[v] = -1
-        v_n_gr_type = G.nodes[v]['node_graph_type']
-        
-        for u, e in Gpred[v].items():
-            if u == 'w95':
-                print('oops')
-            insert_in_se_list = False
-            # now for each t we first need to identify the total travel time that is required to travel from u to v
-            # this is the case because we need to know which label (path) or set of labels (paths) from node v will be extended
-            # the labels that will be extended will then be the one in labels_bag[v][t+tt_uv(t)]
-            for t in range(t_0, t_H+1, dt):
-                
-                t = t%86400
-                e_type = e['edge_type']#_data(u, v, e)
-
-                if e_type == 'car_sharing_station_egress_edge' or e_type == 'car_sharing_station_access_edge':
-                    e_tt = 0
-                    e_wait_time = e['wait_time']
-                    e_cost=0
-                    e_distance = 0
-                    e_num_lin_trf = 0
-                    e_num_mode_trf = 0
-                    e_walk_time = 0
-                    
-                if e_type == 'car_sharing_orig_dummy_edge':
-                    e_wait_time = 0
-                    e_tt = 0
-                    e_distance = 0
-                    e_cost = 0
-                    e_num_mode_trf = 0
-                    e_num_lin_trf = 0
-                    e_walk_time = 0
-                    
-                if e_type == 'car_sharing_dest_dummy_edge' or e_type == 'car_sharing_dual_edge':
-                    e_wait_time = 0
-                    e_tt = e['travel_time'][t]
-                    e_distance = e['distance']#_data(u, v, e)
-                    e_cost = e['car_sharing_fares'][t]
-                    e_num_mode_trf = 0
-                    e_num_lin_trf = 0
-                    e_walk_time = 0
-                    
-                if e_type == 'taxi_edge' or e_type == 'on_demand_single_taxi_edge' or e_type == 'on_demand_shared_taxi_edge':
-                    e_wait_time = e['taxi_wait_time'][t]
-                    e_tt = e['travel_time'][(t+e_wait_time)-((t+e_wait_time)%dt)]
-                    e_distance = e['distance']#_data(u, v, e)        # funtion that extracts the edge's distance attribute
-                    e_num_mode_trf = 0
-                    e_num_lin_trf = 0
-                    e_cost = e['taxi_fares'][t]
-                    e_walk_time = 0
-                
-                if e_type == 'walk_edge':
-                    e_tt = e['travel_time']#_data(u, v, e)  # funtion that extracts the edge's in-vehicle travel time attribute
-                    e_wait_time = 0
-                    e_distance = e['distance']#_data(u, v, e)        # funtion that extracts the edge's distance attribute
-                    e_cost = 0
-                    e_num_mode_trf = 0
-                    e_num_lin_trf = 0
-                    e_walk_time = e['travel_time']
-                    
-                if e_type == 'access_edge':
-                    e_tt = e['travel_time']#_data(u, v, e)  # funtion that extracts the edge's in-vehicle travel time attribute
-                    e_wait_time = 0
-                    e_distance = e['distance']#_data(u, v, e)        # funtion that extracts the edge's distance attribute
-                    e_cost = 0
-                    e_num_mode_trf = 0
-                    e_num_lin_trf = 0
-                    u_n_type = e['up_node_type']
-                    if u_n_type == 'walk_graph_node':
-                        e_num_mode_trf = 1
-                    e_walk_time = e['travel_time']
-                    
-                if e_type == 'pt_transfer_edge':
-                    e_tt = e['travel_time']#_data(u, v, e)  # funtion that extracts the edge's in-vehicle travel time attribute
-                    e_wait_time = 0
-                    e_distance = e['distance']#_data(u, v, e)        # funtion that extracts the edge's distance attribute
-                    e_cost = 0
-                    e_num_mode_trf = 0
-                    e_num_lin_trf = 0
-                    u_n_type = e['up_node_type']
-                    v_n_type = e['dstr_node_type']
-                    if (u_n_type == 'stop_node' or u_n_type=='station_node') and v_n_type == 'route_node':
-                        e_num_lin_trf =1
-                    e_walk_time = e['travel_time']
-                    
-                if e_type == 'pt_route_edge':
-                    e_wait_time = e['wait_time'][t]
-                    e_tt = e['travel_time'][t]
-                    e_distance = e['distance']#_data(u, v, e)  # fuction that extracts the travel time dict
-                    e_cost = e['pt_distance_based_cost'][t]
-                    e_num_lin_trf = 0
-                    e_num_mode_trf = 0
-                    e_walk_time = 0
-                    
-                v_arr_time = t + e_tt + e_wait_time
-                mod_v_arr_time = v_arr_time-((v_arr_time-t_0)%dt)
-                    
-                if mod_v_arr_time <= t_H:                     
-                    for label_id, info in labels_bag[v][mod_v_arr_time].items():
-                        if u == info['pred_node']:
-                            continue
-                        prev_mode = info['prev_mode']
-                        pr_ed_tp = info['prev_edge_type']
-                        pre_dstr_n_gr_tp = info['prev_dstr_node_graph_type']
-                        
-                        # restraint walking before taxi modes - active
-                        if e_type == 'walk_edge' and pr_ed_tp == 'access_edge' and \
-                        (pre_dstr_n_gr_tp == 'taxi_graph' or pre_dstr_n_gr_tp == 'on_demand_single_taxi_graph' or pre_dstr_n_gr_tp == 'on_demand_shared_taxi_graph'):
-                            continue
-                        
-                        if e_type == 'access_edge':
-                            u_n_type = e['up_node_type']
-                            u_n_gr_type = e['up_node_graph_type']
                             v_n_type = e['dstr_node_type']
+                            
+                            if u_n_type == 'car_sharing_station_node' and G.nodes[u]['stock_level'][t] == G.nodes[u]['capacity']:
+                                e_tt = 999999999
+                                e_wait_time = 999999999
+                                e_cost= 999999999
+                                # e_distance = 0
+                                e_boarding_num =  999999999
+                                e_trip_num = 999999999
+                                # e_walk_time = 0
+                            elif v_n_type == 'car_sharing_station_node' and G.nodes[v]['stock_level'][t+e_tt+e_wait_time] == 0:
+                                e_tt = 999999999
+                                e_wait_time = 999999999
+                                e_cost= 999999999
+                                # e_distance = 0
+                                e_boarding_num =  999999999
+                                e_trip_num = 999999999
+                                # e_walk_time = 0
                             
                             if u_n_gr_type == 'Walk':
                               prev_mode = v_n_gr_type   
@@ -8393,7 +8284,7 @@ def mltcrtr_lbl_set_alg_bwds_FNL(G, source, target, t_0, t_H, dt):
 #                           and back to taxi/carsharing trip
                             if pr_ed_tp == 'access_edge': #active
                               if (pre_dstr_n_gr_tp == 'Walk' and u_n_gr_type == 'Walk') or (pre_dstr_n_gr_tp == 'Bus' and \
-                                 u_n_gr_type == 'Bus') or (pre_dstr_n_gr_tp == 'Train' and u_n_gr_type == 'Train'):
+                                u_n_gr_type == 'Bus') or (pre_dstr_n_gr_tp == 'Train' and u_n_gr_type == 'Train'):
                                   continue#penalty = 1000000000000000
                              
 #                           avoid paths that include two consecutive taxis or carsharign legs in one trip
@@ -8402,13 +8293,7 @@ def mltcrtr_lbl_set_alg_bwds_FNL(G, source, target, t_0, t_H, dt):
                                 (u_n_gr_type == 'taxi_graph' or u_n_gr_type == 'on_demand_single_taxi_graph' or \
                                  u_n_gr_type == 'on_demand_shared_taxi_graph' or u_n_gr_type == 'car_sharing_graph'):
                                     continue#penalty = 1000000000000000 active
-
-                            if v_n_type == 'car_sharing_station_node':
-                              if G.nodes[v]['stock_level'] == 0:
-                                  continue#penalty = 1000000000000000
-                            if u_n_type == 'car_sharing_station_node':
-                              if G.nodes[u]['stock_level'] == G.nodes[u]['capacity']:
-                                  continue#penalty = 1000000000000000
+                            
                             # restraint pick up -active
                             if v_n_gr_type == 'taxi_graph' or v_n_gr_type == 'on_demand_single_taxi_graph' or v_n_gr_type == 'on_demand_shared_taxi_graph':
                                 if e['up_node_zone'] == G.nodes[source]['zone'] and u != source:
@@ -8431,67 +8316,64 @@ def mltcrtr_lbl_set_alg_bwds_FNL(G, source, target, t_0, t_H, dt):
 #                                     or u_n_gr_type == 'car_sharing_graph'pr_ed_tp == 'walk_edge' and G.nodes[info['pred_node']]['is_mode_dupl']:
 #                                    continue
                           
-                        travel_time_till_u = e_tt + info['tt']
-                        wait_time_till_u = e_wait_time + info['wt']
-                        distance_till_u = e_distance + info['l']
-                        cost_till_u = e_cost + info['c']
-                        line_trasnf_num_till_u = e_num_lin_trf + info['lt']
-                        mode_transf_num_till_u = e_num_mode_trf + info['mt']
-                        walk_time_till_u = e_walk_time + info['wkt']
+                        total_travel_time_till_u = e_tt + e_wait_time + info['opt_crt_val'][0]
+                        cost_till_u = e_cost + info['opt_crt_val'][1]
+                        boardings_till_u = e_boarding_num + info['opt_crt_val'][2]
+                        trips_till_u = e_trip_num + info['opt_crt_val'][3]
+                        # wait_time_till_u = e_wait_time + info['wt']
+                        # distance_till_u = e_distance + info['l']
+                        # walk_time_till_u = e_walk_time + info['wkt']
                         
-                        new_cost_label = [travel_time_till_u + wait_time_till_u, cost_till_u, line_trasnf_num_till_u, mode_transf_num_till_u]
-                        num_crtr = len(new_cost_label)
-#                        back_val_curr_cost_label = [(travel_time_till_u + wait_time_till_u) - ((travel_time_till_u + wait_time_till_u)%60), \
-#                                           cost_till_u - (cost_till_u%8), line_trasnf_num_till_u + mode_transf_num_till_u]
-#                        curr_cost_label = [travel_time_till_u + wait_time_till_u, cost_till_u, line_trasnf_num_till_u, \
-#                                           mode_transf_num_till_u]
+                        new_cost_label = (total_travel_time_till_u, cost_till_u, boardings_till_u, trips_till_u)
+                        criteria_num = len(new_cost_label)
+                        # back_val_curr_cost_label = [(travel_time_till_u + wait_time_till_u) - ((travel_time_till_u + wait_time_till_u)%60), \
+                        #                    cost_till_u - (cost_till_u%8), line_trasnf_num_till_u + mode_transf_num_till_u]
                         labels_to_be_deleted = deque([])
                         if not(labels_bag[u][t]):
                             non_dominated_label = 1
                         else:
                             for label, label_info in labels_bag[u][t].items():
-#                                if len(labels_bag[u][t]) > 3:
-#                                    print('oops')
-                                curr_pareto_cost_label = label_info['opt_crt_val']
-#                                back_val_prev_cost_label = [label_info['opt_crt_val'][0] - (label_info['opt_crt_val'][0]%60), label_info['opt_crt_val'][1] - \
-#                                                            (label_info['opt_crt_val'][1]%8), label_info['opt_crt_val'][2], label_info['opt_crt_val'][2]]
-                                if new_cost_label == curr_pareto_cost_label:
-                                    if label_info['pred_label_id'] == label_id:
-                                        non_dominated_label = 0
-                                        break
-                                    non_dominated_label = 1   
+                                temp_pareto_cost_label = label_info['opt_crt_val']
+                                # curr_cost_label = [label_info['opt_crt_val'][0] - (label_info['opt_crt_val'][0]%60), label_info['opt_crt_val'][1] - \
+                                #                             (label_info['opt_crt_val'][1]%8), label_info['opt_crt_val'][2], label_info['opt_crt_val'][2]]
+                                if new_cost_label == temp_pareto_cost_label:
+                                    non_dominated_label = 1
                                     break
                                 q_1 = 0 
-                                for i,j in zip(new_cost_label,curr_pareto_cost_label):
+                                q_2 = 0
+                                for i, j in zip(new_cost_label, temp_pareto_cost_label):
                                     if i>=j:
-                                        q_1 = q_1+1
-                                if q_1 == num_crtr:
+                                        q_1 += 1
+                                    if i==j:
+                                        q_2 += 1
+                                if q_1 == criteria_num and q_2 != criteria_num:
                                     non_dominated_label = 0
                                     break
-                                q_2 = 0
-                                for i,j in zip(new_cost_label,curr_pareto_cost_label):
+                                q_3 = 0
+                                q_4 = 0
+                                for i, j in zip(new_cost_label, temp_pareto_cost_label):
                                     if i<=j:
-                                        q_2 = q_2+1
-                                if q_2 == num_crtr:
+                                        q_3 += 1
+                                    if i==j:
+                                        q_4 += 1
+                                if q_3 == criteria_num and q_4 != criteria_num:
                                     labels_to_be_deleted.append(label)
                                 non_dominated_label = 1
-                        
-                        if labels_to_be_deleted:
-                            for labelid in labels_to_be_deleted:
-                                del(labels_bag[u][t][labelid])
                       
                         if non_dominated_label:
+                            if labels_to_be_deleted:
+                                for labelid in labels_to_be_deleted:                                      
+                                    del(labels_bag[u][t][labelid])
+                                    labels_to_extend[u][t].discard(labelid)
                             insert_in_se_list = True     
-#                            if labels_to_be_deleted:
-#                                for labelid in labels_to_be_deleted:
-#                                    del(labels_bag[u][t][labelid])
                             new_label_id = str(next(c))
+                            labels_to_extend[u][t].add(new_label_id)
                             labels_bag[u][t].update({new_label_id: {'opt_crt_val' : new_cost_label, 'pred_node' : v, \
-                                      'pred_time_int': mod_v_arr_time, 'pred_label_id' : label_id, 'tt' : travel_time_till_u, \
-                                      'wt' : wait_time_till_u, 'l' : distance_till_u, 'c' : cost_till_u, 'lt' : line_trasnf_num_till_u, \
-                                      'mt' : mode_transf_num_till_u, 'wkt': walk_time_till_u, 'prev_edge_type': e_type, 'prev_dstr_node_graph_type': v_n_gr_type, \
-                                      'prev_mode': prev_mode}})
-                                    
+                                                                    'pred_time_int': v_arr_time, 'pred_label_id' : label_id, \
+                                                                        'prev_edge_type': e_type, \
+                                                                            'prev_dstr_node_graph_type': v_n_gr_type, \
+                                                                                'prev_mode': prev_mode}})
+                                                                                                      
             if insert_in_se_list:
                 if de_queue[u] == 0:
                     if se_list:
@@ -8504,7 +8386,1016 @@ def mltcrtr_lbl_set_alg_bwds_FNL(G, source, target, t_0, t_H, dt):
                     else:
                         de_queue[u] = 999999999
                     se_list.appendleft(u)
-    try:
-        return labels_bag
-    except KeyError:
-        raise nx.NetworkXNoPath("Node %s not reachable from %s" % (target, source))
+        
+        for time in labels_to_extend[v]:
+            labels_to_extend[v][time] = set()
+    
+    return labels_bag
+
+def get_ε_pareto_set(G, source, target, req_time, t_0, t_H, dt, ε):
+
+  if source not in G:
+    raise nx.NodeNotFound("Source {} not in G".format(source))
+  if target not in G:
+    raise nx.NodeNotFound("Target {} not in G".format(target))
+  if source == target:
+    return 0, [target]
+  
+  discrete_request_time = req_time + (dt -(req_time%dt))
+  discrete_t_0 = t_0 + (dt -(t_0%dt))
+  discrete_t_H = t_H + (dt -(t_H%dt))
+  full_pareto_bag = ε_mltcrtr_lbl_set_alg_bwds(G, source, target, discrete_t_0, discrete_t_H, dt, ε)
+  
+  path_id = count()
+  pareto_set = dict()
+  missed_paths = 0
+  
+  for label_id, attrs in full_pareto_bag[source][discrete_request_time].items():
+      path = deque([source])
+      next_node = attrs['pred_node']
+      next_time_intrv = attrs['pred_time_int']
+      next_label_id = attrs['pred_label_id']
+      update_path_dict = True
+      while next_node != None and next_time_intrv != None and next_label_id != None:
+          if next_label_id not in full_pareto_bag[next_node][next_time_intrv]:
+              missed_paths += 1
+              update_path_dict = False
+              break
+          path.append(next_node)
+          new_node = full_pareto_bag[next_node][next_time_intrv][next_label_id]['pred_node']
+          new_time_intrv = full_pareto_bag[next_node][next_time_intrv][next_label_id]['pred_time_int']
+          new_label_id = full_pareto_bag[next_node][next_time_intrv][next_label_id]['pred_label_id']
+          next_node = new_node
+          next_time_intrv = new_time_intrv
+          next_label_id = new_label_id
+      if update_path_dict:
+          pareto_set.update({str(next(path_id)): {'path' : path, 'label' : attrs['opt_crt_val']}})
+  
+  return (pareto_set, missed_paths)
+
+
+# the origin and destination inputs to the algorithm need to always be nodes of the walk network.
+def ε_mltcrtr_lbl_set_alg_bwds(G, source, target, t_0, t_H, dt, ε):
+    Gpred = G._pred
+    
+    #--- initialization of the data structure that holds all the non-dominated multi-dimnesional labels and its label's required pointers
+    #--- for all nodes and all times within a time_horizon (t_0 <= t <= t_H)
+    c = count()
+    labels_bag = dict()
+    labels_to_extend = dict()
+    for n in G:
+        labels_bag.update({n: dict()})
+        labels_to_extend.update({n: dict()})
+        for t in range(t_0, t_H+dt, dt):
+            # t = t%86400
+            if n == target:
+                label_id = str(next(c))
+                labels_bag[n].update({t: {label_id: {'opt_crt_val': (0,0,0,0), 'pred_node': None, \
+                                                     'pred_time_int': None, 'pred_label_id': None, 'prev_edge_type': None, \
+                                                         'prev_dstr_node_graph_type': None , 'prev_mode': None}}})
+                labels_to_extend[n].update({t: {label_id}})
+            else:
+                labels_bag[n].update({t: dict()})
+                labels_to_extend[n].update({t: set()})
+
+    #--- initialization of the SE list used for scanning nodes in each iteration ---#
+    #--- it opertes as a double ended queue (deque) as in Ziliaskopoulos and Mahmassani (1993) ---#
+#    se_list = deque([target])
+    de_queue = dict()
+    for n in G:
+        if n == target:
+            de_queue.update({n: 999999999})
+        else:
+            de_queue.update({n: 0})
+    
+    se_list = deque([target])
+    
+    #--- the algorithm is running until the SE List is empty, meaning that there are no more node insertions for any time t 
+#    that can give a non-dominated paths \---#
+    while se_list: 
+        v = se_list.popleft()
+        de_queue[v] = -1
+        v_n_gr_type = G.nodes[v]['node_graph_type']
+        
+        for u, e in Gpred[v].items():
+            insert_in_se_list = False
+            # now for each t we first need to identify the total travel time that is required to travel from u to v
+            # this is the case because we need to know which label (path) or set of labels (paths) from node v will be extended
+            # the labels that will be extended will then be the one in labels_bag[v][t+tt_uv(t)]
+            for t in range(t_0, t_H+dt, dt):
+                # t = t%86400
+                e_type = e['edge_type']
+#                here we diffferentiate between the cases of public transport and road modes, since time-dependency
+#                is handled differently in each case; specifically waiting is allowed in PT but not in road services
+#                if e_type != 'pt_route_edge':
+                if e_type == 'car_sharing_station_egress_edge' or e_type == 'car_sharing_station_access_edge':
+                    e_tt = e['travel_time'][t]
+                    e_wait_time = e['wait_time']
+                    e_cost=0
+                    # e_distance = 0
+                    e_boarding_num = 0
+                    e_trip_num = 0
+                    # e_walk_time = 0
+                    
+                if e_type == 'car_sharing_orig_dummy_edge':
+                    e_tt = 0
+                    e_wait_time = 0
+                    # e_distance = 0
+                    e_cost = 0
+                    e_boarding_num = 0
+                    e_trip_num = 0
+                    # e_walk_time = 0
+                    
+                if e_type == 'car_sharing_dest_dummy_edge' or e_type == 'car_sharing_dual_edge':
+                    e_tt = e['travel_time'][t]
+                    e_wait_time = 0
+                    # e_distance = e['distance']
+                    e_cost = e['car_sharing_fares'][t]
+                    e_boarding_num = 0
+                    e_trip_num = 0
+                    # e_walk_time = 0
+                    
+                if e_type == 'taxi_edge' or e_type == 'on_demand_single_taxi_edge' or e_type == 'on_demand_shared_taxi_edge':
+                    e_wait_time = e['taxi_wait_time'][t]
+                    e_tt = e['travel_time'][(t+e_wait_time)-((t+e_wait_time)%dt)]
+                    e_cost = e['taxi_fares'][t]
+                    # e_distance = e['distance']
+                    e_boarding_num = 0
+                    e_trip_num = 0
+                    # e_walk_time = 0
+                
+                if e_type == 'walk_edge':
+                    e_tt = e['travel_time']
+                    e_wait_time = 0
+                    # e_distance = e['distance']
+                    e_cost = 0
+                    e_boarding_num = 0
+                    e_trip_num = 0
+                    # e_walk_time = e['travel_time']
+                    
+                if e_type == 'access_edge':
+                    e_tt = e['travel_time']
+                    e_wait_time = 0
+                    # e_distance = e['distance']
+                    e_cost = 0
+                    e_boarding_num = 0
+                    u_n_type = e['up_node_type']
+                    if u_n_type == 'walk_graph_node':
+                        e_trip_num = 1
+                    else:
+                        e_trip_num = 0
+                    # e_walk_time = e['travel_time']
+                    
+                if e_type == 'pt_transfer_edge':
+                    e_tt = e['travel_time']
+                    e_wait_time = 0
+                    # e_distance = e['distance']
+                    e_cost = 0
+                    u_n_type = e['up_node_type']
+                    v_n_type = e['dstr_node_type']
+                    if (u_n_type == 'stop_node' or u_n_type=='station_node') and v_n_type == 'route_node':
+                        e_boarding_num = 1
+                    else:
+                        e_boarding_num = 0
+                    e_trip_num = 0
+                    # e_walk_time = e['travel_time']
+                    
+                if e_type == 'pt_route_edge':
+                    e_tt = e['travel_time'][t]
+                    e_wait_time = e['wait_time'][t]['discr_value']
+                    # e_distance = e['distance']
+                    e_cost = e['pt_cost'][t]
+                    e_boarding_num = 0
+                    e_trip_num = 0
+                    # e_walk_time = 0
+                    
+                v_arr_time = t + e_tt + e_wait_time
+                # mod_v_arr_time = v_arr_time-((v_arr_time-t_0)%dt)
+                    
+                if v_arr_time <= t_H:                     
+                    for label_id, info in labels_bag[v][v_arr_time].items():
+                        if label_id not in labels_to_extend[v][v_arr_time]:
+                            continue
+                        if u == info['pred_node']:
+                            continue
+                        prev_mode = info['prev_mode']
+                        pr_ed_tp = info['prev_edge_type']
+                        pre_dstr_n_gr_tp = info['prev_dstr_node_graph_type']
+                        
+                        # restraint walking before taxi modes - active
+                        if e_type == 'walk_edge' and pr_ed_tp == 'access_edge' and \
+                        (pre_dstr_n_gr_tp == 'taxi_graph' or pre_dstr_n_gr_tp == 'on_demand_single_taxi_graph' or pre_dstr_n_gr_tp == 'on_demand_shared_taxi_graph'):
+                            continue
+                        
+                        if e_type == 'access_edge':
+                            u_n_type = e['up_node_type']#G.nodes[v]['node_type']
+                            u_n_gr_type = e['up_node_graph_type']#G.nodes[u]['node_graph_type']#node_graph_type_data(u, G.nodes[u])
+                            v_n_type = e['dstr_node_type']
+                            
+                            if u_n_type == 'car_sharing_station_node' and G.nodes[u]['stock_level'][t] == G.nodes[u]['capacity']:
+                                e_tt = 999999999
+                                e_wait_time = 999999999
+                                e_cost= 999999999
+                                # e_distance = 0
+                                e_boarding_num =  999999999
+                                e_trip_num = 999999999
+                                # e_walk_time = 0
+                            elif v_n_type == 'car_sharing_station_node' and G.nodes[v]['stock_level'][t+e_tt+e_wait_time] == 0:
+                                e_tt = 999999999
+                                e_wait_time = 999999999
+                                e_cost= 999999999
+                                # e_distance = 0
+                                e_boarding_num =  999999999
+                                e_trip_num = 999999999
+                                # e_walk_time = 0
+                            
+                            if u_n_gr_type == 'Walk':
+                              prev_mode = v_n_gr_type   
+#                           when we are at an access edge that connects graphs we need to penalize unreasonable connections and path loops; 
+#                           e.g., from walk node to another mode-specific node and back to walk node, from a taxi/carsharing trip to a walk trip 
+#                           and back to taxi/carsharing trip
+                            if pr_ed_tp == 'access_edge': #active
+                              if (pre_dstr_n_gr_tp == 'Walk' and u_n_gr_type == 'Walk') or (pre_dstr_n_gr_tp == 'Bus' and \
+                                u_n_gr_type == 'Bus') or (pre_dstr_n_gr_tp == 'Train' and u_n_gr_type == 'Train'):
+                                  continue#penalty = 1000000000000000
+                             
+#                           avoid paths that include two consecutive taxis or carsharign legs in one trip
+                            if (prev_mode == 'taxi_graph' or prev_mode == 'on_demand_single_taxi_graph' or \
+                                prev_mode == 'on_demand_shared_taxi_graph' or prev_mode == 'car_sharing_graph') and \
+                                (u_n_gr_type == 'taxi_graph' or u_n_gr_type == 'on_demand_single_taxi_graph' or \
+                                 u_n_gr_type == 'on_demand_shared_taxi_graph' or u_n_gr_type == 'car_sharing_graph'):
+                                    continue#penalty = 1000000000000000 active
+                            
+                            # restraint pick up -active
+                            if v_n_gr_type == 'taxi_graph' or v_n_gr_type == 'on_demand_single_taxi_graph' or v_n_gr_type == 'on_demand_shared_taxi_graph':
+                                if e['up_node_zone'] == G.nodes[source]['zone'] and u != source:
+                                  continue#penalty = 1000000000000000
+                              
+                            # restraint drop off - active
+                            if (u_n_gr_type == 'taxi_graph' or u_n_gr_type == 'on_demand_single_taxi_graph' or u_n_gr_type == 'on_demand_shared_taxi_graph') \
+                            and e['dstr_node_zone'] == G.nodes[target]['zone'] and v != target:
+                                continue
+                            
+                            # restraint walking after taxi modes - active
+                            if (u_n_gr_type == 'taxi_graph' or u_n_gr_type == 'on_demand_single_taxi_graph' or u_n_gr_type == 'on_demand_shared_taxi_graph') \
+                            and pr_ed_tp == 'walk_edge':
+                                continue
+                            
+#                                if (v_n_gr_type == 'taxi_graph' or v_n_gr_type == 'on_demand_single_taxi_graph' \
+#                                    or v_n_gr_type == 'on_demand_shared_taxi_graph') and u != source:
+#                                    continue
+#                                if u_n_gr_type == 'taxi_graph' or u_n_gr_type == 'on_demand_single_taxi_graph' or u_n_gr_type == 'on_demand_shared_taxi_graph' \
+#                                     or u_n_gr_type == 'car_sharing_graph'pr_ed_tp == 'walk_edge' and G.nodes[info['pred_node']]['is_mode_dupl']:
+#                                    continue
+                          
+                        total_travel_time_till_u = e_tt + e_wait_time + info['opt_crt_val'][0]
+                        cost_till_u = e_cost + info['opt_crt_val'][1]
+                        boardings_till_u = e_boarding_num + info['opt_crt_val'][2]
+                        trips_till_u = e_trip_num + info['opt_crt_val'][3]
+                        # wait_time_till_u = e_wait_time + info['wt']
+                        # distance_till_u = e_distance + info['l']
+                        # walk_time_till_u = e_walk_time + info['wkt']
+                        
+                        new_cost_label = (total_travel_time_till_u, cost_till_u, boardings_till_u, trips_till_u)
+                        criteria_num = len(new_cost_label)
+                        ε_new_cost_label = [i*ε for i in new_cost_label]
+                        
+                        labels_to_be_deleted = deque([])
+                        if not(labels_bag[u][t]):
+                            non_dominated_label = 1
+                        else:
+                            check_next_loop = True
+                            for label1, label_info1 in labels_bag[u][t].items():
+                                temp_pareto_cost_label = label_info1['opt_crt_val']
+                                q_1 = 0 
+                                q_2 = 0
+                                for i, j in zip(temp_pareto_cost_label, ε_new_cost_label):
+                                    if i<=j:
+                                        q_1 += 1
+                                    if i==j:
+                                        q_2 += 1
+                                if q_1 == criteria_num and q_2 != criteria_num:
+                                    non_dominated_label = 0
+                                    check_next_loop = False
+                                    break
+                            if check_next_loop:
+                                for label2, label_info2 in labels_bag[u][t].items():
+                                    temp_pareto_cost_label = label_info2['opt_crt_val']
+                                    ε_temp_pareto_cost_label = [i*ε for i in temp_pareto_cost_label]
+                                    q_1 = 0
+                                    q_2 = 0
+                                    for i, j in zip(new_cost_label, ε_temp_pareto_cost_label):
+                                        if i<=j:
+                                            q_1 += 1
+                                        if i==j:
+                                            q_2 += 1
+                                    if q_1 == criteria_num and q_2 != criteria_num:
+                                        labels_to_be_deleted.append(label2)
+                                    non_dominated_label = 1
+                      
+                        if non_dominated_label:
+                            if labels_to_be_deleted:
+                                for labelid in labels_to_be_deleted:                                      
+                                    del(labels_bag[u][t][labelid])
+                                    labels_to_extend[u][t].discard(labelid)
+                            insert_in_se_list = True     
+                            new_label_id = str(next(c))
+                            labels_to_extend[u][t].add(new_label_id)
+                            labels_bag[u][t].update({new_label_id: {'opt_crt_val' : new_cost_label, 'pred_node' : v, \
+                                                                    'pred_time_int': v_arr_time, 'pred_label_id' : label_id, \
+                                                                        'prev_edge_type': e_type, \
+                                                                            'prev_dstr_node_graph_type': v_n_gr_type, \
+                                                                                'prev_mode': prev_mode}})
+                                                                                                      
+            if insert_in_se_list:
+                if de_queue[u] == 0:
+                    if se_list:
+                        de_queue[se_list[-1]] = u
+                    de_queue[u] = 999999999
+                    se_list.append(u)
+                elif de_queue[u] == -1:
+                    if se_list:
+                        de_queue[u] = se_list[0]
+                    else:
+                        de_queue[u] = 999999999
+                    se_list.appendleft(u)
+        
+        for time in labels_to_extend[v]:
+            labels_to_extend[v][time] = set()
+    
+    return labels_bag
+
+def get_bucket_pareto_set(G, source, target, req_time, t_0, t_H, dt, time_bucket, cost_bucket):
+
+  if source not in G:
+    raise nx.NodeNotFound("Source {} not in G".format(source))
+  if target not in G:
+    raise nx.NodeNotFound("Target {} not in G".format(target))
+  if source == target:
+    return 0, [target]
+  
+  discrete_request_time = req_time + (dt -(req_time%dt))
+  discrete_t_0 = t_0 + (dt -(t_0%dt))
+  discrete_t_H = t_H + (dt -(t_H%dt))
+  full_pareto_bag = buck_mltcrtr_lbl_set_alg_bwds(G, source, target, discrete_t_0, discrete_t_H, dt, time_bucket, cost_bucket)
+  
+  path_id = count()
+  pareto_set = dict()
+  missed_paths = 0
+  
+  for label_id, attrs in full_pareto_bag[source][discrete_request_time].items():
+      path = deque([source])
+      next_node = attrs['pred_node']
+      next_time_intrv = attrs['pred_time_int']
+      next_label_id = attrs['pred_label_id']
+      update_path_dict = True
+      while next_node != None and next_time_intrv != None and next_label_id != None:
+          if next_label_id not in full_pareto_bag[next_node][next_time_intrv]:
+              missed_paths += 1
+              update_path_dict = False
+              break
+          path.append(next_node)
+          new_node = full_pareto_bag[next_node][next_time_intrv][next_label_id]['pred_node']
+          new_time_intrv = full_pareto_bag[next_node][next_time_intrv][next_label_id]['pred_time_int']
+          new_label_id = full_pareto_bag[next_node][next_time_intrv][next_label_id]['pred_label_id']
+          next_node = new_node
+          next_time_intrv = new_time_intrv
+          next_label_id = new_label_id
+      if update_path_dict:
+          pareto_set.update({str(next(path_id)): {'path' : path, 'label' : attrs['opt_crt_val']}})
+  
+  return (pareto_set, missed_paths)
+
+
+# the origin and destination inputs to the algorithm need to always be nodes of the walk network.
+def buck_mltcrtr_lbl_set_alg_bwds(G, source, target, t_0, t_H, dt, time_bucket, cost_bucket):
+    Gpred = G._pred
+    
+    #--- initialization of the data structure that holds all the non-dominated multi-dimnesional labels and its label's required pointers
+    #--- for all nodes and all times within a time_horizon (t_0 <= t <= t_H)
+    c = count()
+    labels_bag = dict()
+    labels_to_extend = dict()
+    for n in G:
+        labels_bag.update({n: dict()})
+        labels_to_extend.update({n: dict()})
+        for t in range(t_0, t_H+dt, dt):
+            # t = t%86400
+            if n == target:
+                label_id = str(next(c))
+                labels_bag[n].update({t: {label_id: {'opt_crt_val': (0,0,0,0), 'pred_node': None, \
+                                                     'pred_time_int': None, 'pred_label_id': None, 'prev_edge_type': None, \
+                                                         'prev_dstr_node_graph_type': None , 'prev_mode': None}}})
+                labels_to_extend[n].update({t: {label_id}})
+            else:
+                labels_bag[n].update({t: dict()})
+                labels_to_extend[n].update({t: set()})
+
+    #--- initialization of the SE list used for scanning nodes in each iteration ---#
+    #--- it opertes as a double ended queue (deque) as in Ziliaskopoulos and Mahmassani (1993) ---#
+#    se_list = deque([target])
+    de_queue = dict()
+    for n in G:
+        if n == target:
+            de_queue.update({n: 999999999})
+        else:
+            de_queue.update({n: 0})
+    
+    se_list = deque([target])
+    
+    #--- the algorithm is running until the SE List is empty, meaning that there are no more node insertions for any time t 
+#    that can give a non-dominated paths \---#
+    while se_list: 
+        v = se_list.popleft()
+        de_queue[v] = -1
+        v_n_gr_type = G.nodes[v]['node_graph_type']
+        
+        for u, e in Gpred[v].items():
+            insert_in_se_list = False
+            # now for each t we first need to identify the total travel time that is required to travel from u to v
+            # this is the case because we need to know which label (path) or set of labels (paths) from node v will be extended
+            # the labels that will be extended will then be the one in labels_bag[v][t+tt_uv(t)]
+            for t in range(t_0, t_H+dt, dt):
+                # t = t%86400
+                e_type = e['edge_type']
+#                here we diffferentiate between the cases of public transport and road modes, since time-dependency
+#                is handled differently in each case; specifically waiting is allowed in PT but not in road services
+#                if e_type != 'pt_route_edge':
+                if e_type == 'car_sharing_station_egress_edge' or e_type == 'car_sharing_station_access_edge':
+                    e_tt = e['travel_time'][t]
+                    e_wait_time = e['wait_time']
+                    e_cost=0
+                    # e_distance = 0
+                    e_boarding_num = 0
+                    e_trip_num = 0
+                    # e_walk_time = 0
+                    
+                if e_type == 'car_sharing_orig_dummy_edge':
+                    e_tt = 0
+                    e_wait_time = 0
+                    # e_distance = 0
+                    e_cost = 0
+                    e_boarding_num = 0
+                    e_trip_num = 0
+                    # e_walk_time = 0
+                    
+                if e_type == 'car_sharing_dest_dummy_edge' or e_type == 'car_sharing_dual_edge':
+                    e_tt = e['travel_time'][t]
+                    e_wait_time = 0
+                    # e_distance = e['distance']
+                    e_cost = e['car_sharing_fares'][t]
+                    e_boarding_num = 0
+                    e_trip_num = 0
+                    # e_walk_time = 0
+                    
+                if e_type == 'taxi_edge' or e_type == 'on_demand_single_taxi_edge' or e_type == 'on_demand_shared_taxi_edge':
+                    e_wait_time = e['taxi_wait_time'][t]
+                    e_tt = e['travel_time'][(t+e_wait_time)-((t+e_wait_time)%dt)]
+                    e_cost = e['taxi_fares'][t]
+                    # e_distance = e['distance']
+                    e_boarding_num = 0
+                    e_trip_num = 0
+                    # e_walk_time = 0
+                
+                if e_type == 'walk_edge':
+                    e_tt = e['travel_time']
+                    e_wait_time = 0
+                    # e_distance = e['distance']
+                    e_cost = 0
+                    e_boarding_num = 0
+                    e_trip_num = 0
+                    # e_walk_time = e['travel_time']
+                    
+                if e_type == 'access_edge':
+                    e_tt = e['travel_time']
+                    e_wait_time = 0
+                    # e_distance = e['distance']
+                    e_cost = 0
+                    e_boarding_num = 0
+                    u_n_type = e['up_node_type']
+                    if u_n_type == 'walk_graph_node':
+                        e_trip_num = 1
+                    else:
+                        e_trip_num = 0
+                    # e_walk_time = e['travel_time']
+                    
+                if e_type == 'pt_transfer_edge':
+                    e_tt = e['travel_time']
+                    e_wait_time = 0
+                    # e_distance = e['distance']
+                    e_cost = 0
+                    u_n_type = e['up_node_type']
+                    v_n_type = e['dstr_node_type']
+                    if (u_n_type == 'stop_node' or u_n_type=='station_node') and v_n_type == 'route_node':
+                        e_boarding_num = 1
+                    else:
+                        e_boarding_num = 0
+                    e_trip_num = 0
+                    # e_walk_time = e['travel_time']
+                    
+                if e_type == 'pt_route_edge':
+                    e_tt = e['travel_time'][t]
+                    e_wait_time = e['wait_time'][t]['discr_value']
+                    # e_distance = e['distance']
+                    e_cost = e['pt_cost'][t]
+                    e_boarding_num = 0
+                    e_trip_num = 0
+                    # e_walk_time = 0
+                    
+                v_arr_time = t + e_tt + e_wait_time
+                # mod_v_arr_time = v_arr_time-((v_arr_time-t_0)%dt)
+                    
+                if v_arr_time <= t_H:                     
+                    for label_id, info in labels_bag[v][v_arr_time].items():
+                        if label_id not in labels_to_extend[v][v_arr_time]:
+                            continue
+                        if u == info['pred_node']:
+                            continue
+                        prev_mode = info['prev_mode']
+                        pr_ed_tp = info['prev_edge_type']
+                        pre_dstr_n_gr_tp = info['prev_dstr_node_graph_type']
+                        
+                        # restraint walking before taxi modes - active
+                        if e_type == 'walk_edge' and pr_ed_tp == 'access_edge' and \
+                        (pre_dstr_n_gr_tp == 'taxi_graph' or pre_dstr_n_gr_tp == 'on_demand_single_taxi_graph' or pre_dstr_n_gr_tp == 'on_demand_shared_taxi_graph'):
+                            continue
+                        
+                        if e_type == 'access_edge':
+                            u_n_type = e['up_node_type']#G.nodes[v]['node_type']
+                            u_n_gr_type = e['up_node_graph_type']#G.nodes[u]['node_graph_type']#node_graph_type_data(u, G.nodes[u])
+                            v_n_type = e['dstr_node_type']
+                            
+                            if u_n_type == 'car_sharing_station_node' and G.nodes[u]['stock_level'][t] == G.nodes[u]['capacity']:
+                                e_tt = 999999999
+                                e_wait_time = 999999999
+                                e_cost= 999999999
+                                # e_distance = 0
+                                e_boarding_num =  999999999
+                                e_trip_num = 999999999
+                                # e_walk_time = 0
+                            elif v_n_type == 'car_sharing_station_node' and G.nodes[v]['stock_level'][t+e_tt+e_wait_time] == 0:
+                                e_tt = 999999999
+                                e_wait_time = 999999999
+                                e_cost= 999999999
+                                # e_distance = 0
+                                e_boarding_num =  999999999
+                                e_trip_num = 999999999
+                                # e_walk_time = 0
+                            
+                            if u_n_gr_type == 'Walk':
+                              prev_mode = v_n_gr_type   
+#                           when we are at an access edge that connects graphs we need to penalize unreasonable connections and path loops; 
+#                           e.g., from walk node to another mode-specific node and back to walk node, from a taxi/carsharing trip to a walk trip 
+#                           and back to taxi/carsharing trip
+                            if pr_ed_tp == 'access_edge': #active
+                              if (pre_dstr_n_gr_tp == 'Walk' and u_n_gr_type == 'Walk') or (pre_dstr_n_gr_tp == 'Bus' and \
+                                u_n_gr_type == 'Bus') or (pre_dstr_n_gr_tp == 'Train' and u_n_gr_type == 'Train'):
+                                  continue#penalty = 1000000000000000
+                             
+#                           avoid paths that include two consecutive taxis or carsharign legs in one trip
+                            if (prev_mode == 'taxi_graph' or prev_mode == 'on_demand_single_taxi_graph' or \
+                                prev_mode == 'on_demand_shared_taxi_graph' or prev_mode == 'car_sharing_graph') and \
+                                (u_n_gr_type == 'taxi_graph' or u_n_gr_type == 'on_demand_single_taxi_graph' or \
+                                 u_n_gr_type == 'on_demand_shared_taxi_graph' or u_n_gr_type == 'car_sharing_graph'):
+                                    continue#penalty = 1000000000000000 active
+                            
+                            # restraint pick up -active
+                            if v_n_gr_type == 'taxi_graph' or v_n_gr_type == 'on_demand_single_taxi_graph' or v_n_gr_type == 'on_demand_shared_taxi_graph':
+                                if e['up_node_zone'] == G.nodes[source]['zone'] and u != source:
+                                  continue#penalty = 1000000000000000
+                              
+                            # restraint drop off - active
+                            if (u_n_gr_type == 'taxi_graph' or u_n_gr_type == 'on_demand_single_taxi_graph' or u_n_gr_type == 'on_demand_shared_taxi_graph') \
+                            and e['dstr_node_zone'] == G.nodes[target]['zone'] and v != target:
+                                continue
+                            
+                            # restraint walking after taxi modes - active
+                            if (u_n_gr_type == 'taxi_graph' or u_n_gr_type == 'on_demand_single_taxi_graph' or u_n_gr_type == 'on_demand_shared_taxi_graph') \
+                            and pr_ed_tp == 'walk_edge':
+                                continue
+                            
+#                                if (v_n_gr_type == 'taxi_graph' or v_n_gr_type == 'on_demand_single_taxi_graph' \
+#                                    or v_n_gr_type == 'on_demand_shared_taxi_graph') and u != source:
+#                                    continue
+#                                if u_n_gr_type == 'taxi_graph' or u_n_gr_type == 'on_demand_single_taxi_graph' or u_n_gr_type == 'on_demand_shared_taxi_graph' \
+#                                     or u_n_gr_type == 'car_sharing_graph'pr_ed_tp == 'walk_edge' and G.nodes[info['pred_node']]['is_mode_dupl']:
+#                                    continue
+                          
+                        total_travel_time_till_u = e_tt + e_wait_time + info['opt_crt_val'][0]
+                        cost_till_u = e_cost + info['opt_crt_val'][1]
+                        boardings_till_u = e_boarding_num + info['opt_crt_val'][2]
+                        trips_till_u = e_trip_num + info['opt_crt_val'][3]
+                        # wait_time_till_u = e_wait_time + info['wt']
+                        # distance_till_u = e_distance + info['l']
+                        # walk_time_till_u = e_walk_time + info['wkt']
+                        
+                        new_cost_label = (total_travel_time_till_u, cost_till_u, boardings_till_u, trips_till_u)
+                        criteria_num = len(new_cost_label)
+                        new_buck_cost_label = (total_travel_time_till_u - (total_travel_time_till_u % time_bucket), \
+                                               cost_till_u - (cost_till_u % cost_bucket), boardings_till_u, trips_till_u)
+                        
+                        labels_to_be_deleted = deque([])
+                        if not(labels_bag[u][t]):
+                            non_dominated_label = 1
+                        else:
+                            for label, label_info in labels_bag[u][t].items():
+                                # temp_pareto_cost_label = label_info['opt_crt_val']
+                                temp_buck_pareto_cost_label = (label_info['opt_crt_val'][0] - (label_info['opt_crt_val'][0] % time_bucket), \
+                                                               label_info['opt_crt_val'][1] - (label_info['opt_crt_val'][1] % cost_bucket), \
+                                                                   label_info['opt_crt_val'][2], label_info['opt_crt_val'][3])
+                                q_1 = 0 
+                                q_2 = 0
+                                for i, j in zip(temp_buck_pareto_cost_label, new_buck_cost_label):
+                                    if i<=j:
+                                        q_1 += 1
+                                    if i==j:
+                                        q_2 += 1
+                                if q_1 == criteria_num and q_2 != criteria_num:
+                                    non_dominated_label = 0
+                                    break
+                                q_3 = 0
+                                q_4 = 0
+                                for i, j in zip(new_buck_cost_label, temp_buck_pareto_cost_label):
+                                    if i<=j:
+                                        q_3 += 1
+                                    if i==j:
+                                        q_4 += 1
+                                if q_3 == criteria_num and q_4 != criteria_num:
+                                    labels_to_be_deleted.append(label)
+                                non_dominated_label = 1
+                      
+                        if non_dominated_label:
+                            if labels_to_be_deleted:
+                                for labelid in labels_to_be_deleted:                                      
+                                    del(labels_bag[u][t][labelid])
+                                    labels_to_extend[u][t].discard(labelid)
+                            insert_in_se_list = True     
+                            new_label_id = str(next(c))
+                            labels_to_extend[u][t].add(new_label_id)
+                            labels_bag[u][t].update({new_label_id: {'opt_crt_val' : new_cost_label, 'pred_node' : v, \
+                                                                    'pred_time_int': v_arr_time, 'pred_label_id' : label_id, \
+                                                                        'prev_edge_type': e_type, \
+                                                                            'prev_dstr_node_graph_type': v_n_gr_type, \
+                                                                                'prev_mode': prev_mode}})
+                                                                                                      
+            if insert_in_se_list:
+                if de_queue[u] == 0:
+                    if se_list:
+                        de_queue[se_list[-1]] = u
+                    de_queue[u] = 999999999
+                    se_list.append(u)
+                elif de_queue[u] == -1:
+                    if se_list:
+                        de_queue[u] = se_list[0]
+                    else:
+                        de_queue[u] = 999999999
+                    se_list.appendleft(u)
+        
+        for time in labels_to_extend[v]:
+            labels_to_extend[v][time] = set()
+    
+    return labels_bag
+
+def get_ellipse_pareto_set(G, source, target, req_time, t_0, t_H, dt, ac_ratio):
+
+  if source not in G:
+    raise nx.NodeNotFound("Source {} not in G".format(source))
+  if target not in G:
+    raise nx.NodeNotFound("Target {} not in G".format(target))
+  if source == target:
+    return 0, [target]
+  
+  discrete_request_time = req_time + (dt -(req_time%dt))
+  discrete_t_0 = t_0 + (dt -(t_0%dt))
+  discrete_t_H = t_H + (dt -(t_H%dt))
+  full_pareto_bag = ellipse_mltcrtr_lbl_set_alg_bwds(G, source, target, discrete_t_0, discrete_t_H, dt, ac_ratio)
+  
+  path_id = count()
+  pareto_set = dict()
+  missed_paths = 0
+  
+  for label_id, attrs in full_pareto_bag[source][discrete_request_time].items():
+      path = deque([source])
+      next_node = attrs['pred_node']
+      next_time_intrv = attrs['pred_time_int']
+      next_label_id = attrs['pred_label_id']
+      update_path_dict = True
+      while next_node != None and next_time_intrv != None and next_label_id != None:
+          if next_label_id not in full_pareto_bag[next_node][next_time_intrv]:
+              missed_paths += 1
+              update_path_dict = False
+              break
+          path.append(next_node)
+          new_node = full_pareto_bag[next_node][next_time_intrv][next_label_id]['pred_node']
+          new_time_intrv = full_pareto_bag[next_node][next_time_intrv][next_label_id]['pred_time_int']
+          new_label_id = full_pareto_bag[next_node][next_time_intrv][next_label_id]['pred_label_id']
+          next_node = new_node
+          next_time_intrv = new_time_intrv
+          next_label_id = new_label_id
+      if update_path_dict:
+          pareto_set.update({str(next(path_id)): {'path' : path, 'label' : attrs['opt_crt_val']}})
+  
+  return (pareto_set, missed_paths)
+
+
+# the origin and destination inputs to the algorithm need to always be nodes of the walk network.
+def ellipse_mltcrtr_lbl_set_alg_bwds(G, source, target, t_0, t_H, dt, ac_ratio):
+    Gpred = G._pred
+    
+    #--- initialization of the data structure that holds all the non-dominated multi-dimnesional labels and its label's required pointers
+    #--- for all nodes and all times within a time_horizon (t_0 <= t <= t_H)
+    c = count()
+    labels_bag = dict()
+    labels_to_extend = dict()
+    for n in G:
+        labels_bag.update({n: dict()})
+        labels_to_extend.update({n: dict()})
+        for t in range(t_0, t_H+dt, dt):
+            # t = t%86400
+            if n == target:
+                label_id = str(next(c))
+                labels_bag[n].update({t: {label_id: {'opt_crt_val': (0,0,0,0), 'pred_node': None, \
+                                                     'pred_time_int': None, 'pred_label_id': None, 'prev_edge_type': None, \
+                                                         'prev_dstr_node_graph_type': None , 'prev_mode': None}}})
+                labels_to_extend[n].update({t: {label_id}})
+            else:
+                labels_bag[n].update({t: dict()})
+                labels_to_extend[n].update({t: set()})
+
+    #--- initialization of the SE list used for scanning nodes in each iteration ---#
+    #--- it opertes as a double ended queue (deque) as in Ziliaskopoulos and Mahmassani (1993) ---#
+#    se_list = deque([target])
+    de_queue = dict()
+    for n in G:
+        if n == target:
+            de_queue.update({n: 999999999})
+        else:
+            de_queue.update({n: 0})
+    
+    se_list = deque([target])
+    
+    # for ellipse_ratio = 1.25
+    c_ellipse = (math.sqrt(sum([(a - b) ** 2 for a, b in zip(G.nodes[source]['pos'], G.nodes[target]['pos'])])))/2
+    # a_ellipse = math.sqrt(c_ellipse**2 + )
+    a_ellipse = ac_ratio*c_ellipse
+    
+    #--- the algorithm is running until the SE List is empty, meaning that there are no more node insertions for any time t 
+#    that can give a non-dominated paths \---#
+    while se_list: 
+        v = se_list.popleft()
+        de_queue[v] = -1
+        v_n_gr_type = G.nodes[v]['node_graph_type']
+        
+        for u, e in Gpred[v].items():
+            insert_in_se_list = False
+            
+            if 'pos' in G.nodes[u]:
+                eucl_dist_source_to_u = math.sqrt(sum([(a - b) ** 2 for a, b in zip(G.nodes[source]['pos'], G.nodes[u]['pos'])]))
+                eucl_dist_u_to_target = math.sqrt(sum([(a - b) ** 2 for a, b in zip(G.nodes[u]['pos'], G.nodes[target]['pos'])]))
+                
+                if eucl_dist_source_to_u + eucl_dist_u_to_target > 2*a_ellipse:
+                    continue
+            # now for each t we first need to identify the total travel time that is required to travel from u to v
+            # this is the case because we need to know which label (path) or set of labels (paths) from node v will be extended
+            # the labels that will be extended will then be the one in labels_bag[v][t+tt_uv(t)]
+            for t in range(t_0, t_H+dt, dt):
+                # t = t%86400
+                e_type = e['edge_type']
+#                here we diffferentiate between the cases of public transport and road modes, since time-dependency
+#                is handled differently in each case; specifically waiting is allowed in PT but not in road services
+#                if e_type != 'pt_route_edge':
+                if e_type == 'car_sharing_station_egress_edge' or e_type == 'car_sharing_station_access_edge':
+                    e_tt = e['travel_time'][t]
+                    e_wait_time = e['wait_time']
+                    e_cost=0
+                    # e_distance = 0
+                    e_boarding_num = 0
+                    e_trip_num = 0
+                    # e_walk_time = 0
+                    
+                if e_type == 'car_sharing_orig_dummy_edge':
+                    e_tt = 0
+                    e_wait_time = 0
+                    # e_distance = 0
+                    e_cost = 0
+                    e_boarding_num = 0
+                    e_trip_num = 0
+                    # e_walk_time = 0
+                    
+                if e_type == 'car_sharing_dest_dummy_edge' or e_type == 'car_sharing_dual_edge':
+                    e_tt = e['travel_time'][t]
+                    e_wait_time = 0
+                    # e_distance = e['distance']
+                    e_cost = e['car_sharing_fares'][t]
+                    e_boarding_num = 0
+                    e_trip_num = 0
+                    # e_walk_time = 0
+                    
+                if e_type == 'taxi_edge' or e_type == 'on_demand_single_taxi_edge' or e_type == 'on_demand_shared_taxi_edge':
+                    e_wait_time = e['taxi_wait_time'][t]
+                    e_tt = e['travel_time'][(t+e_wait_time)-((t+e_wait_time)%dt)]
+                    e_cost = e['taxi_fares'][t]
+                    # e_distance = e['distance']
+                    e_boarding_num = 0
+                    e_trip_num = 0
+                    # e_walk_time = 0
+                
+                if e_type == 'walk_edge':
+                    e_tt = e['travel_time']
+                    e_wait_time = 0
+                    # e_distance = e['distance']
+                    e_cost = 0
+                    e_boarding_num = 0
+                    e_trip_num = 0
+                    # e_walk_time = e['travel_time']
+                    
+                if e_type == 'access_edge':
+                    e_tt = e['travel_time']
+                    e_wait_time = 0
+                    # e_distance = e['distance']
+                    e_cost = 0
+                    e_boarding_num = 0
+                    u_n_type = e['up_node_type']
+                    if u_n_type == 'walk_graph_node':
+                        e_trip_num = 1
+                    else:
+                        e_trip_num = 0
+                    # e_walk_time = e['travel_time']
+                    
+                if e_type == 'pt_transfer_edge':
+                    e_tt = e['travel_time']
+                    e_wait_time = 0
+                    # e_distance = e['distance']
+                    e_cost = 0
+                    u_n_type = e['up_node_type']
+                    v_n_type = e['dstr_node_type']
+                    if (u_n_type == 'stop_node' or u_n_type=='station_node') and v_n_type == 'route_node':
+                        e_boarding_num = 1
+                    else:
+                        e_boarding_num = 0
+                    e_trip_num = 0
+                    # e_walk_time = e['travel_time']
+                    
+                if e_type == 'pt_route_edge':
+                    e_tt = e['travel_time'][t]
+                    e_wait_time = e['wait_time'][t]['discr_value']
+                    # e_distance = e['distance']
+                    e_cost = e['pt_cost'][t]
+                    e_boarding_num = 0
+                    e_trip_num = 0
+                    # e_walk_time = 0
+                    
+                v_arr_time = t + e_tt + e_wait_time
+                # mod_v_arr_time = v_arr_time-((v_arr_time-t_0)%dt)
+                    
+                if v_arr_time <= t_H:                     
+                    for label_id, info in labels_bag[v][v_arr_time].items():
+                        if label_id not in labels_to_extend[v][v_arr_time]:
+                            continue
+                        if u == info['pred_node']:
+                            continue
+                        prev_mode = info['prev_mode']
+                        pr_ed_tp = info['prev_edge_type']
+                        pre_dstr_n_gr_tp = info['prev_dstr_node_graph_type']
+                        
+                        # restraint walking before taxi modes - active
+                        if e_type == 'walk_edge' and pr_ed_tp == 'access_edge' and \
+                        (pre_dstr_n_gr_tp == 'taxi_graph' or pre_dstr_n_gr_tp == 'on_demand_single_taxi_graph' or pre_dstr_n_gr_tp == 'on_demand_shared_taxi_graph'):
+                            continue
+                        
+                        if e_type == 'access_edge':
+                            u_n_type = e['up_node_type']#G.nodes[v]['node_type']
+                            u_n_gr_type = e['up_node_graph_type']#G.nodes[u]['node_graph_type']#node_graph_type_data(u, G.nodes[u])
+                            v_n_type = e['dstr_node_type']
+                            
+                            if u_n_type == 'car_sharing_station_node' and G.nodes[u]['stock_level'][t] == G.nodes[u]['capacity']:
+                                e_tt = 999999999
+                                e_wait_time = 999999999
+                                e_cost= 999999999
+                                # e_distance = 0
+                                e_boarding_num =  999999999
+                                e_trip_num = 999999999
+                                # e_walk_time = 0
+                            elif v_n_type == 'car_sharing_station_node' and G.nodes[v]['stock_level'][t+e_tt+e_wait_time] == 0:
+                                e_tt = 999999999
+                                e_wait_time = 999999999
+                                e_cost= 999999999
+                                # e_distance = 0
+                                e_boarding_num =  999999999
+                                e_trip_num = 999999999
+                                # e_walk_time = 0
+                            
+                            if u_n_gr_type == 'Walk':
+                              prev_mode = v_n_gr_type   
+#                           when we are at an access edge that connects graphs we need to penalize unreasonable connections and path loops; 
+#                           e.g., from walk node to another mode-specific node and back to walk node, from a taxi/carsharing trip to a walk trip 
+#                           and back to taxi/carsharing trip
+                            if pr_ed_tp == 'access_edge': #active
+                              if (pre_dstr_n_gr_tp == 'Walk' and u_n_gr_type == 'Walk') or (pre_dstr_n_gr_tp == 'Bus' and \
+                                u_n_gr_type == 'Bus') or (pre_dstr_n_gr_tp == 'Train' and u_n_gr_type == 'Train'):
+                                  continue#penalty = 1000000000000000
+                             
+#                           avoid paths that include two consecutive taxis or carsharign legs in one trip
+                            if (prev_mode == 'taxi_graph' or prev_mode == 'on_demand_single_taxi_graph' or \
+                                prev_mode == 'on_demand_shared_taxi_graph' or prev_mode == 'car_sharing_graph') and \
+                                (u_n_gr_type == 'taxi_graph' or u_n_gr_type == 'on_demand_single_taxi_graph' or \
+                                 u_n_gr_type == 'on_demand_shared_taxi_graph' or u_n_gr_type == 'car_sharing_graph'):
+                                    continue#penalty = 1000000000000000 active
+                            
+                            # restraint pick up -active
+                            if v_n_gr_type == 'taxi_graph' or v_n_gr_type == 'on_demand_single_taxi_graph' or v_n_gr_type == 'on_demand_shared_taxi_graph':
+                                if e['up_node_zone'] == G.nodes[source]['zone'] and u != source:
+                                  continue#penalty = 1000000000000000
+                              
+                            # restraint drop off - active
+                            if (u_n_gr_type == 'taxi_graph' or u_n_gr_type == 'on_demand_single_taxi_graph' or u_n_gr_type == 'on_demand_shared_taxi_graph') \
+                            and e['dstr_node_zone'] == G.nodes[target]['zone'] and v != target:
+                                continue
+                            
+                            # restraint walking after taxi modes - active
+                            if (u_n_gr_type == 'taxi_graph' or u_n_gr_type == 'on_demand_single_taxi_graph' or u_n_gr_type == 'on_demand_shared_taxi_graph') \
+                            and pr_ed_tp == 'walk_edge':
+                                continue
+                            
+#                                if (v_n_gr_type == 'taxi_graph' or v_n_gr_type == 'on_demand_single_taxi_graph' \
+#                                    or v_n_gr_type == 'on_demand_shared_taxi_graph') and u != source:
+#                                    continue
+#                                if u_n_gr_type == 'taxi_graph' or u_n_gr_type == 'on_demand_single_taxi_graph' or u_n_gr_type == 'on_demand_shared_taxi_graph' \
+#                                     or u_n_gr_type == 'car_sharing_graph'pr_ed_tp == 'walk_edge' and G.nodes[info['pred_node']]['is_mode_dupl']:
+#                                    continue
+                          
+                        total_travel_time_till_u = e_tt + e_wait_time + info['opt_crt_val'][0]
+                        cost_till_u = e_cost + info['opt_crt_val'][1]
+                        boardings_till_u = e_boarding_num + info['opt_crt_val'][2]
+                        trips_till_u = e_trip_num + info['opt_crt_val'][3]
+                        # wait_time_till_u = e_wait_time + info['wt']
+                        # distance_till_u = e_distance + info['l']
+                        # walk_time_till_u = e_walk_time + info['wkt']
+                        
+                        new_cost_label = (total_travel_time_till_u, cost_till_u, boardings_till_u, trips_till_u)
+                        criteria_num = len(new_cost_label)
+                        # back_val_curr_cost_label = [(travel_time_till_u + wait_time_till_u) - ((travel_time_till_u + wait_time_till_u)%60), \
+                        #                    cost_till_u - (cost_till_u%8), line_trasnf_num_till_u + mode_transf_num_till_u]
+                        labels_to_be_deleted = deque([])
+                        if not(labels_bag[u][t]):
+                            non_dominated_label = 1
+                        else:
+                            for label, label_info in labels_bag[u][t].items():
+                                temp_pareto_cost_label = label_info['opt_crt_val']
+                                # curr_cost_label = [label_info['opt_crt_val'][0] - (label_info['opt_crt_val'][0]%60), label_info['opt_crt_val'][1] - \
+                                #                             (label_info['opt_crt_val'][1]%8), label_info['opt_crt_val'][2], label_info['opt_crt_val'][2]]
+                                if new_cost_label == temp_pareto_cost_label:
+                                    non_dominated_label = 1
+                                    break
+                                q_1 = 0 
+                                q_2 = 0
+                                for i, j in zip(new_cost_label, temp_pareto_cost_label):
+                                    if i>=j:
+                                        q_1 += 1
+                                    if i==j:
+                                        q_2 += 1
+                                if q_1 == criteria_num and q_2 != criteria_num:
+                                    non_dominated_label = 0
+                                    break
+                                q_3 = 0
+                                q_4 = 0
+                                for i, j in zip(new_cost_label, temp_pareto_cost_label):
+                                    if i<=j:
+                                        q_3 += 1
+                                    if i==j:
+                                        q_4 += 1
+                                if q_3 == criteria_num and q_4 != criteria_num:
+                                    labels_to_be_deleted.append(label)
+                                non_dominated_label = 1
+                      
+                        if non_dominated_label:
+                            if labels_to_be_deleted:
+                                for labelid in labels_to_be_deleted:                                      
+                                    del(labels_bag[u][t][labelid])
+                                    labels_to_extend[u][t].discard(labelid)
+                            insert_in_se_list = True     
+                            new_label_id = str(next(c))
+                            labels_to_extend[u][t].add(new_label_id)
+                            labels_bag[u][t].update({new_label_id: {'opt_crt_val' : new_cost_label, 'pred_node' : v, \
+                                                                    'pred_time_int': v_arr_time, 'pred_label_id' : label_id, \
+                                                                        'prev_edge_type': e_type, \
+                                                                            'prev_dstr_node_graph_type': v_n_gr_type, \
+                                                                                'prev_mode': prev_mode}})
+                                                                                                      
+            if insert_in_se_list:
+                if de_queue[u] == 0:
+                    if se_list:
+                        de_queue[se_list[-1]] = u
+                    de_queue[u] = 999999999
+                    se_list.append(u)
+                elif de_queue[u] == -1:
+                    if se_list:
+                        de_queue[u] = se_list[0]
+                    else:
+                        de_queue[u] = 999999999
+                    se_list.appendleft(u)
+        
+        for time in labels_to_extend[v]:
+            labels_to_extend[v][time] = set()
+    
+    return labels_bag
