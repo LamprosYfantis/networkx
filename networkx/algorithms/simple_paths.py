@@ -9003,6 +9003,9 @@ def buck_mltcrtr_lbl_set_alg_bwds(G, source, target, t_0, t_H, dt, time_bucket, 
                                 temp_buck_pareto_cost_label = (label_info['opt_crt_val'][0] - (label_info['opt_crt_val'][0] % time_bucket), \
                                                                label_info['opt_crt_val'][1] - (label_info['opt_crt_val'][1] % cost_bucket), \
                                                                    label_info['opt_crt_val'][2], label_info['opt_crt_val'][3])
+                                if new_buck_cost_label == temp_buck_pareto_cost_label:
+                                    non_dominated_label = 0
+                                    break
                                 q_1 = 0 
                                 q_2 = 0
                                 for i, j in zip(temp_buck_pareto_cost_label, new_buck_cost_label):
