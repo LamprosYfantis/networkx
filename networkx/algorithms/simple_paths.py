@@ -8116,15 +8116,19 @@ def mltcrtr_lbl_set_alg_bwds(G, source, target, t_0, t_H, dt):
         labels_to_extend.update({n: dict()})
         for t in range(t_0, t_H+dt, dt):
             # t = t%86400
+            if t>= 86400:
+                t_1 = t-86400 - ((t-86400)%dt)
+            else:
+                t_1 = t
             if n == target:
                 label_id = str(next(c))
-                labels_bag[n].update({t: {label_id: {'opt_crt_val': (0,0,0,0), 'pred_node': None, \
+                labels_bag[n].update({t_1: {label_id: {'opt_crt_val': (0,0,0,0), 'pred_node': None, \
                                                      'pred_time_int': None, 'pred_label_id': None, 'prev_edge_type': None, \
                                                          'prev_dstr_node_graph_type': None , 'prev_mode': None}}})
-                labels_to_extend[n].update({t: {label_id}})
+                labels_to_extend[n].update({t_1: {label_id}})
             else:
-                labels_bag[n].update({t: dict()})
-                labels_to_extend[n].update({t: set()})
+                labels_bag[n].update({t_1: dict()})
+                labels_to_extend[n].update({t_1: set()})
 
     #--- initialization of the SE list used for scanning nodes in each iteration ---#
     #--- it opertes as a double ended queue (deque) as in Ziliaskopoulos and Mahmassani (1993) ---#
@@ -8151,13 +8155,16 @@ def mltcrtr_lbl_set_alg_bwds(G, source, target, t_0, t_H, dt):
             # this is the case because we need to know which label (path) or set of labels (paths) from node v will be extended
             # the labels that will be extended will then be the one in labels_bag[v][t+tt_uv(t)]
             for t in range(t_0, t_H+dt, dt):
-                # t = t%86400
+                if t >= 86400:
+                    t_2 = t-86400 - ((t-86400)%dt)
+                else:
+                    t_2 = t
                 e_type = e['edge_type']
 #                here we diffferentiate between the cases of public transport and road modes, since time-dependency
 #                is handled differently in each case; specifically waiting is allowed in PT but not in road services
 #                if e_type != 'pt_route_edge':
                 if e_type == 'car_sharing_station_egress_edge' or e_type == 'car_sharing_station_access_edge':
-                    e_tt = e['travel_time'][t]
+                    e_tt = e['travel_time'][t_2]
                     e_wait_time = e['wait_time']
                     e_cost=0
                     # e_distance = 0
@@ -8175,18 +8182,21 @@ def mltcrtr_lbl_set_alg_bwds(G, source, target, t_0, t_H, dt):
                     # e_walk_time = 0
                     
                 if e_type == 'car_sharing_dest_dummy_edge' or e_type == 'car_sharing_dual_edge':
-                    e_tt = e['travel_time'][t]
+                    e_tt = e['travel_time'][t_2]
                     e_wait_time = 0
                     # e_distance = e['distance']
-                    e_cost = e['car_sharing_fares'][t]
+                    e_cost = e['car_sharing_fares'][t_2]
                     e_boarding_num = 0
                     e_trip_num = 0
                     # e_walk_time = 0
                     
                 if e_type == 'taxi_edge' or e_type == 'on_demand_single_taxi_edge' or e_type == 'on_demand_shared_taxi_edge':
-                    e_wait_time = e['taxi_wait_time'][t]
-                    e_tt = e['travel_time'][(t+e_wait_time)-((t+e_wait_time)%dt)]
-                    e_cost = e['taxi_fares'][t]
+                    e_wait_time = e['taxi_wait_time'][t_2]
+                    vehicle_boarding_time = t_2 + e_wait_time
+                    if vehicle_boarding_time >= 86400:
+                        vehicle_boarding_time = vehicle_boarding_time-86400 - ((vehicle_boarding_time-86400)%dt)
+                    e_tt = e['travel_time'][(vehicle_boarding_time)-(vehicle_boarding_time%dt)]
+                    e_cost = e['taxi_fares'][t_2]
                     # e_distance = e['distance']
                     e_boarding_num = 0
                     e_trip_num = 0
@@ -8229,18 +8239,21 @@ def mltcrtr_lbl_set_alg_bwds(G, source, target, t_0, t_H, dt):
                     # e_walk_time = e['travel_time']
                     
                 if e_type == 'pt_route_edge':
-                    e_tt = e['travel_time'][t]
-                    e_wait_time = e['wait_time'][t]['discr_value']
+                    e_tt = e['travel_time'][t_2]
+                    e_wait_time = e['wait_time'][t_2]['discr_value']
                     # e_distance = e['distance']
-                    e_cost = e['pt_cost'][t]
+                    e_cost = e['pt_cost'][t_2]
                     e_boarding_num = 0
                     e_trip_num = 0
                     # e_walk_time = 0
                     
-                v_arr_time = t + e_tt + e_wait_time
+                v_arr_time = t_2 + e_tt + e_wait_time
+                if v_arr_time >= 86400:
+                    v_arr_time = v_arr_time-86400 - ((v_arr_time-86400)%dt)
+                rolled_v_arr_time = t + e_tt + e_wait_time
                 # mod_v_arr_time = v_arr_time-((v_arr_time-t_0)%dt)
                     
-                if v_arr_time <= t_H:                     
+                if rolled_v_arr_time <= t_H:                     
                     for label_id, info in labels_bag[v][v_arr_time].items():
                         if label_id not in labels_to_extend[v][v_arr_time]:
                             continue
@@ -8260,7 +8273,7 @@ def mltcrtr_lbl_set_alg_bwds(G, source, target, t_0, t_H, dt):
                             u_n_gr_type = e['up_node_graph_type']#G.nodes[u]['node_graph_type']#node_graph_type_data(u, G.nodes[u])
                             v_n_type = e['dstr_node_type']
                             
-                            if u_n_type == 'car_sharing_station_node' and G.nodes[u]['stock_level'][t] == G.nodes[u]['capacity']:
+                            if u_n_type == 'car_sharing_station_node' and G.nodes[u]['stock_level'][t_2] == G.nodes[u]['capacity']:
                                 e_tt = 999999999
                                 e_wait_time = 999999999
                                 e_cost= 999999999
@@ -8268,7 +8281,7 @@ def mltcrtr_lbl_set_alg_bwds(G, source, target, t_0, t_H, dt):
                                 e_boarding_num =  999999999
                                 e_trip_num = 999999999
                                 # e_walk_time = 0
-                            elif v_n_type == 'car_sharing_station_node' and G.nodes[v]['stock_level'][t+e_tt+e_wait_time] == 0:
+                            elif v_n_type == 'car_sharing_station_node' and G.nodes[v]['stock_level'][v_arr_time] == 0:
                                 e_tt = 999999999
                                 e_wait_time = 999999999
                                 e_cost= 999999999
@@ -8329,10 +8342,10 @@ def mltcrtr_lbl_set_alg_bwds(G, source, target, t_0, t_H, dt):
                         # back_val_curr_cost_label = [(travel_time_till_u + wait_time_till_u) - ((travel_time_till_u + wait_time_till_u)%60), \
                         #                    cost_till_u - (cost_till_u%8), line_trasnf_num_till_u + mode_transf_num_till_u]
                         labels_to_be_deleted = deque([])
-                        if not(labels_bag[u][t]):
+                        if not(labels_bag[u][t_2]):
                             non_dominated_label = 1
                         else:
-                            for label, label_info in labels_bag[u][t].items():
+                            for label, label_info in labels_bag[u][t_2].items():
                                 temp_pareto_cost_label = label_info['opt_crt_val']
                                 # curr_cost_label = [label_info['opt_crt_val'][0] - (label_info['opt_crt_val'][0]%60), label_info['opt_crt_val'][1] - \
                                 #                             (label_info['opt_crt_val'][1]%8), label_info['opt_crt_val'][2], label_info['opt_crt_val'][2]]
@@ -8363,12 +8376,12 @@ def mltcrtr_lbl_set_alg_bwds(G, source, target, t_0, t_H, dt):
                         if non_dominated_label:
                             if labels_to_be_deleted:
                                 for labelid in labels_to_be_deleted:                                      
-                                    del(labels_bag[u][t][labelid])
-                                    labels_to_extend[u][t].discard(labelid)
+                                    del(labels_bag[u][t_2][labelid])
+                                    labels_to_extend[u][t_2].discard(labelid)
                             insert_in_se_list = True     
                             new_label_id = str(next(c))
-                            labels_to_extend[u][t].add(new_label_id)
-                            labels_bag[u][t].update({new_label_id: {'opt_crt_val' : new_cost_label, 'pred_node' : v, \
+                            labels_to_extend[u][t_2].add(new_label_id)
+                            labels_bag[u][t_2].update({new_label_id: {'opt_crt_val' : new_cost_label, 'pred_node' : v, \
                                                                     'pred_time_int': v_arr_time, 'pred_label_id' : label_id, \
                                                                         'prev_edge_type': e_type, \
                                                                             'prev_dstr_node_graph_type': v_n_gr_type, \
@@ -8448,15 +8461,19 @@ def ε_mltcrtr_lbl_set_alg_bwds(G, source, target, t_0, t_H, dt, ε):
         labels_to_extend.update({n: dict()})
         for t in range(t_0, t_H+dt, dt):
             # t = t%86400
+            if t>= 86400:
+                t_1 = t-86400 - ((t-86400)%dt)
+            else:
+                t_1 = t
             if n == target:
                 label_id = str(next(c))
-                labels_bag[n].update({t: {label_id: {'opt_crt_val': (0,0,0,0), 'pred_node': None, \
+                labels_bag[n].update({t_1: {label_id: {'opt_crt_val': (0,0,0,0), 'pred_node': None, \
                                                      'pred_time_int': None, 'pred_label_id': None, 'prev_edge_type': None, \
                                                          'prev_dstr_node_graph_type': None , 'prev_mode': None}}})
-                labels_to_extend[n].update({t: {label_id}})
+                labels_to_extend[n].update({t_1: {label_id}})
             else:
-                labels_bag[n].update({t: dict()})
-                labels_to_extend[n].update({t: set()})
+                labels_bag[n].update({t_1: dict()})
+                labels_to_extend[n].update({t_1: set()})
 
     #--- initialization of the SE list used for scanning nodes in each iteration ---#
     #--- it opertes as a double ended queue (deque) as in Ziliaskopoulos and Mahmassani (1993) ---#
@@ -8483,13 +8500,16 @@ def ε_mltcrtr_lbl_set_alg_bwds(G, source, target, t_0, t_H, dt, ε):
             # this is the case because we need to know which label (path) or set of labels (paths) from node v will be extended
             # the labels that will be extended will then be the one in labels_bag[v][t+tt_uv(t)]
             for t in range(t_0, t_H+dt, dt):
-                # t = t%86400
+                if t >= 86400:
+                    t_2 = t-86400 - ((t-86400)%dt)
+                else:
+                    t_2 = t
                 e_type = e['edge_type']
 #                here we diffferentiate between the cases of public transport and road modes, since time-dependency
 #                is handled differently in each case; specifically waiting is allowed in PT but not in road services
 #                if e_type != 'pt_route_edge':
                 if e_type == 'car_sharing_station_egress_edge' or e_type == 'car_sharing_station_access_edge':
-                    e_tt = e['travel_time'][t]
+                    e_tt = e['travel_time'][t_2]
                     e_wait_time = e['wait_time']
                     e_cost=0
                     # e_distance = 0
@@ -8507,18 +8527,21 @@ def ε_mltcrtr_lbl_set_alg_bwds(G, source, target, t_0, t_H, dt, ε):
                     # e_walk_time = 0
                     
                 if e_type == 'car_sharing_dest_dummy_edge' or e_type == 'car_sharing_dual_edge':
-                    e_tt = e['travel_time'][t]
+                    e_tt = e['travel_time'][t_2]
                     e_wait_time = 0
                     # e_distance = e['distance']
-                    e_cost = e['car_sharing_fares'][t]
+                    e_cost = e['car_sharing_fares'][t_2]
                     e_boarding_num = 0
                     e_trip_num = 0
                     # e_walk_time = 0
                     
                 if e_type == 'taxi_edge' or e_type == 'on_demand_single_taxi_edge' or e_type == 'on_demand_shared_taxi_edge':
-                    e_wait_time = e['taxi_wait_time'][t]
-                    e_tt = e['travel_time'][(t+e_wait_time)-((t+e_wait_time)%dt)]
-                    e_cost = e['taxi_fares'][t]
+                    e_wait_time = e['taxi_wait_time'][t_2]
+                    vehicle_boarding_time = t_2 + e_wait_time
+                    if vehicle_boarding_time >= 86400:
+                        vehicle_boarding_time = vehicle_boarding_time-86400 - ((vehicle_boarding_time-86400)%dt)
+                    e_tt = e['travel_time'][(vehicle_boarding_time)-(vehicle_boarding_time%dt)]
+                    e_cost = e['taxi_fares'][t_2]
                     # e_distance = e['distance']
                     e_boarding_num = 0
                     e_trip_num = 0
@@ -8561,18 +8584,21 @@ def ε_mltcrtr_lbl_set_alg_bwds(G, source, target, t_0, t_H, dt, ε):
                     # e_walk_time = e['travel_time']
                     
                 if e_type == 'pt_route_edge':
-                    e_tt = e['travel_time'][t]
-                    e_wait_time = e['wait_time'][t]['discr_value']
+                    e_tt = e['travel_time'][t_2]
+                    e_wait_time = e['wait_time'][t_2]['discr_value']
                     # e_distance = e['distance']
-                    e_cost = e['pt_cost'][t]
+                    e_cost = e['pt_cost'][t_2]
                     e_boarding_num = 0
                     e_trip_num = 0
                     # e_walk_time = 0
                     
-                v_arr_time = t + e_tt + e_wait_time
+                v_arr_time = t_2 + e_tt + e_wait_time
+                if v_arr_time >= 86400:
+                    v_arr_time = v_arr_time-86400 - ((v_arr_time-86400)%dt)
+                rolled_v_arr_time = t + e_tt + e_wait_time
                 # mod_v_arr_time = v_arr_time-((v_arr_time-t_0)%dt)
                     
-                if v_arr_time <= t_H:                     
+                if rolled_v_arr_time <= t_H:                     
                     for label_id, info in labels_bag[v][v_arr_time].items():
                         if label_id not in labels_to_extend[v][v_arr_time]:
                             continue
@@ -8592,7 +8618,7 @@ def ε_mltcrtr_lbl_set_alg_bwds(G, source, target, t_0, t_H, dt, ε):
                             u_n_gr_type = e['up_node_graph_type']#G.nodes[u]['node_graph_type']#node_graph_type_data(u, G.nodes[u])
                             v_n_type = e['dstr_node_type']
                             
-                            if u_n_type == 'car_sharing_station_node' and G.nodes[u]['stock_level'][t] == G.nodes[u]['capacity']:
+                            if u_n_type == 'car_sharing_station_node' and G.nodes[u]['stock_level'][t_2] == G.nodes[u]['capacity']:
                                 e_tt = 999999999
                                 e_wait_time = 999999999
                                 e_cost= 999999999
@@ -8600,7 +8626,7 @@ def ε_mltcrtr_lbl_set_alg_bwds(G, source, target, t_0, t_H, dt, ε):
                                 e_boarding_num =  999999999
                                 e_trip_num = 999999999
                                 # e_walk_time = 0
-                            elif v_n_type == 'car_sharing_station_node' and G.nodes[v]['stock_level'][t+e_tt+e_wait_time] == 0:
+                            elif v_n_type == 'car_sharing_station_node' and G.nodes[v]['stock_level'][v_arr_time] == 0:
                                 e_tt = 999999999
                                 e_wait_time = 999999999
                                 e_cost= 999999999
@@ -8661,11 +8687,11 @@ def ε_mltcrtr_lbl_set_alg_bwds(G, source, target, t_0, t_H, dt, ε):
                         ε_new_cost_label = [i*ε for i in new_cost_label]
                         
                         labels_to_be_deleted = deque([])
-                        if not(labels_bag[u][t]):
+                        if not(labels_bag[u][t_2]):
                             non_dominated_label = 1
                         else:
                             check_next_loop = True
-                            for label1, label_info1 in labels_bag[u][t].items():
+                            for label1, label_info1 in labels_bag[u][t_2].items():
                                 temp_pareto_cost_label = label_info1['opt_crt_val']
                                 q_1 = 0 
                                 q_2 = 0
@@ -8679,7 +8705,7 @@ def ε_mltcrtr_lbl_set_alg_bwds(G, source, target, t_0, t_H, dt, ε):
                                     check_next_loop = False
                                     break
                             if check_next_loop:
-                                for label2, label_info2 in labels_bag[u][t].items():
+                                for label2, label_info2 in labels_bag[u][t_2].items():
                                     temp_pareto_cost_label = label_info2['opt_crt_val']
                                     ε_temp_pareto_cost_label = [i*ε for i in temp_pareto_cost_label]
                                     q_1 = 0
@@ -8696,12 +8722,12 @@ def ε_mltcrtr_lbl_set_alg_bwds(G, source, target, t_0, t_H, dt, ε):
                         if non_dominated_label:
                             if labels_to_be_deleted:
                                 for labelid in labels_to_be_deleted:                                      
-                                    del(labels_bag[u][t][labelid])
-                                    labels_to_extend[u][t].discard(labelid)
+                                    del(labels_bag[u][t_2][labelid])
+                                    labels_to_extend[u][t_2].discard(labelid)
                             insert_in_se_list = True     
                             new_label_id = str(next(c))
-                            labels_to_extend[u][t].add(new_label_id)
-                            labels_bag[u][t].update({new_label_id: {'opt_crt_val' : new_cost_label, 'pred_node' : v, \
+                            labels_to_extend[u][t_2].add(new_label_id)
+                            labels_bag[u][t_2].update({new_label_id: {'opt_crt_val' : new_cost_label, 'pred_node' : v, \
                                                                     'pred_time_int': v_arr_time, 'pred_label_id' : label_id, \
                                                                         'prev_edge_type': e_type, \
                                                                             'prev_dstr_node_graph_type': v_n_gr_type, \
@@ -8780,16 +8806,19 @@ def buck_mltcrtr_lbl_set_alg_bwds(G, source, target, t_0, t_H, dt, time_bucket, 
         labels_bag.update({n: dict()})
         labels_to_extend.update({n: dict()})
         for t in range(t_0, t_H+dt, dt):
-            # t = t%86400
+            if t>= 86400:
+                t_1 = t-86400 - ((t-86400)%dt)
+            else:
+                t_1 = t
             if n == target:
                 label_id = str(next(c))
-                labels_bag[n].update({t: {label_id: {'opt_crt_val': (0,0,0,0), 'pred_node': None, \
+                labels_bag[n].update({t_1: {label_id: {'opt_crt_val': (0,0,0,0), 'pred_node': None, \
                                                      'pred_time_int': None, 'pred_label_id': None, 'prev_edge_type': None, \
                                                          'prev_dstr_node_graph_type': None , 'prev_mode': None}}})
-                labels_to_extend[n].update({t: {label_id}})
+                labels_to_extend[n].update({t_1: {label_id}})
             else:
-                labels_bag[n].update({t: dict()})
-                labels_to_extend[n].update({t: set()})
+                labels_bag[n].update({t_1: dict()})
+                labels_to_extend[n].update({t_1: set()})
 
     #--- initialization of the SE list used for scanning nodes in each iteration ---#
     #--- it opertes as a double ended queue (deque) as in Ziliaskopoulos and Mahmassani (1993) ---#
@@ -8816,13 +8845,16 @@ def buck_mltcrtr_lbl_set_alg_bwds(G, source, target, t_0, t_H, dt, time_bucket, 
             # this is the case because we need to know which label (path) or set of labels (paths) from node v will be extended
             # the labels that will be extended will then be the one in labels_bag[v][t+tt_uv(t)]
             for t in range(t_0, t_H+dt, dt):
-                # t = t%86400
+                if t >= 86400:
+                    t_2 = t-86400 - ((t-86400)%dt)
+                else:
+                    t_2 = t
                 e_type = e['edge_type']
 #                here we diffferentiate between the cases of public transport and road modes, since time-dependency
 #                is handled differently in each case; specifically waiting is allowed in PT but not in road services
 #                if e_type != 'pt_route_edge':
                 if e_type == 'car_sharing_station_egress_edge' or e_type == 'car_sharing_station_access_edge':
-                    e_tt = e['travel_time'][t]
+                    e_tt = e['travel_time'][t_2]
                     e_wait_time = e['wait_time']
                     e_cost=0
                     # e_distance = 0
@@ -8840,18 +8872,21 @@ def buck_mltcrtr_lbl_set_alg_bwds(G, source, target, t_0, t_H, dt, time_bucket, 
                     # e_walk_time = 0
                     
                 if e_type == 'car_sharing_dest_dummy_edge' or e_type == 'car_sharing_dual_edge':
-                    e_tt = e['travel_time'][t]
+                    e_tt = e['travel_time'][t_2]
                     e_wait_time = 0
                     # e_distance = e['distance']
-                    e_cost = e['car_sharing_fares'][t]
+                    e_cost = e['car_sharing_fares'][t_2]
                     e_boarding_num = 0
                     e_trip_num = 0
                     # e_walk_time = 0
                     
                 if e_type == 'taxi_edge' or e_type == 'on_demand_single_taxi_edge' or e_type == 'on_demand_shared_taxi_edge':
-                    e_wait_time = e['taxi_wait_time'][t]
-                    e_tt = e['travel_time'][(t+e_wait_time)-((t+e_wait_time)%dt)]
-                    e_cost = e['taxi_fares'][t]
+                    e_wait_time = e['taxi_wait_time'][t_2]
+                    vehicle_boarding_time = t_2 + e_wait_time
+                    if vehicle_boarding_time >= 86400:
+                        vehicle_boarding_time = vehicle_boarding_time-86400 - ((vehicle_boarding_time-86400)%dt)
+                    e_tt = e['travel_time'][(vehicle_boarding_time)-(vehicle_boarding_time%dt)]
+                    e_cost = e['taxi_fares'][t_2]
                     # e_distance = e['distance']
                     e_boarding_num = 0
                     e_trip_num = 0
@@ -8894,18 +8929,21 @@ def buck_mltcrtr_lbl_set_alg_bwds(G, source, target, t_0, t_H, dt, time_bucket, 
                     # e_walk_time = e['travel_time']
                     
                 if e_type == 'pt_route_edge':
-                    e_tt = e['travel_time'][t]
-                    e_wait_time = e['wait_time'][t]['discr_value']
+                    e_tt = e['travel_time'][t_2]
+                    e_wait_time = e['wait_time'][t_2]['discr_value']
                     # e_distance = e['distance']
-                    e_cost = e['pt_cost'][t]
+                    e_cost = e['pt_cost'][t_2]
                     e_boarding_num = 0
                     e_trip_num = 0
                     # e_walk_time = 0
                     
-                v_arr_time = t + e_tt + e_wait_time
+                v_arr_time = t_2 + e_tt + e_wait_time
+                if v_arr_time >= 86400:
+                    v_arr_time = v_arr_time-86400 - ((v_arr_time-86400)%dt)
+                rolled_v_arr_time = t + e_tt + e_wait_time
                 # mod_v_arr_time = v_arr_time-((v_arr_time-t_0)%dt)
                     
-                if v_arr_time <= t_H:                     
+                if rolled_v_arr_time <= t_H:                     
                     for label_id, info in labels_bag[v][v_arr_time].items():
                         if label_id not in labels_to_extend[v][v_arr_time]:
                             continue
@@ -8925,7 +8963,7 @@ def buck_mltcrtr_lbl_set_alg_bwds(G, source, target, t_0, t_H, dt, time_bucket, 
                             u_n_gr_type = e['up_node_graph_type']#G.nodes[u]['node_graph_type']#node_graph_type_data(u, G.nodes[u])
                             v_n_type = e['dstr_node_type']
                             
-                            if u_n_type == 'car_sharing_station_node' and G.nodes[u]['stock_level'][t] == G.nodes[u]['capacity']:
+                            if u_n_type == 'car_sharing_station_node' and G.nodes[u]['stock_level'][t_2] == G.nodes[u]['capacity']:
                                 e_tt = 999999999
                                 e_wait_time = 999999999
                                 e_cost= 999999999
@@ -8933,7 +8971,7 @@ def buck_mltcrtr_lbl_set_alg_bwds(G, source, target, t_0, t_H, dt, time_bucket, 
                                 e_boarding_num =  999999999
                                 e_trip_num = 999999999
                                 # e_walk_time = 0
-                            elif v_n_type == 'car_sharing_station_node' and G.nodes[v]['stock_level'][t+e_tt+e_wait_time] == 0:
+                            elif v_n_type == 'car_sharing_station_node' and G.nodes[v]['stock_level'][v_arr_time] == 0:
                                 e_tt = 999999999
                                 e_wait_time = 999999999
                                 e_cost= 999999999
@@ -8995,10 +9033,10 @@ def buck_mltcrtr_lbl_set_alg_bwds(G, source, target, t_0, t_H, dt, time_bucket, 
                                                cost_till_u - (cost_till_u % cost_bucket), boardings_till_u, trips_till_u)
                         
                         labels_to_be_deleted = deque([])
-                        if not(labels_bag[u][t]):
+                        if not(labels_bag[u][t_2]):
                             non_dominated_label = 1
                         else:
-                            for label, label_info in labels_bag[u][t].items():
+                            for label, label_info in labels_bag[u][t_2].items():
                                 # temp_pareto_cost_label = label_info['opt_crt_val']
                                 temp_buck_pareto_cost_label = (label_info['opt_crt_val'][0] - (label_info['opt_crt_val'][0] % time_bucket), \
                                                                label_info['opt_crt_val'][1] - (label_info['opt_crt_val'][1] % cost_bucket), \
@@ -9030,12 +9068,12 @@ def buck_mltcrtr_lbl_set_alg_bwds(G, source, target, t_0, t_H, dt, time_bucket, 
                         if non_dominated_label:
                             if labels_to_be_deleted:
                                 for labelid in labels_to_be_deleted:                                      
-                                    del(labels_bag[u][t][labelid])
-                                    labels_to_extend[u][t].discard(labelid)
+                                    del(labels_bag[u][t_2][labelid])
+                                    labels_to_extend[u][t_2].discard(labelid)
                             insert_in_se_list = True     
                             new_label_id = str(next(c))
-                            labels_to_extend[u][t].add(new_label_id)
-                            labels_bag[u][t].update({new_label_id: {'opt_crt_val' : new_cost_label, 'pred_node' : v, \
+                            labels_to_extend[u][t_2].add(new_label_id)
+                            labels_bag[u][t_2].update({new_label_id: {'opt_crt_val' : new_cost_label, 'pred_node' : v, \
                                                                     'pred_time_int': v_arr_time, 'pred_label_id' : label_id, \
                                                                         'prev_edge_type': e_type, \
                                                                             'prev_dstr_node_graph_type': v_n_gr_type, \
@@ -9114,16 +9152,19 @@ def ellipse_mltcrtr_lbl_set_alg_bwds(G, source, target, t_0, t_H, dt, ac_ratio):
         labels_bag.update({n: dict()})
         labels_to_extend.update({n: dict()})
         for t in range(t_0, t_H+dt, dt):
-            # t = t%86400
+            if t>= 86400:
+                t_1 = t-86400 - ((t-86400)%dt)
+            else:
+                t_1 = t
             if n == target:
                 label_id = str(next(c))
-                labels_bag[n].update({t: {label_id: {'opt_crt_val': (0,0,0,0), 'pred_node': None, \
+                labels_bag[n].update({t_1: {label_id: {'opt_crt_val': (0,0,0,0), 'pred_node': None, \
                                                      'pred_time_int': None, 'pred_label_id': None, 'prev_edge_type': None, \
                                                          'prev_dstr_node_graph_type': None , 'prev_mode': None}}})
-                labels_to_extend[n].update({t: {label_id}})
+                labels_to_extend[n].update({t_1: {label_id}})
             else:
-                labels_bag[n].update({t: dict()})
-                labels_to_extend[n].update({t: set()})
+                labels_bag[n].update({t_1: dict()})
+                labels_to_extend[n].update({t_1: set()})
 
     #--- initialization of the SE list used for scanning nodes in each iteration ---#
     #--- it opertes as a double ended queue (deque) as in Ziliaskopoulos and Mahmassani (1993) ---#
@@ -9162,13 +9203,16 @@ def ellipse_mltcrtr_lbl_set_alg_bwds(G, source, target, t_0, t_H, dt, ac_ratio):
             # this is the case because we need to know which label (path) or set of labels (paths) from node v will be extended
             # the labels that will be extended will then be the one in labels_bag[v][t+tt_uv(t)]
             for t in range(t_0, t_H+dt, dt):
-                # t = t%86400
+                if t >= 86400:
+                    t_2 = t-86400 - ((t-86400)%dt)
+                else:
+                    t_2 = t
                 e_type = e['edge_type']
 #                here we diffferentiate between the cases of public transport and road modes, since time-dependency
 #                is handled differently in each case; specifically waiting is allowed in PT but not in road services
 #                if e_type != 'pt_route_edge':
                 if e_type == 'car_sharing_station_egress_edge' or e_type == 'car_sharing_station_access_edge':
-                    e_tt = e['travel_time'][t]
+                    e_tt = e['travel_time'][t_2]
                     e_wait_time = e['wait_time']
                     e_cost=0
                     # e_distance = 0
@@ -9186,18 +9230,21 @@ def ellipse_mltcrtr_lbl_set_alg_bwds(G, source, target, t_0, t_H, dt, ac_ratio):
                     # e_walk_time = 0
                     
                 if e_type == 'car_sharing_dest_dummy_edge' or e_type == 'car_sharing_dual_edge':
-                    e_tt = e['travel_time'][t]
+                    e_tt = e['travel_time'][t_2]
                     e_wait_time = 0
                     # e_distance = e['distance']
-                    e_cost = e['car_sharing_fares'][t]
+                    e_cost = e['car_sharing_fares'][t_2]
                     e_boarding_num = 0
                     e_trip_num = 0
                     # e_walk_time = 0
                     
                 if e_type == 'taxi_edge' or e_type == 'on_demand_single_taxi_edge' or e_type == 'on_demand_shared_taxi_edge':
-                    e_wait_time = e['taxi_wait_time'][t]
-                    e_tt = e['travel_time'][(t+e_wait_time)-((t+e_wait_time)%dt)]
-                    e_cost = e['taxi_fares'][t]
+                    e_wait_time = e['taxi_wait_time'][t_2]
+                    vehicle_boarding_time = t_2 + e_wait_time
+                    if vehicle_boarding_time >= 86400:
+                        vehicle_boarding_time = vehicle_boarding_time-86400 - ((vehicle_boarding_time-86400)%dt)
+                    e_tt = e['travel_time'][(vehicle_boarding_time)-(vehicle_boarding_time%dt)]
+                    e_cost = e['taxi_fares'][t_2]
                     # e_distance = e['distance']
                     e_boarding_num = 0
                     e_trip_num = 0
@@ -9240,18 +9287,21 @@ def ellipse_mltcrtr_lbl_set_alg_bwds(G, source, target, t_0, t_H, dt, ac_ratio):
                     # e_walk_time = e['travel_time']
                     
                 if e_type == 'pt_route_edge':
-                    e_tt = e['travel_time'][t]
-                    e_wait_time = e['wait_time'][t]['discr_value']
+                    e_tt = e['travel_time'][t_2]
+                    e_wait_time = e['wait_time'][t_2]['discr_value']
                     # e_distance = e['distance']
-                    e_cost = e['pt_cost'][t]
+                    e_cost = e['pt_cost'][t_2]
                     e_boarding_num = 0
                     e_trip_num = 0
                     # e_walk_time = 0
                     
-                v_arr_time = t + e_tt + e_wait_time
+                v_arr_time = t_2 + e_tt + e_wait_time
+                if v_arr_time >= 86400:
+                    v_arr_time = v_arr_time-86400 - ((v_arr_time-86400)%dt)
+                rolled_v_arr_time = t + e_tt + e_wait_time
                 # mod_v_arr_time = v_arr_time-((v_arr_time-t_0)%dt)
                     
-                if v_arr_time <= t_H:                     
+                if rolled_v_arr_time <= t_H:                     
                     for label_id, info in labels_bag[v][v_arr_time].items():
                         if label_id not in labels_to_extend[v][v_arr_time]:
                             continue
@@ -9271,7 +9321,7 @@ def ellipse_mltcrtr_lbl_set_alg_bwds(G, source, target, t_0, t_H, dt, ac_ratio):
                             u_n_gr_type = e['up_node_graph_type']#G.nodes[u]['node_graph_type']#node_graph_type_data(u, G.nodes[u])
                             v_n_type = e['dstr_node_type']
                             
-                            if u_n_type == 'car_sharing_station_node' and G.nodes[u]['stock_level'][t] == G.nodes[u]['capacity']:
+                            if u_n_type == 'car_sharing_station_node' and G.nodes[u]['stock_level'][t_2] == G.nodes[u]['capacity']:
                                 e_tt = 999999999
                                 e_wait_time = 999999999
                                 e_cost= 999999999
@@ -9279,7 +9329,7 @@ def ellipse_mltcrtr_lbl_set_alg_bwds(G, source, target, t_0, t_H, dt, ac_ratio):
                                 e_boarding_num =  999999999
                                 e_trip_num = 999999999
                                 # e_walk_time = 0
-                            elif v_n_type == 'car_sharing_station_node' and G.nodes[v]['stock_level'][t+e_tt+e_wait_time] == 0:
+                            elif v_n_type == 'car_sharing_station_node' and G.nodes[v]['stock_level'][v_arr_time] == 0:
                                 e_tt = 999999999
                                 e_wait_time = 999999999
                                 e_cost= 999999999
@@ -9340,10 +9390,10 @@ def ellipse_mltcrtr_lbl_set_alg_bwds(G, source, target, t_0, t_H, dt, ac_ratio):
                         # back_val_curr_cost_label = [(travel_time_till_u + wait_time_till_u) - ((travel_time_till_u + wait_time_till_u)%60), \
                         #                    cost_till_u - (cost_till_u%8), line_trasnf_num_till_u + mode_transf_num_till_u]
                         labels_to_be_deleted = deque([])
-                        if not(labels_bag[u][t]):
+                        if not(labels_bag[u][t_2]):
                             non_dominated_label = 1
                         else:
-                            for label, label_info in labels_bag[u][t].items():
+                            for label, label_info in labels_bag[u][t_2].items():
                                 temp_pareto_cost_label = label_info['opt_crt_val']
                                 # curr_cost_label = [label_info['opt_crt_val'][0] - (label_info['opt_crt_val'][0]%60), label_info['opt_crt_val'][1] - \
                                 #                             (label_info['opt_crt_val'][1]%8), label_info['opt_crt_val'][2], label_info['opt_crt_val'][2]]
@@ -9374,12 +9424,703 @@ def ellipse_mltcrtr_lbl_set_alg_bwds(G, source, target, t_0, t_H, dt, ac_ratio):
                         if non_dominated_label:
                             if labels_to_be_deleted:
                                 for labelid in labels_to_be_deleted:                                      
-                                    del(labels_bag[u][t][labelid])
-                                    labels_to_extend[u][t].discard(labelid)
+                                    del(labels_bag[u][t_2][labelid])
+                                    labels_to_extend[u][t_2].discard(labelid)
                             insert_in_se_list = True     
                             new_label_id = str(next(c))
-                            labels_to_extend[u][t].add(new_label_id)
-                            labels_bag[u][t].update({new_label_id: {'opt_crt_val' : new_cost_label, 'pred_node' : v, \
+                            labels_to_extend[u][t_2].add(new_label_id)
+                            labels_bag[u][t_2].update({new_label_id: {'opt_crt_val' : new_cost_label, 'pred_node' : v, \
+                                                                    'pred_time_int': v_arr_time, 'pred_label_id' : label_id, \
+                                                                        'prev_edge_type': e_type, \
+                                                                            'prev_dstr_node_graph_type': v_n_gr_type, \
+                                                                                'prev_mode': prev_mode}})
+                                                                                                      
+            if insert_in_se_list:
+                if de_queue[u] == 0:
+                    if se_list:
+                        de_queue[se_list[-1]] = u
+                    de_queue[u] = 999999999
+                    se_list.append(u)
+                elif de_queue[u] == -1:
+                    if se_list:
+                        de_queue[u] = se_list[0]
+                    else:
+                        de_queue[u] = 999999999
+                    se_list.appendleft(u)
+        
+        for time in labels_to_extend[v]:
+            labels_to_extend[v][time] = set()
+    
+    return labels_bag
+
+def get_ε_ratio_pareto_set(G, source, target, req_time, t_0, t_H, dt, ε):
+
+  if source not in G:
+    raise nx.NodeNotFound("Source {} not in G".format(source))
+  if target not in G:
+    raise nx.NodeNotFound("Target {} not in G".format(target))
+  if source == target:
+    return 0, [target]
+  
+  discrete_request_time = req_time + (dt -(req_time%dt))
+  discrete_t_0 = t_0 + (dt -(t_0%dt))
+  discrete_t_H = t_H + (dt -(t_H%dt))
+  full_pareto_bag = ε_ratio_mltcrtr_lbl_set_alg_bwds(G, source, target, discrete_t_0, discrete_t_H, dt, ε)
+  
+  path_id = count()
+  pareto_set = dict()
+  missed_paths = 0
+  
+  for label_id, attrs in full_pareto_bag[source][discrete_request_time].items():
+      path = deque([source])
+      next_node = attrs['pred_node']
+      next_time_intrv = attrs['pred_time_int']
+      next_label_id = attrs['pred_label_id']
+      update_path_dict = True
+      while next_node != None and next_time_intrv != None and next_label_id != None:
+          if next_label_id not in full_pareto_bag[next_node][next_time_intrv]:
+              missed_paths += 1
+              update_path_dict = False
+              break
+          path.append(next_node)
+          new_node = full_pareto_bag[next_node][next_time_intrv][next_label_id]['pred_node']
+          new_time_intrv = full_pareto_bag[next_node][next_time_intrv][next_label_id]['pred_time_int']
+          new_label_id = full_pareto_bag[next_node][next_time_intrv][next_label_id]['pred_label_id']
+          next_node = new_node
+          next_time_intrv = new_time_intrv
+          next_label_id = new_label_id
+      if update_path_dict:
+          pareto_set.update({str(next(path_id)): {'path' : path, 'label' : attrs['opt_crt_val']}})
+  
+  return (pareto_set, missed_paths)
+
+
+# the origin and destination inputs to the algorithm need to always be nodes of the walk network.
+def ε_ratio_mltcrtr_lbl_set_alg_bwds(G, source, target, t_0, t_H, dt, ε):
+    Gpred = G._pred
+    
+    #--- initialization of the data structure that holds all the non-dominated multi-dimnesional labels and its label's required pointers
+    #--- for all nodes and all times within a time_horizon (t_0 <= t <= t_H)
+    c = count()
+    labels_bag = dict()
+    labels_to_extend = dict()
+    for n in G:
+        labels_bag.update({n: dict()})
+        labels_to_extend.update({n: dict()})
+        for t in range(t_0, t_H+dt, dt):
+            if t>= 86400:
+                t_1 = t-86400 - ((t-86400)%dt)
+            else:
+                t_1 = t
+            if n == target:
+                label_id = str(next(c))
+                labels_bag[n].update({t_1: {label_id: {'opt_crt_val': (0,0,0,0), 'pred_node': None, \
+                                                     'pred_time_int': None, 'pred_label_id': None, 'prev_edge_type': None, \
+                                                         'prev_dstr_node_graph_type': None , 'prev_mode': None}}})
+                labels_to_extend[n].update({t_1: {label_id}})
+            else:
+                labels_bag[n].update({t_1: dict()})
+                labels_to_extend[n].update({t_1: set()})
+
+    #--- initialization of the SE list used for scanning nodes in each iteration ---#
+    #--- it opertes as a double ended queue (deque) as in Ziliaskopoulos and Mahmassani (1993) ---#
+#    se_list = deque([target])
+    de_queue = dict()
+    for n in G:
+        if n == target:
+            de_queue.update({n: 999999999})
+        else:
+            de_queue.update({n: 0})
+    
+    se_list = deque([target])
+    
+    #--- the algorithm is running until the SE List is empty, meaning that there are no more node insertions for any time t 
+#    that can give a non-dominated paths \---#
+    while se_list: 
+        v = se_list.popleft()
+        de_queue[v] = -1
+        v_n_gr_type = G.nodes[v]['node_graph_type']
+        
+        for u, e in Gpred[v].items():
+            insert_in_se_list = False
+            # now for each t we first need to identify the total travel time that is required to travel from u to v
+            # this is the case because we need to know which label (path) or set of labels (paths) from node v will be extended
+            # the labels that will be extended will then be the one in labels_bag[v][t+tt_uv(t)]
+            for t in range(t_0, t_H+dt, dt):
+                if t >= 86400:
+                    t_2 = t-86400 - ((t-86400)%dt)
+                else:
+                    t_2 = t
+                e_type = e['edge_type']
+#                here we diffferentiate between the cases of public transport and road modes, since time-dependency
+#                is handled differently in each case; specifically waiting is allowed in PT but not in road services
+#                if e_type != 'pt_route_edge':
+                if e_type == 'car_sharing_station_egress_edge' or e_type == 'car_sharing_station_access_edge':
+                    e_tt = e['travel_time'][t_2]
+                    e_wait_time = e['wait_time']
+                    e_cost=0
+                    # e_distance = 0
+                    e_boarding_num = 0
+                    e_trip_num = 0
+                    # e_walk_time = 0
+                    
+                if e_type == 'car_sharing_orig_dummy_edge':
+                    e_tt = 0
+                    e_wait_time = 0
+                    # e_distance = 0
+                    e_cost = 0
+                    e_boarding_num = 0
+                    e_trip_num = 0
+                    # e_walk_time = 0
+                    
+                if e_type == 'car_sharing_dest_dummy_edge' or e_type == 'car_sharing_dual_edge':
+                    e_tt = e['travel_time'][t_2]
+                    e_wait_time = 0
+                    # e_distance = e['distance']
+                    e_cost = e['car_sharing_fares'][t_2]
+                    e_boarding_num = 0
+                    e_trip_num = 0
+                    # e_walk_time = 0
+                    
+                if e_type == 'taxi_edge' or e_type == 'on_demand_single_taxi_edge' or e_type == 'on_demand_shared_taxi_edge':
+                    e_wait_time = e['taxi_wait_time'][t_2]
+                    vehicle_boarding_time = t_2 + e_wait_time
+                    if vehicle_boarding_time >= 86400:
+                        vehicle_boarding_time = vehicle_boarding_time-86400 - ((vehicle_boarding_time-86400)%dt)
+                    e_tt = e['travel_time'][(vehicle_boarding_time)-(vehicle_boarding_time%dt)]
+                    e_cost = e['taxi_fares'][t_2]
+                    # e_distance = e['distance']
+                    e_boarding_num = 0
+                    e_trip_num = 0
+                    # e_walk_time = 0
+                
+                if e_type == 'walk_edge':
+                    e_tt = e['travel_time']
+                    e_wait_time = 0
+                    # e_distance = e['distance']
+                    e_cost = 0
+                    e_boarding_num = 0
+                    e_trip_num = 0
+                    # e_walk_time = e['travel_time']
+                    
+                if e_type == 'access_edge':
+                    e_tt = e['travel_time']
+                    e_wait_time = 0
+                    # e_distance = e['distance']
+                    e_cost = 0
+                    e_boarding_num = 0
+                    u_n_type = e['up_node_type']
+                    if u_n_type == 'walk_graph_node':
+                        e_trip_num = 1
+                    else:
+                        e_trip_num = 0
+                    # e_walk_time = e['travel_time']
+                    
+                if e_type == 'pt_transfer_edge':
+                    e_tt = e['travel_time']
+                    e_wait_time = 0
+                    # e_distance = e['distance']
+                    e_cost = 0
+                    u_n_type = e['up_node_type']
+                    v_n_type = e['dstr_node_type']
+                    if (u_n_type == 'stop_node' or u_n_type=='station_node') and v_n_type == 'route_node':
+                        e_boarding_num = 1
+                    else:
+                        e_boarding_num = 0
+                    e_trip_num = 0
+                    # e_walk_time = e['travel_time']
+                    
+                if e_type == 'pt_route_edge':
+                    e_tt = e['travel_time'][t_2]
+                    e_wait_time = e['wait_time'][t_2]['discr_value']
+                    # e_distance = e['distance']
+                    e_cost = e['pt_cost'][t_2]
+                    e_boarding_num = 0
+                    e_trip_num = 0
+                    # e_walk_time = 0
+                    
+                v_arr_time = t_2 + e_tt + e_wait_time
+                if v_arr_time >= 86400:
+                    v_arr_time = v_arr_time-86400 - ((v_arr_time-86400)%dt)
+                rolled_v_arr_time = t + e_tt + e_wait_time
+                # mod_v_arr_time = v_arr_time-((v_arr_time-t_0)%dt)
+                    
+                if rolled_v_arr_time <= t_H:                     
+                    for label_id, info in labels_bag[v][v_arr_time].items():
+                        if label_id not in labels_to_extend[v][v_arr_time]:
+                            continue
+                        if u == info['pred_node']:
+                            continue
+                        prev_mode = info['prev_mode']
+                        pr_ed_tp = info['prev_edge_type']
+                        pre_dstr_n_gr_tp = info['prev_dstr_node_graph_type']
+                        
+                        # restraint walking before taxi modes - active
+                        if e_type == 'walk_edge' and pr_ed_tp == 'access_edge' and \
+                        (pre_dstr_n_gr_tp == 'taxi_graph' or pre_dstr_n_gr_tp == 'on_demand_single_taxi_graph' or pre_dstr_n_gr_tp == 'on_demand_shared_taxi_graph'):
+                            continue
+                        
+                        if e_type == 'access_edge':
+                            u_n_type = e['up_node_type']#G.nodes[v]['node_type']
+                            u_n_gr_type = e['up_node_graph_type']#G.nodes[u]['node_graph_type']#node_graph_type_data(u, G.nodes[u])
+                            v_n_type = e['dstr_node_type']
+                            
+                            if u_n_type == 'car_sharing_station_node' and G.nodes[u]['stock_level'][t_2] == G.nodes[u]['capacity']:
+                                e_tt = 999999999
+                                e_wait_time = 999999999
+                                e_cost= 999999999
+                                # e_distance = 0
+                                e_boarding_num =  999999999
+                                e_trip_num = 999999999
+                                # e_walk_time = 0
+                            elif v_n_type == 'car_sharing_station_node' and G.nodes[v]['stock_level'][v_arr_time] == 0:
+                                e_tt = 999999999
+                                e_wait_time = 999999999
+                                e_cost= 999999999
+                                # e_distance = 0
+                                e_boarding_num =  999999999
+                                e_trip_num = 999999999
+                                # e_walk_time = 0
+                            
+                            if u_n_gr_type == 'Walk':
+                              prev_mode = v_n_gr_type   
+#                           when we are at an access edge that connects graphs we need to penalize unreasonable connections and path loops; 
+#                           e.g., from walk node to another mode-specific node and back to walk node, from a taxi/carsharing trip to a walk trip 
+#                           and back to taxi/carsharing trip
+                            if pr_ed_tp == 'access_edge': #active
+                              if (pre_dstr_n_gr_tp == 'Walk' and u_n_gr_type == 'Walk') or (pre_dstr_n_gr_tp == 'Bus' and \
+                                u_n_gr_type == 'Bus') or (pre_dstr_n_gr_tp == 'Train' and u_n_gr_type == 'Train'):
+                                  continue#penalty = 1000000000000000
+                             
+#                           avoid paths that include two consecutive taxis or carsharign legs in one trip
+                            if (prev_mode == 'taxi_graph' or prev_mode == 'on_demand_single_taxi_graph' or \
+                                prev_mode == 'on_demand_shared_taxi_graph' or prev_mode == 'car_sharing_graph') and \
+                                (u_n_gr_type == 'taxi_graph' or u_n_gr_type == 'on_demand_single_taxi_graph' or \
+                                 u_n_gr_type == 'on_demand_shared_taxi_graph' or u_n_gr_type == 'car_sharing_graph'):
+                                    continue#penalty = 1000000000000000 active
+                            
+                            # restraint pick up -active
+                            if v_n_gr_type == 'taxi_graph' or v_n_gr_type == 'on_demand_single_taxi_graph' or v_n_gr_type == 'on_demand_shared_taxi_graph':
+                                if e['up_node_zone'] == G.nodes[source]['zone'] and u != source:
+                                  continue#penalty = 1000000000000000
+                              
+                            # restraint drop off - active
+                            if (u_n_gr_type == 'taxi_graph' or u_n_gr_type == 'on_demand_single_taxi_graph' or u_n_gr_type == 'on_demand_shared_taxi_graph') \
+                            and e['dstr_node_zone'] == G.nodes[target]['zone'] and v != target:
+                                continue
+                            
+                            # restraint walking after taxi modes - active
+                            if (u_n_gr_type == 'taxi_graph' or u_n_gr_type == 'on_demand_single_taxi_graph' or u_n_gr_type == 'on_demand_shared_taxi_graph') \
+                            and pr_ed_tp == 'walk_edge':
+                                continue
+                            
+#                                if (v_n_gr_type == 'taxi_graph' or v_n_gr_type == 'on_demand_single_taxi_graph' \
+#                                    or v_n_gr_type == 'on_demand_shared_taxi_graph') and u != source:
+#                                    continue
+#                                if u_n_gr_type == 'taxi_graph' or u_n_gr_type == 'on_demand_single_taxi_graph' or u_n_gr_type == 'on_demand_shared_taxi_graph' \
+#                                     or u_n_gr_type == 'car_sharing_graph'pr_ed_tp == 'walk_edge' and G.nodes[info['pred_node']]['is_mode_dupl']:
+#                                    continue
+                          
+                        total_travel_time_till_u = e_tt + e_wait_time + info['opt_crt_val'][0]
+                        cost_till_u = e_cost + info['opt_crt_val'][1]
+                        boardings_till_u = e_boarding_num + info['opt_crt_val'][2]
+                        trips_till_u = e_trip_num + info['opt_crt_val'][3]
+                        # wait_time_till_u = e_wait_time + info['wt']
+                        # distance_till_u = e_distance + info['l']
+                        # walk_time_till_u = e_walk_time + info['wkt']
+                        
+                        new_cost_label = (total_travel_time_till_u, cost_till_u, boardings_till_u, trips_till_u)
+                        criteria_num = len(new_cost_label)
+                        ε_new_cost_label = [i*ε for i in new_cost_label]
+                        
+                        labels_to_be_deleted = deque([])
+                        if not(labels_bag[u][t_2]):
+                            non_dominated_label = 1
+                        else:
+                            check_next_loop = True
+                            for label1, label_info1 in labels_bag[u][t_2].items():
+                                temp_pareto_cost_label = label_info1['opt_crt_val']
+                                q_1 = 0 
+                                q_2 = 0
+                                for i, j in zip(temp_pareto_cost_label, ε_new_cost_label):
+                                    if i<=j:
+                                        q_1 += 1
+                                    if i==j:
+                                        q_2 += 1
+                                if q_1 == criteria_num and q_2 != criteria_num:
+                                    non_dominated_label = 0
+                                    check_next_loop = False
+                                    break
+                            if check_next_loop:
+                                for label2, label_info2 in labels_bag[u][t_2].items():
+                                    temp_pareto_cost_label = label_info2['opt_crt_val']
+                                    ε_temp_pareto_cost_label = [i*ε for i in temp_pareto_cost_label]
+                                    q_1 = 0
+                                    q_2 = 0
+                                    for i, j in zip(new_cost_label, ε_temp_pareto_cost_label):
+                                        if i<=j:
+                                            q_1 += 1
+                                        if i==j:
+                                            q_2 += 1
+                                    if q_1 == criteria_num and q_2 != criteria_num:
+                                        labels_to_be_deleted.append(label2)
+                                    non_dominated_label = 1
+                      
+                        if non_dominated_label:
+                            if labels_to_be_deleted:
+                                for labelid in labels_to_be_deleted:                                      
+                                    del(labels_bag[u][t_2][labelid])
+                                    labels_to_extend[u][t_2].discard(labelid)
+                            insert_in_se_list = True     
+                            new_label_id = str(next(c))
+                            labels_to_extend[u][t_2].add(new_label_id)
+                            labels_bag[u][t_2].update({new_label_id: {'opt_crt_val' : new_cost_label, 'pred_node' : v, \
+                                                                    'pred_time_int': v_arr_time, 'pred_label_id' : label_id, \
+                                                                        'prev_edge_type': e_type, \
+                                                                            'prev_dstr_node_graph_type': v_n_gr_type, \
+                                                                                'prev_mode': prev_mode}})
+                                                                                                      
+            if insert_in_se_list:
+                if de_queue[u] == 0:
+                    if se_list:
+                        de_queue[se_list[-1]] = u
+                    de_queue[u] = 999999999
+                    se_list.append(u)
+                elif de_queue[u] == -1:
+                    if se_list:
+                        de_queue[u] = se_list[0]
+                    else:
+                        de_queue[u] = 999999999
+                    se_list.appendleft(u)
+        
+        for time in labels_to_extend[v]:
+            labels_to_extend[v][time] = set()
+    
+    return labels_bag
+
+def get_ε_bucket_pareto_set(G, source, target, req_time, t_0, t_H, dt, time_bucket, cost_bucket):
+
+  if source not in G:
+    raise nx.NodeNotFound("Source {} not in G".format(source))
+  if target not in G:
+    raise nx.NodeNotFound("Target {} not in G".format(target))
+  if source == target:
+    return 0, [target]
+  
+  discrete_request_time = req_time + (dt -(req_time%dt))
+  discrete_t_0 = t_0 + (dt -(t_0%dt))
+  discrete_t_H = t_H + (dt -(t_H%dt))
+  full_pareto_bag = ε_buck_mltcrtr_lbl_set_alg_bwds(G, source, target, discrete_t_0, discrete_t_H, dt, time_bucket, cost_bucket)
+  
+  path_id = count()
+  pareto_set = dict()
+  missed_paths = 0
+  
+  for label_id, attrs in full_pareto_bag[source][discrete_request_time].items():
+      path = deque([source])
+      next_node = attrs['pred_node']
+      next_time_intrv = attrs['pred_time_int']
+      next_label_id = attrs['pred_label_id']
+      update_path_dict = True
+      while next_node != None and next_time_intrv != None and next_label_id != None:
+          if next_label_id not in full_pareto_bag[next_node][next_time_intrv]:
+              missed_paths += 1
+              update_path_dict = False
+              break
+          path.append(next_node)
+          new_node = full_pareto_bag[next_node][next_time_intrv][next_label_id]['pred_node']
+          new_time_intrv = full_pareto_bag[next_node][next_time_intrv][next_label_id]['pred_time_int']
+          new_label_id = full_pareto_bag[next_node][next_time_intrv][next_label_id]['pred_label_id']
+          next_node = new_node
+          next_time_intrv = new_time_intrv
+          next_label_id = new_label_id
+      if update_path_dict:
+          pareto_set.update({str(next(path_id)): {'path' : path, 'label' : attrs['opt_crt_val']}})
+  
+  return (pareto_set, missed_paths)
+
+
+# the origin and destination inputs to the algorithm need to always be nodes of the walk network.
+def ε_buck_mltcrtr_lbl_set_alg_bwds(G, source, target, t_0, t_H, dt, time_bucket, cost_bucket):
+    Gpred = G._pred
+    
+    #--- initialization of the data structure that holds all the non-dominated multi-dimnesional labels and its label's required pointers
+    #--- for all nodes and all times within a time_horizon (t_0 <= t <= t_H)
+    c = count()
+    labels_bag = dict()
+    labels_to_extend = dict()
+    for n in G:
+        labels_bag.update({n: dict()})
+        labels_to_extend.update({n: dict()})
+        for t in range(t_0, t_H+dt, dt):
+            if t>= 86400:
+                t_1 = t-86400 - ((t-86400)%dt)
+            else:
+                t_1 = t
+            if n == target:
+                label_id = str(next(c))
+                labels_bag[n].update({t_1: {label_id: {'opt_crt_val': (0,0,0,0), 'pred_node': None, \
+                                                     'pred_time_int': None, 'pred_label_id': None, 'prev_edge_type': None, \
+                                                         'prev_dstr_node_graph_type': None , 'prev_mode': None}}})
+                labels_to_extend[n].update({t_1: {label_id}})
+            else:
+                labels_bag[n].update({t_1: dict()})
+                labels_to_extend[n].update({t_1: set()})
+
+    #--- initialization of the SE list used for scanning nodes in each iteration ---#
+    #--- it opertes as a double ended queue (deque) as in Ziliaskopoulos and Mahmassani (1993) ---#
+#    se_list = deque([target])
+    de_queue = dict()
+    for n in G:
+        if n == target:
+            de_queue.update({n: 999999999})
+        else:
+            de_queue.update({n: 0})
+    
+    se_list = deque([target])
+    
+    #--- the algorithm is running until the SE List is empty, meaning that there are no more node insertions for any time t 
+#    that can give a non-dominated paths \---#
+    while se_list: 
+        v = se_list.popleft()
+        de_queue[v] = -1
+        v_n_gr_type = G.nodes[v]['node_graph_type']
+        
+        for u, e in Gpred[v].items():
+            insert_in_se_list = False
+            # now for each t we first need to identify the total travel time that is required to travel from u to v
+            # this is the case because we need to know which label (path) or set of labels (paths) from node v will be extended
+            # the labels that will be extended will then be the one in labels_bag[v][t+tt_uv(t)]
+            for t in range(t_0, t_H+dt, dt):
+                if t >= 86400:
+                    t_2 = t-86400 - ((t-86400)%dt)
+                else:
+                    t_2 = t
+                e_type = e['edge_type']
+#                here we diffferentiate between the cases of public transport and road modes, since time-dependency
+#                is handled differently in each case; specifically waiting is allowed in PT but not in road services
+#                if e_type != 'pt_route_edge':
+                if e_type == 'car_sharing_station_egress_edge' or e_type == 'car_sharing_station_access_edge':
+                    e_tt = e['travel_time'][t_2]
+                    e_wait_time = e['wait_time']
+                    e_cost=0
+                    # e_distance = 0
+                    e_boarding_num = 0
+                    e_trip_num = 0
+                    # e_walk_time = 0
+                    
+                if e_type == 'car_sharing_orig_dummy_edge':
+                    e_tt = 0
+                    e_wait_time = 0
+                    # e_distance = 0
+                    e_cost = 0
+                    e_boarding_num = 0
+                    e_trip_num = 0
+                    # e_walk_time = 0
+                    
+                if e_type == 'car_sharing_dest_dummy_edge' or e_type == 'car_sharing_dual_edge':
+                    e_tt = e['travel_time'][t_2]
+                    e_wait_time = 0
+                    # e_distance = e['distance']
+                    e_cost = e['car_sharing_fares'][t_2]
+                    e_boarding_num = 0
+                    e_trip_num = 0
+                    # e_walk_time = 0
+                    
+                if e_type == 'taxi_edge' or e_type == 'on_demand_single_taxi_edge' or e_type == 'on_demand_shared_taxi_edge':
+                    e_wait_time = e['taxi_wait_time'][t_2]
+                    vehicle_boarding_time = t_2 + e_wait_time
+                    if vehicle_boarding_time >= 86400:
+                        vehicle_boarding_time = vehicle_boarding_time-86400 - ((vehicle_boarding_time-86400)%dt)
+                    e_tt = e['travel_time'][(vehicle_boarding_time)-(vehicle_boarding_time%dt)]
+                    e_cost = e['taxi_fares'][t_2]
+                    # e_distance = e['distance']
+                    e_boarding_num = 0
+                    e_trip_num = 0
+                    # e_walk_time = 0
+                
+                if e_type == 'walk_edge':
+                    e_tt = e['travel_time']
+                    e_wait_time = 0
+                    # e_distance = e['distance']
+                    e_cost = 0
+                    e_boarding_num = 0
+                    e_trip_num = 0
+                    # e_walk_time = e['travel_time']
+                    
+                if e_type == 'access_edge':
+                    e_tt = e['travel_time']
+                    e_wait_time = 0
+                    # e_distance = e['distance']
+                    e_cost = 0
+                    e_boarding_num = 0
+                    u_n_type = e['up_node_type']
+                    if u_n_type == 'walk_graph_node':
+                        e_trip_num = 1
+                    else:
+                        e_trip_num = 0
+                    # e_walk_time = e['travel_time']
+                    
+                if e_type == 'pt_transfer_edge':
+                    e_tt = e['travel_time']
+                    e_wait_time = 0
+                    # e_distance = e['distance']
+                    e_cost = 0
+                    u_n_type = e['up_node_type']
+                    v_n_type = e['dstr_node_type']
+                    if (u_n_type == 'stop_node' or u_n_type=='station_node') and v_n_type == 'route_node':
+                        e_boarding_num = 1
+                    else:
+                        e_boarding_num = 0
+                    e_trip_num = 0
+                    # e_walk_time = e['travel_time']
+                    
+                if e_type == 'pt_route_edge':
+                    e_tt = e['travel_time'][t_2]
+                    e_wait_time = e['wait_time'][t_2]['discr_value']
+                    # e_distance = e['distance']
+                    e_cost = e['pt_cost'][t_2]
+                    e_boarding_num = 0
+                    e_trip_num = 0
+                    # e_walk_time = 0
+                    
+                v_arr_time = t_2 + e_tt + e_wait_time
+                if v_arr_time >= 86400:
+                    v_arr_time = v_arr_time-86400 - ((v_arr_time-86400)%dt)
+                rolled_v_arr_time = t + e_tt + e_wait_time
+                # mod_v_arr_time = v_arr_time-((v_arr_time-t_0)%dt)
+                    
+                if rolled_v_arr_time <= t_H:                     
+                    for label_id, info in labels_bag[v][v_arr_time].items():
+                        if label_id not in labels_to_extend[v][v_arr_time]:
+                            continue
+                        if u == info['pred_node']:
+                            continue
+                        prev_mode = info['prev_mode']
+                        pr_ed_tp = info['prev_edge_type']
+                        pre_dstr_n_gr_tp = info['prev_dstr_node_graph_type']
+                        
+                        # restraint walking before taxi modes - active
+                        if e_type == 'walk_edge' and pr_ed_tp == 'access_edge' and \
+                        (pre_dstr_n_gr_tp == 'taxi_graph' or pre_dstr_n_gr_tp == 'on_demand_single_taxi_graph' or pre_dstr_n_gr_tp == 'on_demand_shared_taxi_graph'):
+                            continue
+                        
+                        if e_type == 'access_edge':
+                            u_n_type = e['up_node_type']#G.nodes[v]['node_type']
+                            u_n_gr_type = e['up_node_graph_type']#G.nodes[u]['node_graph_type']#node_graph_type_data(u, G.nodes[u])
+                            v_n_type = e['dstr_node_type']
+                            
+                            if u_n_type == 'car_sharing_station_node' and G.nodes[u]['stock_level'][t_2] == G.nodes[u]['capacity']:
+                                e_tt = 999999999
+                                e_wait_time = 999999999
+                                e_cost= 999999999
+                                # e_distance = 0
+                                e_boarding_num =  999999999
+                                e_trip_num = 999999999
+                                # e_walk_time = 0
+                            elif v_n_type == 'car_sharing_station_node' and G.nodes[v]['stock_level'][v_arr_time] == 0:
+                                e_tt = 999999999
+                                e_wait_time = 999999999
+                                e_cost= 999999999
+                                # e_distance = 0
+                                e_boarding_num =  999999999
+                                e_trip_num = 999999999
+                                # e_walk_time = 0
+                            
+                            if u_n_gr_type == 'Walk':
+                              prev_mode = v_n_gr_type   
+#                           when we are at an access edge that connects graphs we need to penalize unreasonable connections and path loops; 
+#                           e.g., from walk node to another mode-specific node and back to walk node, from a taxi/carsharing trip to a walk trip 
+#                           and back to taxi/carsharing trip
+                            if pr_ed_tp == 'access_edge': #active
+                              if (pre_dstr_n_gr_tp == 'Walk' and u_n_gr_type == 'Walk') or (pre_dstr_n_gr_tp == 'Bus' and \
+                                u_n_gr_type == 'Bus') or (pre_dstr_n_gr_tp == 'Train' and u_n_gr_type == 'Train'):
+                                  continue#penalty = 1000000000000000
+                             
+#                           avoid paths that include two consecutive taxis or carsharign legs in one trip
+                            if (prev_mode == 'taxi_graph' or prev_mode == 'on_demand_single_taxi_graph' or \
+                                prev_mode == 'on_demand_shared_taxi_graph' or prev_mode == 'car_sharing_graph') and \
+                                (u_n_gr_type == 'taxi_graph' or u_n_gr_type == 'on_demand_single_taxi_graph' or \
+                                 u_n_gr_type == 'on_demand_shared_taxi_graph' or u_n_gr_type == 'car_sharing_graph'):
+                                    continue#penalty = 1000000000000000 active
+                            
+                            # restraint pick up -active
+                            if v_n_gr_type == 'taxi_graph' or v_n_gr_type == 'on_demand_single_taxi_graph' or v_n_gr_type == 'on_demand_shared_taxi_graph':
+                                if e['up_node_zone'] == G.nodes[source]['zone'] and u != source:
+                                  continue#penalty = 1000000000000000
+                              
+                            # restraint drop off - active
+                            if (u_n_gr_type == 'taxi_graph' or u_n_gr_type == 'on_demand_single_taxi_graph' or u_n_gr_type == 'on_demand_shared_taxi_graph') \
+                            and e['dstr_node_zone'] == G.nodes[target]['zone'] and v != target:
+                                continue
+                            
+                            # restraint walking after taxi modes - active
+                            if (u_n_gr_type == 'taxi_graph' or u_n_gr_type == 'on_demand_single_taxi_graph' or u_n_gr_type == 'on_demand_shared_taxi_graph') \
+                            and pr_ed_tp == 'walk_edge':
+                                continue
+                            
+#                                if (v_n_gr_type == 'taxi_graph' or v_n_gr_type == 'on_demand_single_taxi_graph' \
+#                                    or v_n_gr_type == 'on_demand_shared_taxi_graph') and u != source:
+#                                    continue
+#                                if u_n_gr_type == 'taxi_graph' or u_n_gr_type == 'on_demand_single_taxi_graph' or u_n_gr_type == 'on_demand_shared_taxi_graph' \
+#                                     or u_n_gr_type == 'car_sharing_graph'pr_ed_tp == 'walk_edge' and G.nodes[info['pred_node']]['is_mode_dupl']:
+#                                    continue
+                          
+                        total_travel_time_till_u = e_tt + e_wait_time + info['opt_crt_val'][0]
+                        cost_till_u = e_cost + info['opt_crt_val'][1]
+                        boardings_till_u = e_boarding_num + info['opt_crt_val'][2]
+                        trips_till_u = e_trip_num + info['opt_crt_val'][3]
+                        # wait_time_till_u = e_wait_time + info['wt']
+                        # distance_till_u = e_distance + info['l']
+                        # walk_time_till_u = e_walk_time + info['wkt']
+                        
+                        new_cost_label = (total_travel_time_till_u, cost_till_u, boardings_till_u, trips_till_u)
+                        criteria_num = len(new_cost_label)
+                        new_buck_cost_label = (total_travel_time_till_u - (total_travel_time_till_u % time_bucket), \
+                                               cost_till_u - (cost_till_u % cost_bucket), boardings_till_u, trips_till_u)
+                        
+                        labels_to_be_deleted = deque([])
+                        if not(labels_bag[u][t_2]):
+                            non_dominated_label = 1
+                        else:
+                            for label, label_info in labels_bag[u][t_2].items():
+                                # temp_pareto_cost_label = label_info['opt_crt_val']
+                                temp_buck_pareto_cost_label = (label_info['opt_crt_val'][0] - (label_info['opt_crt_val'][0] % time_bucket), \
+                                                               label_info['opt_crt_val'][1] - (label_info['opt_crt_val'][1] % cost_bucket), \
+                                                                   label_info['opt_crt_val'][2], label_info['opt_crt_val'][3])
+                                if new_buck_cost_label == temp_buck_pareto_cost_label:
+                                    non_dominated_label = 0
+                                    break
+                                q_1 = 0 
+                                q_2 = 0
+                                for i, j in zip(temp_buck_pareto_cost_label, new_buck_cost_label):
+                                    if i<=j:
+                                        q_1 += 1
+                                    if i==j:
+                                        q_2 += 1
+                                if q_1 == criteria_num and q_2 != criteria_num:
+                                    non_dominated_label = 0
+                                    break
+                                q_3 = 0
+                                q_4 = 0
+                                for i, j in zip(new_buck_cost_label, temp_buck_pareto_cost_label):
+                                    if i<=j:
+                                        q_3 += 1
+                                    if i==j:
+                                        q_4 += 1
+                                if q_3 == criteria_num and q_4 != criteria_num:
+                                    labels_to_be_deleted.append(label)
+                                non_dominated_label = 1
+                      
+                        if non_dominated_label:
+                            if labels_to_be_deleted:
+                                for labelid in labels_to_be_deleted:                                      
+                                    del(labels_bag[u][t_2][labelid])
+                                    labels_to_extend[u][t_2].discard(labelid)
+                            insert_in_se_list = True     
+                            new_label_id = str(next(c))
+                            labels_to_extend[u][t_2].add(new_label_id)
+                            labels_bag[u][t_2].update({new_label_id: {'opt_crt_val' : new_cost_label, 'pred_node' : v, \
                                                                     'pred_time_int': v_arr_time, 'pred_label_id' : label_id, \
                                                                         'prev_edge_type': e_type, \
                                                                             'prev_dstr_node_graph_type': v_n_gr_type, \
